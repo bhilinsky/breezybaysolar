@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breezy Bay Holdings | Solar Hybrid & Power Station Installations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sol1: #FFD700;    /* Solar gold */
+    --sol2: #FF8C00;    /* Deep amber */
+    --sol3: #FF4500;    /* Solar flare red-orange */
+    --sky:  #00BFFF;    /* Sky blue */
+    --sky2: #7DF9FF;    /* Electric sky */
+    --leaf: #39FF14;    /* Free-energy neon green */
+    --leaf2:#00C853;    /* Eco green */
+    --deep: #080A02;    /* Almost black with warmth */
+    --panel:#0E1205;    /* Dark solar panel green-black */
+    --slate:#1A2408;    /* Forest dark */
+    --text: #F5F0DC;    /* Warm cream */
+    --muted:#A8B88A;    /* Sage */
+    --white:#FFFFFF;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ══ ANIMATED SKY BACKGROUND ══ */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255,215,0,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(0,191,255,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 10% 80%, rgba(57,255,20,0.04) 0%, transparent 50%);
+  }
+
+  /* ══ NAV ══ */
+  nav {
+    position:fixed; top:0; width:100%; z-index:200;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 4rem;
+    background:rgba(8,10,2,0.9);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(255,215,0,0.15);
+  }
+  .nav-logo { display:flex; align-items:center; gap:0.75rem; }
+  .nav-logo svg { width:40px; height:40px; }
+  .nav-logo-text {
+    font-family:'Bebas Neue',sans-serif; font-size:1.55rem;
+    letter-spacing:0.05em; color:var(--white);
+  }
+  .nav-logo-sub {
+    font-size:0.55rem; letter-spacing:0.22em; color:var(--sol1);
+    text-transform:uppercase; display:block; margin-top:-3px;
+  }
+  .nav-links { display:flex; gap:2.2rem; list-style:none; }
+  .nav-links a {
+    color:var(--muted); text-decoration:none; font-size:0.8rem;
+    font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+    transition:color 0.2s;
+  }
+  .nav-links a:hover { color:var(--sol1); }
+  .nav-cta {
+    background:linear-gradient(135deg, var(--sol1), var(--sol3));
+    color:#000; font-weight:800; font-size:0.78rem;
+    padding:0.65rem 1.6rem; border-radius:2px; text-decoration:none;
+    letter-spacing:0.1em; text-transform:uppercase;
+    transition:transform 0.2s, box-shadow 0.2s;
+    box-shadow:0 0 20px rgba(255,215,0,0.25);
+  }
+  .nav-cta:hover { transform:translateY(-1px); box-shadow:0 4px 30px rgba(255,215,0,0.45); }
+
+  /* ══ HERO ══ */
+  .hero {
+    min-height:100vh; display:flex; align-items:center;
+    position:relative; overflow:hidden;
+    padding:8rem 4rem 5rem;
+  }
+  .hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 70% 60% at 75% 35%, rgba(255,215,0,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 15% 75%, rgba(57,255,20,0.06) 0%, transparent 60%),
+      linear-gradient(175deg, var(--deep) 0%, var(--panel) 100%);
+  }
+  .grid-lines {
+    position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,215,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,215,0,0.04) 1px, transparent 1px);
+    background-size:55px 55px;
+    animation:gridShift 25s linear infinite;
+  }
+  @keyframes gridShift { 0%{transform:translateY(0)} 100%{transform:translateY(55px)} }
+
+  /* Solar corona */
+  .corona {
+    position:absolute; right:4%; top:8%;
+    width:480px; height:480px;
+    border-radius:50%;
+    background:radial-gradient(circle at center,
+      rgba(255,215,0,0.35) 0%,
+      rgba(255,140,0,0.20) 25%,
+      rgba(255,69,0,0.08) 50%,
+      transparent 70%);
+    animation:coronaPulse 7s ease-in-out infinite;
+    filter:blur(2px);
+  }
+  .corona-ring {
+    position:absolute; right:4%; top:8%;
+    width:480px; height:480px; border-radius:50%;
+    border:1.5px solid rgba(255,215,0,0.18);
+    animation:ringExpand 7s ease-in-out infinite;
+  }
+  .corona-ring2 {
+    position:absolute; right:4%; top:8%;
+    width:480px; height:480px; border-radius:50%;
+    border:1px solid rgba(255,140,0,0.08);
+    animation:ringExpand 7s 2s ease-in-out infinite;
+  }
+  @keyframes coronaPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:0.7} }
+  @keyframes ringExpand  { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.5);opacity:0} }
+
+  .hero-content { position:relative; z-index:2; max-width:700px; }
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:0.55rem;
+    background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.3);
+    padding:0.4rem 1.1rem; border-radius:2px; margin-bottom:2rem;
+    font-size:0.7rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--sol1); animation:fadeUp 0.8s ease forwards;
+  }
+  .badge-dot { width:7px; height:7px; border-radius:50%; background:var(--leaf); animation:blink 1.4s infinite; box-shadow:0 0 8px var(--leaf); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+  h1 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(3.8rem, 8.5vw, 7.5rem);
+    line-height:0.9; letter-spacing:0.02em; color:var(--white);
+    animation:fadeUp 0.9s 0.1s ease both;
+    text-shadow: 0 0 60px rgba(255,215,0,0.15);
+  }
+  h1 .acc-gold  { color:var(--sol1); display:block; }
+  h1 .acc-green { color:var(--leaf); }
+  h1 .acc-sky   { color:var(--sky2); }
+
+  .hero-sub {
+    margin-top:1.6rem;
+    font-family:'Inter',sans-serif; font-size:1.05rem; line-height:1.75;
+    color:var(--muted); max-width:520px;
+    animation:fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display:flex; gap:3rem; margin-top:3rem;
+    animation:fadeUp 1.1s 0.3s ease both;
+  }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.8rem; color:var(--sol1); line-height:1; text-shadow:0 0 20px rgba(255,215,0,0.4); }
+  .stat-label { font-size:0.68rem; color:var(--muted); letter-spacing:0.14em; text-transform:uppercase; margin-top:0.2rem; }
+
+  .hero-actions {
+    display:flex; gap:1rem; margin-top:2.8rem;
+    animation:fadeUp 1.2s 0.4s ease both;
+    flex-wrap:wrap;
+  }
+  .btn-primary {
+    background:linear-gradient(135deg, var(--sol1), var(--sol3));
+    color:#000; font-weight:800; padding:1rem 2.4rem;
+    border:none; border-radius:2px; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:0.88rem;
+    letter-spacing:0.1em; text-transform:uppercase;
+    transition:transform 0.2s, box-shadow 0.2s;
+    text-decoration:none; display:inline-block;
+    box-shadow:0 0 24px rgba(255,215,0,0.3);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 40px rgba(255,140,0,0.5); }
+  .btn-green {
+    background:linear-gradient(135deg, var(--leaf), var(--leaf2));
+    color:#000; font-weight:800; padding:1rem 2.4rem;
+    border:none; border-radius:2px; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:0.88rem;
+    letter-spacing:0.1em; text-transform:uppercase;
+    transition:transform 0.2s, box-shadow 0.2s;
+    text-decoration:none; display:inline-block;
+    box-shadow:0 0 20px rgba(57,255,20,0.2);
+  }
+  .btn-green:hover { transform:translateY(-2px); box-shadow:0 8px 40px rgba(57,255,20,0.4); }
+  .btn-ghost {
+    background:transparent; color:var(--text); font-weight:600; padding:1rem 2.2rem;
+    border:1px solid rgba(255,255,255,0.15); border-radius:2px; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:0.88rem;
+    letter-spacing:0.1em; text-transform:uppercase;
+    transition:border-color 0.2s, color 0.2s;
+    text-decoration:none; display:inline-block;
+  }
+  .btn-ghost:hover { border-color:var(--sky2); color:var(--sky2); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ══ FREE ENERGY TICKER ══ */
+  .ticker {
+    background:linear-gradient(90deg, var(--leaf2), var(--leaf), var(--sky), var(--sol1), var(--sol2), var(--leaf2));
+    background-size:300% 100%;
+    animation:tickerGrad 6s linear infinite;
+    padding:0.7rem 0; overflow:hidden;
+    position:relative; z-index:10;
+  }
+  @keyframes tickerGrad { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+  .ticker-inner {
+    display:flex; gap:4rem; white-space:nowrap;
+    animation:tickerScroll 30s linear infinite;
+  }
+  @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-item {
+    font-family:'Bebas Neue',sans-serif; font-size:0.95rem;
+    letter-spacing:0.15em; color:#000; display:flex; align-items:center; gap:0.8rem;
+  }
+  .ticker-dot { width:6px; height:6px; border-radius:50%; background:#000; opacity:0.5; }
+
+  /* ══ FREE ENERGY BANNER ══ */
+  .free-energy-banner {
+    background:linear-gradient(135deg, var(--slate) 0%, #0D1A06 100%);
+    border-top:2px solid var(--leaf);
+    border-bottom:2px solid var(--sol1);
+    padding:5rem 4rem;
+    position:relative; overflow:hidden;
+  }
+  .feb-glow {
+    position:absolute; top:-50%; left:50%; transform:translateX(-50%);
+    width:800px; height:400px; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(57,255,20,0.08) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .feb-content { position:relative; z-index:1; }
+  .feb-grid { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+  .feb-label {
+    font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase;
+    color:var(--leaf); margin-bottom:0.8rem;
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  .feb-label::before { content:''; display:block; width:30px; height:2px; background:var(--leaf); }
+  .feb-title {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(2.8rem,5vw,4.5rem); line-height:0.95;
+    color:var(--white); margin-bottom:1.2rem;
+  }
+  .feb-title span { color:var(--leaf); }
+  .feb-desc { font-family:'Inter',sans-serif; font-size:0.95rem; color:var(--muted); line-height:1.75; margin-bottom:1.5rem; }
+  .feb-cards { display:flex; flex-direction:column; gap:1rem; }
+  .feb-card {
+    background:rgba(57,255,20,0.05);
+    border:1px solid rgba(57,255,20,0.15);
+    border-radius:3px; padding:1.2rem 1.5rem;
+    display:flex; align-items:flex-start; gap:1rem;
+    transition:border-color 0.2s;
+  }
+  .feb-card:hover { border-color:rgba(57,255,20,0.4); }
+  .feb-card-icon {
+    width:42px; height:42px; flex-shrink:0;
+    border-radius:3px; background:rgba(57,255,20,0.1);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:1rem; color:var(--leaf);
+  }
+  .feb-card h4 { font-size:0.92rem; font-weight:700; color:var(--white); margin-bottom:0.35rem; }
+  .feb-card p { font-family:'Inter',sans-serif; font-size:0.8rem; color:var(--muted); line-height:1.6; }
+
+  /* savings meter */
+  .savings-meter { background:var(--panel); border:1px solid rgba(255,215,0,0.15); border-radius:4px; padding:2rem; }
+  .meter-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--sol1); margin-bottom:1.5rem; }
+  .meter-row { margin-bottom:1.2rem; }
+  .meter-label { display:flex; justify-content:space-between; margin-bottom:0.4rem; }
+  .meter-name { font-size:0.78rem; color:var(--muted); font-family:'Inter',sans-serif; }
+  .meter-pct  { font-size:0.78rem; color:var(--leaf); font-family:'Bebas Neue',sans-serif; letter-spacing:0.08em; }
+  .meter-bar  { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+  .meter-fill { height:100%; border-radius:3px; background:linear-gradient(90deg, var(--leaf2), var(--leaf)); box-shadow:0 0 10px rgba(57,255,20,0.4); animation:fillBar 2s ease forwards; transform-origin:left; }
+  @keyframes fillBar { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+  .meter-note { font-family:'Inter',sans-serif; font-size:0.75rem; color:var(--muted); margin-top:1.5rem; line-height:1.6; border-top:1px solid rgba(255,255,255,0.05); padding-top:1rem; }
+  .meter-big { font-family:'Bebas Neue',sans-serif; font-size:3.5rem; color:var(--leaf); text-align:center; margin-bottom:0.3rem; text-shadow:0 0 30px rgba(57,255,20,0.5); }
+  .meter-big-label { text-align:center; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:1.5rem; }
+
+  /* ══ 50A / 100A BYPASS SECTION ══ */
+  .bypass-section {
+    background:linear-gradient(160deg, #0A0F02 0%, #060A01 100%);
+    border-top:3px solid var(--sol2);
+    padding:6rem 4rem;
+    position:relative; overflow:hidden;
+  }
+  .bypass-section::before {
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 50%, rgba(255,140,0,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 50%, rgba(255,215,0,0.05) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .bypass-label {
+    font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase;
+    color:var(--sol2); margin-bottom:0.8rem;
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  .bypass-label::before { content:''; display:block; width:30px; height:2px; background:var(--sol2); }
+  .bypass-title {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(2.8rem,5vw,4.8rem); line-height:0.95;
+    color:var(--white); margin-bottom:0.5rem;
+  }
+  .bypass-title .hl { color:var(--sol1); }
+  .bypass-subtitle {
+    font-family:'Inter',sans-serif; font-size:1.05rem;
+    color:var(--sol2); font-weight:600; margin-bottom:1.2rem;
+    letter-spacing:0.02em;
+  }
+  .bypass-intro {
+    font-family:'Inter',sans-serif; font-size:0.95rem;
+    color:var(--muted); line-height:1.75; max-width:580px; margin-bottom:3rem;
+  }
+  .bypass-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; margin-top:2rem; }
+
+  /* panel diagram */
+  .panel-diagram {
+    background:var(--panel); border:1px solid rgba(255,140,0,0.2);
+    border-radius:4px; padding:2rem; position:relative;
+  }
+  .panel-diagram-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1rem;
+    letter-spacing:0.15em; color:var(--sol2); margin-bottom:1.5rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .panel-box {
+    background:rgba(255,140,0,0.04); border:1px solid rgba(255,140,0,0.2);
+    border-radius:3px; padding:1rem 1.2rem; margin-bottom:0.8rem;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel-box.bypass {
+    background:rgba(57,255,20,0.06); border-color:rgba(57,255,20,0.25);
+  }
+  .panel-box.bypassed {
+    opacity:0.35; text-decoration:line-through;
+  }
+  .panel-box-label { font-family:'Inter',sans-serif; font-size:0.82rem; color:var(--text); }
+  .panel-box-val { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; }
+  .panel-box-val.red { color:#FF4444; }
+  .panel-box-val.green { color:var(--leaf); }
+  .panel-box-val.gold  { color:var(--sol1); }
+  .panel-arrow {
+    text-align:center; font-size:1.2rem; color:var(--leaf);
+    margin:0.3rem 0; animation:arrowBounce 1.5s ease-in-out infinite;
+  }
+  @keyframes arrowBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+  .bypass-badge {
+    display:inline-flex; align-items:center; gap:0.5rem;
+    background:rgba(57,255,20,0.12); border:1px solid rgba(57,255,20,0.3);
+    color:var(--leaf); font-size:0.68rem; letter-spacing:0.14em;
+    text-transform:uppercase; padding:0.3rem 0.9rem; border-radius:2px;
+    margin-top:1rem; font-weight:700;
+  }
+  .panel-note { font-family:'Inter',sans-serif; font-size:0.75rem; color:var(--muted); margin-top:1rem; line-height:1.6; }
+
+  /* bypass cards */
+  .bypass-cards { display:flex; flex-direction:column; gap:1.2rem; }
+  .bypass-card {
+    background:var(--panel); border:1px solid rgba(255,140,0,0.12);
+    border-radius:3px; padding:1.5rem;
+    transition:border-color 0.25s, transform 0.25s;
+    position:relative; overflow:hidden;
+  }
+  .bypass-card::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(180deg, var(--sol1), var(--sol2));
+  }
+  .bypass-card:hover { border-color:rgba(255,215,0,0.3); transform:translateX(4px); }
+  .bc-head { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.7rem; }
+  .bc-badge {
+    background:linear-gradient(135deg, var(--sol1), var(--sol2));
+    color:#000; font-family:'Bebas Neue',sans-serif;
+    font-size:1rem; letter-spacing:0.1em;
+    padding:0.2rem 0.8rem; border-radius:2px; white-space:nowrap;
+  }
+  .bc-head h4 { font-size:0.92rem; font-weight:700; color:var(--white); }
+  .bypass-card p { font-family:'Inter',sans-serif; font-size:0.82rem; color:var(--muted); line-height:1.65; }
+  .bc-specs { display:flex; gap:1.5rem; margin-top:1rem; }
+  .bc-spec-val { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--sol1); }
+  .bc-spec-label { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .bypass-warning {
+    background:rgba(255,215,0,0.05); border:1px solid rgba(255,215,0,0.2);
+    border-radius:3px; padding:1rem 1.2rem; margin-top:2rem;
+    display:flex; gap:0.8rem; align-items:flex-start;
+  }
+  .bypass-warning-icon { font-size:1.2rem; flex-shrink:0; margin-top:1px; }
+  .bypass-warning p { font-family:'Inter',sans-serif; font-size:0.78rem; color:var(--muted); line-height:1.6; }
+  .bypass-warning strong { color:var(--sol1); }
+
+  /* ══ SECTION BASE ══ */
+  section { padding:7rem 4rem; position:relative; }
+  .section-label {
+    font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase;
+    color:var(--sol1); margin-bottom:0.8rem;
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  .section-label::before { content:''; display:block; width:30px; height:2px; background:var(--sol1); }
+  h2 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(2.5rem,5vw,4rem);
+    line-height:0.95; color:var(--white); margin-bottom:1.2rem;
+  }
+  .section-desc { font-family:'Inter',sans-serif; color:var(--muted); font-size:0.95rem; line-height:1.75; max-width:560px; }
+
+  /* ══ SERVICES ══ */
+  #services { background:var(--panel); }
+  .services-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1.5px;
+    margin-top:4rem;
+    background:rgba(255,215,0,0.07);
+    border:1px solid rgba(255,215,0,0.07);
+  }
+  .service-card {
+    background:var(--deep); padding:2.5rem;
+    transition:background 0.3s; position:relative; overflow:hidden;
+  }
+  .service-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--sol1), transparent);
+    transform:scaleX(0); transition:transform 0.4s;
+  }
+  .service-card:hover { background:var(--slate); }
+  .service-card:hover::before { transform:scaleX(1); }
+  .service-icon {
+    width:52px; height:52px; margin-bottom:1.5rem;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,215,0,0.07); border-radius:4px;
+  }
+  .service-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.8rem; color:var(--white); }
+  .service-card p { font-family:'Inter',sans-serif; font-size:0.85rem; color:var(--muted); line-height:1.7; }
+  .service-tag {
+    display:inline-block; margin-top:1.2rem;
+    background:rgba(57,255,20,0.07); border:1px solid rgba(57,255,20,0.2);
+    color:var(--leaf); font-size:0.68rem; letter-spacing:0.12em;
+    text-transform:uppercase; padding:0.25rem 0.7rem; border-radius:1px;
+  }
+
+  /* ══ POWER STATIONS ══ */
+  #power-stations { background:var(--deep); }
+  .ps-intro { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center; margin-bottom:5rem; }
+  .ps-visual {
+    position:relative; height:380px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ps-orbit {
+    position:absolute; border:1px dashed rgba(255,215,0,0.1);
+    border-radius:50%; animation:spin 22s linear infinite;
+  }
+  .ps-orbit:nth-child(1) { width:340px; height:340px; }
+  .ps-orbit:nth-child(2) { width:430px; height:430px; animation-direction:reverse; animation-duration:34s; }
+  @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  .ps-box {
+    width:270px; height:230px;
+    background:linear-gradient(145deg, var(--slate), var(--panel));
+    border:1px solid rgba(255,215,0,0.25); border-radius:8px;
+    position:relative; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 60px rgba(255,215,0,0.08), inset 0 0 40px rgba(255,215,0,0.03);
+  }
+  .ps-box-inner { text-align:center; }
+  .ps-wattage { font-family:'Bebas Neue',sans-serif; font-size:3.8rem; color:var(--sol1); line-height:1; text-shadow:0 0 30px rgba(255,215,0,0.5); }
+  .ps-unit { font-size:0.65rem; letter-spacing:0.22em; color:var(--muted); }
+  .ps-led { position:absolute; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:7px; }
+  .led { width:8px; height:8px; border-radius:50%; }
+  .led.green { background:#39FF14; box-shadow:0 0 8px #39FF14; animation:blink 2s infinite; }
+  .led.gold  { background:var(--sol1); box-shadow:0 0 8px var(--sol1); animation:blink 2.5s 0.4s infinite; }
+  .led.sky   { background:var(--sky2); box-shadow:0 0 8px var(--sky2); animation:blink 1.9s 0.8s infinite; }
+  .ps-corner { position:absolute; width:16px; height:16px; border-color:var(--sol1); border-style:solid; opacity:0.5; }
+  .ps-corner.tl { top:-1px;left:-1px; border-width:2px 0 0 2px; }
+  .ps-corner.tr { top:-1px;right:-1px; border-width:2px 2px 0 0; }
+  .ps-corner.bl { bottom:-1px;left:-1px; border-width:0 0 2px 2px; }
+  .ps-corner.br { bottom:-1px;right:-1px; border-width:0 2px 2px 0; }
+
+  .ps-tiers { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:3rem; }
+  .tier-card {
+    background:var(--panel); border:1px solid rgba(255,255,255,0.06);
+    border-radius:4px; padding:1.8rem 1.5rem; text-align:center;
+    transition:border-color 0.3s, transform 0.3s; cursor:pointer;
+  }
+  .tier-card:hover { border-color:var(--sol1); transform:translateY(-4px); }
+  .tier-card.featured { border-color:var(--sol2); }
+  .tier-label { font-size:0.66rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem; }
+  .tier-name { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; color:var(--white); margin-bottom:0.3rem; }
+  .tier-range { font-family:'Inter',sans-serif; font-size:0.82rem; color:var(--sol1); margin-bottom:1rem; }
+  .tier-use { font-family:'Inter',sans-serif; font-size:0.8rem; color:var(--muted); line-height:1.55; }
+  .tier-badge {
+    display:inline-block; margin-top:1rem;
+    background:rgba(255,215,0,0.12); color:var(--sol1);
+    font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase;
+    padding:0.2rem 0.7rem; border-radius:1px;
+  }
+
+  /* ══ INSTALLATIONS ══ */
+  #installations { background:var(--panel); }
+  .install-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:4rem; }
+  .install-card {
+    background:var(--deep); border:1px solid rgba(255,255,255,0.05);
+    border-radius:4px; overflow:hidden; transition:border-color 0.3s;
+  }
+  .install-card:hover { border-color:rgba(255,215,0,0.25); }
+  .install-card.large { grid-column:span 2; display:grid; grid-template-columns:1.2fr 1fr; }
+  .install-visual {
+    height:220px; position:relative; overflow:hidden;
+    background:linear-gradient(135deg, var(--slate) 0%, var(--panel) 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .install-card.large .install-visual { height:auto; min-height:280px; }
+  .panel-cell { width:22px; height:16px; background:rgba(255,215,0,0.18); border:1px solid rgba(255,215,0,0.35); border-radius:1px; }
+  .install-body { padding:1.8rem; }
+  .install-tag { font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--sol2); margin-bottom:0.5rem; }
+  .install-body h3 { font-size:1.1rem; font-weight:700; color:var(--white); margin-bottom:0.6rem; }
+  .install-body p { font-family:'Inter',sans-serif; font-size:0.85rem; color:var(--muted); line-height:1.65; }
+  .install-specs { display:flex; gap:1.5rem; margin-top:1.2rem; flex-wrap:wrap; }
+  .spec-val { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--sol1); }
+  .spec-label { color:var(--muted); font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* ══ PROCESS ══ */
+  #process { background:var(--deep); }
+  .process-steps { display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:4rem; position:relative; }
+  .process-steps::before {
+    content:''; position:absolute; top:35px; left:10%; right:10%;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--sol1), var(--leaf), transparent);
+  }
+  .step { text-align:center; padding:0 1rem; position:relative; }
+  .step-num {
+    width:70px; height:70px; border-radius:50%;
+    background:var(--panel); border:1px solid rgba(255,215,0,0.25);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--sol1);
+    margin:0 auto 1.5rem; position:relative; z-index:1;
+    transition:background 0.3s, box-shadow 0.3s;
+  }
+  .step:hover .step-num { background:rgba(255,215,0,0.1); box-shadow:0 0 20px rgba(255,215,0,0.2); }
+  .step h4 { font-size:0.9rem; font-weight:700; color:var(--white); margin-bottom:0.5rem; }
+  .step p { font-family:'Inter',sans-serif; font-size:0.78rem; color:var(--muted); line-height:1.6; }
+
+  /* ══ REVIEWS ══ */
+  #reviews { background:var(--panel); }
+  .reviews-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:4rem; }
+  .review-card {
+    background:var(--deep); border:1px solid rgba(255,255,255,0.05);
+    border-radius:4px; padding:2rem;
+    transition:border-color 0.3s, transform 0.3s; position:relative;
+  }
+  .review-card:hover { border-color:rgba(255,215,0,0.2); transform:translateY(-3px); }
+  .review-quote {
+    font-family:'Bebas Neue',sans-serif; font-size:4rem; color:var(--sol2); opacity:0.2;
+    position:absolute; top:0.5rem; left:1.5rem; line-height:1;
+  }
+  .stars { color:var(--sol1); font-size:0.9rem; margin-bottom:1rem; letter-spacing:0.05em; text-shadow:0 0 10px rgba(255,215,0,0.5); }
+  .review-text { font-family:'Inter',sans-serif; font-size:0.88rem; color:var(--muted); line-height:1.72; margin-bottom:1.5rem; }
+  .reviewer { display:flex; align-items:center; gap:0.8rem; }
+  .reviewer-avatar {
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg, var(--slate), var(--panel));
+    border:1px solid rgba(255,215,0,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:1rem; color:var(--sol1);
+  }
+  .reviewer-name { font-weight:700; font-size:0.85rem; color:var(--white); }
+  .reviewer-loc { font-size:0.7rem; color:var(--muted); margin-top:0.1rem; }
+  .review-tag {
+    display:inline-block; margin-top:1.2rem;
+    background:rgba(255,215,0,0.07); border:1px solid rgba(255,215,0,0.18);
+    color:var(--sol1); font-size:0.65rem; letter-spacing:0.12em;
+    text-transform:uppercase; padding:0.2rem 0.65rem; border-radius:1px;
+  }
+
+  /* ══ BRANDS ══ */
+  #brands { background:var(--deep); padding:5rem 4rem; }
+  .brand-intro { text-align:center; margin-bottom:3rem; }
+  .brands-scroll { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+  .brand-pill {
+    background:var(--panel); border:1px solid rgba(255,255,255,0.07);
+    border-radius:2px; padding:0.75rem 1.8rem;
+    font-size:0.78rem; font-weight:700; letter-spacing:0.1em;
+    color:var(--muted); text-transform:uppercase;
+    transition:color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .brand-pill:hover { color:var(--sol1); border-color:rgba(255,215,0,0.3); box-shadow:0 0 20px rgba(255,215,0,0.1); }
+
+  /* ══ CONTACT ══ */
+  #contact {
+    background:linear-gradient(160deg, var(--panel), #080A02);
+    text-align:center; padding:8rem 4rem;
+    position:relative; overflow:hidden;
+  }
+  .contact-glow {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:700px; height:400px; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(255,215,0,0.05) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .contact-form {
+    max-width:560px; margin:3rem auto 0;
+    display:grid; gap:1rem; position:relative;
+  }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-input {
+    background:var(--deep); border:1px solid rgba(255,255,255,0.09);
+    color:var(--text); padding:0.9rem 1.2rem; border-radius:2px;
+    font-family:'Inter',sans-serif; font-size:0.88rem;
+    outline:none; width:100%; transition:border-color 0.2s;
+  }
+  .form-input:focus { border-color:var(--sol1); box-shadow:0 0 0 2px rgba(255,215,0,0.08); }
+  .form-input::placeholder { color:var(--muted); }
+  select.form-input option { background:var(--panel); }
+  textarea.form-input { resize:none; height:100px; }
+  .form-submit {
+    background:linear-gradient(135deg, var(--sol1), var(--sol3));
+    color:#000; font-weight:800; padding:1.1rem 2.5rem;
+    border:none; border-radius:2px; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:0.92rem;
+    letter-spacing:0.1em; text-transform:uppercase;
+    transition:opacity 0.2s, transform 0.2s;
+    width:100%; box-shadow:0 0 30px rgba(255,215,0,0.2);
+  }
+  .form-submit:hover { opacity:0.88; transform:translateY(-1px); box-shadow:0 6px 40px rgba(255,140,0,0.4); }
+
+  /* ══ FOOTER ══ */
+  footer {
+    background:var(--deep);
+    border-top:1px solid rgba(255,215,0,0.08);
+    padding:3rem 4rem;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:1.5rem;
+  }
+  .footer-copy { font-family:'Inter',sans-serif; font-size:0.75rem; color:var(--muted); }
+  .footer-links { display:flex; gap:2rem; }
+  .footer-links a { font-size:0.75rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .footer-links a:hover { color:var(--sol1); }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:var(--deep); }
+  ::-webkit-scrollbar-thumb { background:rgba(255,215,0,0.3); }
+
+  /* ══ HYBRID CHARGING SECTION ══ */
+  .hybrid-charge-section {
+    background:linear-gradient(160deg, #070C01 0%, #0B1103 100%);
+    border-top:2px solid var(--sky);
+    border-bottom:2px solid var(--leaf);
+    padding:6rem 4rem;
+    position:relative; overflow:hidden;
+  }
+  .hybrid-charge-section::before {
+    content:'';
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 50% at 90% 30%, rgba(0,191,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 70%, rgba(57,255,20,0.05) 0%, transparent 60%);
+  }
+  .hc-grid { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; position:relative; z-index:1; }
+  .hc-label { font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--sky2); margin-bottom:0.8rem; display:flex; align-items:center; gap:0.8rem; }
+  .hc-label::before { content:''; display:block; width:30px; height:2px; background:var(--sky2); }
+  .hc-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.6rem,4.5vw,4rem); line-height:0.95; color:var(--white); margin-bottom:1rem; }
+  .hc-title .hl-sky { color:var(--sky2); }
+  .hc-title .hl-green { color:var(--leaf); }
+  .hc-desc { font-family:'Inter',sans-serif; font-size:0.93rem; color:var(--muted); line-height:1.78; margin-bottom:1.5rem; }
+  .charge-sources { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; }
+  .cs-card {
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+    border-radius:3px; padding:1.1rem 1.2rem;
+    transition:border-color 0.25s, background 0.25s;
+    position:relative; overflow:hidden;
+  }
+  .cs-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .cs-card.solar::before   { background:var(--sol1); }
+  .cs-card.wind::before    { background:var(--sky2); }
+  .cs-card.hydro::before   { background:#00BFFF; }
+  .cs-card.grid::before    { background:var(--muted); }
+  .cs-card.gen::before     { background:#FF6B35; }
+  .cs-card.shore::before   { background:var(--leaf); }
+  .cs-card:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,215,0,0.2); }
+  .cs-icon { font-size:1.4rem; margin-bottom:0.4rem; }
+  .cs-name { font-size:0.82rem; font-weight:700; color:var(--white); margin-bottom:0.25rem; }
+  .cs-desc { font-family:'Inter',sans-serif; font-size:0.74rem; color:var(--muted); line-height:1.5; }
+  .cs-tag { display:inline-block; margin-top:0.5rem; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; padding:0.15rem 0.5rem; border-radius:1px; }
+  .cs-tag.free   { background:rgba(57,255,20,0.1); color:var(--leaf); border:1px solid rgba(57,255,20,0.2); }
+  .cs-tag.backup { background:rgba(255,215,0,0.08); color:var(--sol1); border:1px solid rgba(255,215,0,0.2); }
+
+  /* no free energy callout */
+  .no-free-box {
+    background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.2);
+    border-radius:4px; padding:2rem; margin-top:2rem;
+  }
+  .no-free-title { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:var(--sol1); margin-bottom:0.7rem; }
+  .no-free-desc { font-family:'Inter',sans-serif; font-size:0.85rem; color:var(--muted); line-height:1.7; }
+  .no-free-options { display:flex; flex-direction:column; gap:0.6rem; margin-top:1rem; }
+  .nfo-item { display:flex; align-items:center; gap:0.7rem; font-family:'Inter',sans-serif; font-size:0.82rem; color:var(--text); }
+  .nfo-dot { width:7px; height:7px; border-radius:50%; background:var(--sol2); flex-shrink:0; }
+
+  /* charge flow diagram */
+  .charge-flow { background:var(--panel); border:1px solid rgba(0,191,255,0.15); border-radius:4px; padding:1.8rem; }
+  .cf-title { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.15em; color:var(--sky2); margin-bottom:1.5rem; }
+  .cf-node {
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(0,191,255,0.05); border:1px solid rgba(0,191,255,0.15);
+    border-radius:3px; padding:0.8rem 1rem; margin-bottom:0.6rem;
+  }
+  .cf-node.active { background:rgba(57,255,20,0.06); border-color:rgba(57,255,20,0.25); }
+  .cf-node.battery { background:rgba(255,215,0,0.05); border-color:rgba(255,215,0,0.2); }
+  .cf-node-name { font-family:'Inter',sans-serif; font-size:0.8rem; color:var(--text); }
+  .cf-node-status { font-family:'Bebas Neue',sans-serif; font-size:0.9rem; letter-spacing:0.08em; }
+  .cf-node-status.charging  { color:var(--leaf); }
+  .cf-node-status.stored    { color:var(--sol1); }
+  .cf-node-status.backup    { color:var(--sky2); }
+  .cf-node-status.fallback  { color:var(--muted); }
+  .cf-arrow { text-align:center; font-size:1rem; color:var(--leaf); margin:0.2rem 0; animation:arrowBounce 1.8s ease-in-out infinite; }
+  @keyframes arrowBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
+
+  /* ══ MARINE SECTION ══ */
+  .marine-section {
+    background:linear-gradient(160deg, #010810 0%, #010C15 100%);
+    border-top:3px solid #00BFFF;
+    padding:6rem 4rem;
+    position:relative; overflow:hidden;
+  }
+  .marine-section::before {
+    content:'';
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 50%, rgba(0,191,255,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 85% 40%, rgba(0,100,180,0.06) 0%, transparent 60%);
+  }
+  /* animated water shimmer */
+  .marine-section::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, transparent, #00BFFF, var(--sky2), #00BFFF, transparent);
+    animation:shimmer 4s linear infinite;
+    background-size:200% 100%;
+  }
+  @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+  .marine-label { font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:#00BFFF; margin-bottom:0.8rem; display:flex; align-items:center; gap:0.8rem; }
+  .marine-label::before { content:''; display:block; width:30px; height:2px; background:#00BFFF; }
+  .marine-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.8rem,5vw,4.8rem); line-height:0.95; color:var(--white); margin-bottom:0.5rem; }
+  .marine-title .hl-wave { color:#00BFFF; }
+  .marine-title .hl-gold  { color:var(--sol1); }
+  .marine-subtitle { font-family:'Inter',sans-serif; font-size:1rem; color:#7DF9FF; font-weight:600; margin-bottom:1rem; }
+  .marine-intro { font-family:'Inter',sans-serif; font-size:0.94rem; color:var(--muted); line-height:1.78; max-width:600px; margin-bottom:3rem; position:relative; z-index:1; }
+
+  .marine-main-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:4rem; align-items:start; position:relative; z-index:1; margin-bottom:4rem; }
+
+  .marine-cards { display:flex; flex-direction:column; gap:1.2rem; }
+  .marine-card {
+    background:rgba(0,20,40,0.7); border:1px solid rgba(0,191,255,0.12);
+    border-radius:4px; padding:1.5rem;
+    transition:border-color 0.25s, transform 0.25s;
+    position:relative; overflow:hidden;
+  }
+  .marine-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg, #00BFFF, var(--sky2)); }
+  .marine-card:hover { border-color:rgba(0,191,255,0.35); transform:translateX(4px); }
+  .mc-head { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.7rem; }
+  .mc-icon { font-size:1.5rem; }
+  .mc-head h4 { font-size:0.95rem; font-weight:700; color:var(--white); }
+  .marine-card p { font-family:'Inter',sans-serif; font-size:0.82rem; color:var(--muted); line-height:1.65; }
+  .mc-savings {
+    display:inline-flex; align-items:center; gap:0.5rem;
+    background:rgba(57,255,20,0.08); border:1px solid rgba(57,255,20,0.2);
+    color:var(--leaf); font-size:0.68rem; letter-spacing:0.12em;
+    text-transform:uppercase; padding:0.25rem 0.75rem; border-radius:2px; margin-top:0.8rem;
+  }
+
+  /* boat diagram */
+  .boat-diagram { background:rgba(0,15,30,0.8); border:1px solid rgba(0,191,255,0.2); border-radius:4px; padding:1.8rem; }
+  .bd-title { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.15em; color:#00BFFF; margin-bottom:1.5rem; }
+  .bd-row { display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; border-radius:3px; margin-bottom:0.6rem; }
+  .bd-row.old  { background:rgba(255,68,0,0.08); border:1px solid rgba(255,68,0,0.18); }
+  .bd-row.new  { background:rgba(57,255,20,0.06); border:1px solid rgba(57,255,20,0.2); }
+  .bd-row.both { background:rgba(0,191,255,0.05); border:1px solid rgba(0,191,255,0.15); }
+  .bd-label { font-family:'Inter',sans-serif; font-size:0.8rem; color:var(--text); }
+  .bd-val { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.06em; }
+  .bd-val.red   { color:#FF4444; }
+  .bd-val.green { color:var(--leaf); }
+  .bd-val.sky   { color:#00BFFF; }
+  .bd-divider { text-align:center; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin:0.8rem 0; font-family:'Inter',sans-serif; }
+
+  /* boat upgrade tiers */
+  .boat-tiers { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-top:3rem; position:relative; z-index:1; }
+  .boat-tier {
+    background:rgba(0,15,30,0.7); border:1px solid rgba(0,191,255,0.12);
+    border-radius:4px; padding:1.8rem 1.5rem; text-align:center;
+    transition:border-color 0.3s, transform 0.3s;
+  }
+  .boat-tier:hover { border-color:#00BFFF; transform:translateY(-4px); }
+  .boat-tier.featured { border-color:rgba(0,191,255,0.4); box-shadow:0 0 30px rgba(0,191,255,0.08); }
+  .bt-icon { font-size:2rem; margin-bottom:0.8rem; }
+  .bt-label { font-size:0.66rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.4rem; }
+  .bt-name { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; color:var(--white); margin-bottom:0.4rem; }
+  .bt-range { font-family:'Inter',sans-serif; font-size:0.8rem; color:#00BFFF; margin-bottom:0.8rem; }
+  .bt-use { font-family:'Inter',sans-serif; font-size:0.78rem; color:var(--muted); line-height:1.55; }
+  .bt-badge { display:inline-block; margin-top:0.9rem; background:rgba(0,191,255,0.1); color:#00BFFF; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.2rem 0.7rem; border-radius:1px; border:1px solid rgba(0,191,255,0.25); }
+
+  /* marine disclaimer */
+  .marine-disclaimer {
+    background:rgba(0,191,255,0.04); border:1px solid rgba(0,191,255,0.15);
+    border-radius:3px; padding:1.2rem 1.5rem;
+    display:flex; gap:1rem; align-items:flex-start;
+    margin-top:2rem; position:relative; z-index:1;
+  }
+  .marine-disclaimer p { font-family:'Inter',sans-serif; font-size:0.78rem; color:var(--muted); line-height:1.65; }
+  .marine-disclaimer strong { color:#00BFFF; }
+
+  @media (max-width:900px) {
+    nav { padding:1rem 1.5rem; }
+    .nav-links { display:none; }
+    section, .bypass-section, .free-energy-banner, .hybrid-charge-section, .marine-section { padding:5rem 1.5rem; }
+    .hero { padding:7rem 1.5rem 4rem; }
+    .services-grid,.reviews-grid,.ps-intro,.install-grid,.bypass-grid,.feb-grid,.hc-grid,.marine-main-grid { grid-template-columns:1fr; }
+    .install-card.large { grid-column:span 1; grid-template-columns:1fr; }
+    .ps-tiers,.charge-sources,.boat-tiers { grid-template-columns:repeat(2,1fr); }
+    .process-steps { grid-template-columns:1fr; }
+    .process-steps::before { display:none; }
+    .hero-stats { gap:1.5rem; flex-wrap:wrap; }
+    .form-row { grid-template-columns:1fr; }
+    footer { flex-direction:column; }
+    .corona,.corona-ring,.corona-ring2 { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="8" fill="#FFD700"/>
+      <line x1="20" y1="2" x2="20" y2="8" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="32" x2="20" y2="38" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="2" y1="20" x2="8" y2="20" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="32" y1="20" x2="38" y2="20" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="6.34" y1="6.34" x2="10.81" y2="10.81" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="29.19" y1="29.19" x2="33.66" y2="33.66" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="33.66" y1="6.34" x2="29.19" y2="10.81" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <line x1="10.81" y1="29.19" x2="6.34" y2="33.66" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+      <path d="M22 13L17 22H21L17 30" stroke="#39FF14" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <span class="nav-logo-text">Breezy Bay Holdings</span>
+      <span class="nav-logo-sub">Solar &amp; Power Division</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#bypass">50A/100A Bypass</a></li>
+    <li><a href="#hybrid-charging">Hybrid Charging</a></li>
+    <li><a href="#marine">Marine</a></li>
+    <li><a href="#power-stations">Power Stations</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get a Quote</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+  <div class="corona"></div>
+  <div class="corona-ring"></div>
+  <div class="corona-ring2"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="badge-dot"></span> Hyper-Scale Solar Installations · Est. Breezy Bay</div>
+    <h1>
+      Harvest the<br>
+      <span class="acc-gold">Sun. Store</span>
+      the <span class="acc-green">Power.</span><br>
+      Cut the <span class="acc-sky">Bill.</span>
+    </h1>
+    <p class="hero-sub">
+      Breezy Bay Holdings engineers solar hybrid systems charged by solar, wind, shore power, and more — for homes, sheds, and boats. Custom-branded power stations, whole-home battery backup, marine electrical upgrades, and 50A/100A panel bypass solutions that can virtually eliminate your utility and fuel dependency.
+    </p>
+    <div class="hero-stats">
+      <div><div class="stat-num">150+</div><div class="stat-label">Installations</div></div>
+      <div><div class="stat-num">90kWh</div><div class="stat-label">Max Capacity</div></div>
+      <div><div class="stat-num">$0</div><div class="stat-label">Utility Bills Possible</div></div>
+    </div>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Start My Project</a>
+      <a href="#marine" class="btn-green">Marine Upgrades</a>
+      <a href="#bypass" class="btn-ghost">50A / 100A Bypass</a>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLLING TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot"></span> Zero Utility Bills Possible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> 50A & 100A Panel Bypass Systems</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Battery-to-Battery Charging While You Drive</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Hybrid Charging — Solar · Wind · Shore · Grid</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Marine Battery & Generator Upgrades</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Custom Branded Power Stations</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Modernize Your 70s & 80s Boat Electronics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Whole-Home Battery Backup</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> 30% Federal Tax Credit Available</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Free Energy. Real Results.</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Zero Utility Bills Possible</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> 50A & 100A Panel Bypass Systems</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Hybrid Charging — Solar · Wind · Shore · Grid</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Battery-to-Battery Charging While You Drive</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Hybrid Charging — Solar · Wind · Shore · Grid</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Custom Branded Power Stations</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Modernize Your 70s & 80s Boat Electronics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Whole-Home Battery Backup</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> 30% Federal Tax Credit Available</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Free Energy. Real Results.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HYBRID CHARGING — MULTIPLE FREE ENERGY SOURCES
+═══════════════════════════════════════════ -->
+<div class="hybrid-charge-section" id="hybrid-charging">
+  <div class="hc-grid">
+    <div>
+      <div class="hc-label">Hybrid Energy Architecture</div>
+      <h2 class="hc-title">Charged by <span class="hl-green">Free Energy.</span><br>Backed by <span class="hl-sky">Everything Else.</span></h2>
+      <p class="hc-desc">Our hybrid systems don't rely on a single source. They're designed to accept power from any available input — solar, wind, hydro, shore power, grid, or generator — and intelligently route it through your battery bank so you always have power. Free sources get priority. Paid sources only kick in when needed.</p>
+      <p class="hc-desc">This multi-source architecture means your battery stays full longer, your generator runs less (or gets removed entirely), and your fuel bills plummet. Whether your property has a creek, a windy ridge, or just great sun exposure, we'll build a system that harvests every free watt available to you.</p>
+
+      <div class="no-free-box">
+        <div class="no-free-title">⚡ No Free Energy Available? We've Got You Covered.</div>
+        <p class="no-free-desc">Not every property has ideal solar exposure or wind. If free renewable sources aren't available or sufficient at your location, our hybrid inverters intelligently manage the following fallback options so you're never left without power:</p>
+        <div class="no-free-options">
+          <div class="nfo-item"><div class="nfo-dot"></div>Battery-to-battery charging — charge a spare bank from your vehicle alternator while commuting, arrive home with a full battery ready to go</div>
+          <div class="nfo-item"><div class="nfo-dot"></div>Grid-tied mode — use utility power at lowest possible draw, with battery acting as buffer</div>
+          <div class="nfo-item"><div class="nfo-dot"></div>Generator integration — auto-start when batteries dip below threshold, charge fast and shut off</div>
+          <div class="nfo-item"><div class="nfo-dot"></div>Shore power input (marine) — plug in at the dock and top off your bank overnight</div>
+          <div class="nfo-item"><div class="nfo-dot"></div>Dual-source charging — combine grid + any renewable simultaneously for fastest recharge</div>
+          <div class="nfo-item"><div class="nfo-dot"></div>Time-of-use optimization — draw from grid only during off-peak low-rate hours</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="charge-flow">
+        <div class="cf-title">⚡ Smart Charging Priority Stack</div>
+        <div class="cf-node active"><span class="cf-node-name">☀️ Solar Panels</span><span class="cf-node-status charging">1st — Free</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node active"><span class="cf-node-name">💨 Wind Turbine (if installed)</span><span class="cf-node-status charging">2nd — Free</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node active"><span class="cf-node-name">💧 Micro-Hydro (if available)</span><span class="cf-node-status charging">3rd — Free</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node battery"><span class="cf-node-name">🔋 LiFePO4 Battery Bank</span><span class="cf-node-status stored">Stored &amp; Ready</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node active"><span class="cf-node-name">🚗 Vehicle Alternator (B2B charging)</span><span class="cf-node-status charging">On the Road — Free</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node"><span class="cf-node-name">⚡ Shore Power / Grid (low-rate)</span><span class="cf-node-status backup">Fallback Only</span></div>
+        <div class="cf-arrow">↓</div>
+        <div class="cf-node"><span class="cf-node-name">🔧 Generator (auto-start)</span><span class="cf-node-status fallback">Last Resort</span></div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <div class="charge-sources">
+          <div class="cs-card solar">
+            <div class="cs-icon">☀️</div>
+            <div class="cs-name">Solar PV</div>
+            <div class="cs-desc">Rooftop, ground-mount, or flexible marine panels. Our most common primary source.</div>
+            <span class="cs-tag free">Free Energy</span>
+          </div>
+          <div class="cs-card wind">
+            <div class="cs-icon">💨</div>
+            <div class="cs-name">Wind Turbine</div>
+            <div class="cs-desc">Ideal for exposed properties, coastlines, and offshore boats. Charges day and night.</div>
+            <span class="cs-tag free">Free Energy</span>
+          </div>
+          <div class="cs-card hydro">
+            <div class="cs-icon">💧</div>
+            <div class="cs-name">Micro-Hydro</div>
+            <div class="cs-desc">If your property has a creek or stream with flow, micro-hydro is the most consistent source of all.</div>
+            <span class="cs-tag free">Free Energy</span>
+          </div>
+          <div class="cs-card grid">
+            <div class="cs-icon">🔌</div>
+            <div class="cs-name">Grid / Shore Power</div>
+            <div class="cs-desc">Passive backup. We optimize draw to off-peak hours and minimize usage to near zero.</div>
+            <span class="cs-tag backup">Paid Fallback</span>
+          </div>
+          <div class="cs-card gen">
+            <div class="cs-icon">⚙️</div>
+            <div class="cs-name">Generator</div>
+            <div class="cs-desc">Auto-start only when batteries are critically low. Many clients decommission theirs entirely.</div>
+            <span class="cs-tag backup">Last Resort</span>
+          </div>
+          <div class="cs-card shore">
+            <div class="cs-icon">⚓</div>
+            <div class="cs-name">Marine Shore Power</div>
+            <div class="cs-desc">Dock plug-in charges your boat's LiFePO4 bank overnight for a full day of free running.</div>
+            <span class="cs-tag backup">Marine Option</span>
+          </div>
+          <div class="cs-card solar">
+            <div class="cs-icon">🚗</div>
+            <div class="cs-name">Battery-to-Battery (Vehicle)</div>
+            <div class="cs-desc">Use your vehicle's alternator to charge a spare battery bank while commuting. Arrive home with a fully charged portable station ready to use.</div>
+            <span class="cs-tag free">Charge While Driving</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     50A / 100A BYPASS SECTION
+═══════════════════════════════════════════ -->
+<div class="bypass-section" id="bypass">
+  <div style="position:relative;z-index:1;">
+    <div class="bypass-label">Game-Changer Technology</div>
+    <h2 class="bypass-title">Running a <span class="hl">50A</span> or <span class="hl">100A</span> Service?<br>We Can Almost Bypass It Entirely.</h2>
+    <p class="bypass-subtitle">Your small panel is no longer a limitation — it's an opportunity.</p>
+    <p class="bypass-intro">
+      Most homes with a 50-amp or 100-amp electrical service feel stuck — upgrades to 200A can cost $5,000–$15,000 and require utility coordination that can take months. Breezy Bay's solar hybrid systems are engineered to route your critical loads directly through solar + battery, dramatically reducing or virtually eliminating what actually flows through your utility meter and legacy panel. The result: a home that runs on free sunlight, not grid power — without expensive panel replacement.
+    </p>
+    <div class="bypass-grid">
+      <!-- LEFT: bypass cards -->
+      <div class="bypass-cards">
+        <div class="bypass-card">
+          <div class="bc-head">
+            <div class="bc-badge">50A Service</div>
+            <h4>Small Service, Big Solar Potential</h4>
+          </div>
+          <p>A 50-amp service (6,000W capacity) sounds limited — but with a properly sized solar + battery system, your panels and battery bank handle most of your daytime and overnight loads directly. Your grid connection becomes a passive backup rather than your primary power source. Many clients with 50A service see their actual grid draw drop to near zero for 80–90% of the year.</p>
+          <div class="bc-specs">
+            <div><div class="bc-spec-val">~80%</div><div class="bc-spec-label">Grid Draw Reduction</div></div>
+            <div><div class="bc-spec-val">10kWh</div><div class="bc-spec-label">Recommended Storage</div></div>
+            <div><div class="bc-spec-val">5kW</div><div class="bc-spec-label">Solar Array Size</div></div>
+          </div>
+        </div>
+        <div class="bypass-card">
+          <div class="bc-head">
+            <div class="bc-badge">100A Service</div>
+            <h4>The Sweet Spot for Full Solar Bypass</h4>
+          </div>
+          <p>A 100-amp service is the most common setup we work with — and the ideal candidate for a near-complete solar bypass. A 20–25kWh battery bank paired with a 10–15kW solar array covers a full-size home's entire load profile throughout the day and overnight. The grid connection stays in place as a passive backup for extreme weather, but you may not pull from it for weeks at a time. Excess generation charges your battery bank — stored free energy ready when you need it.</p>
+          <div class="bc-specs">
+            <div><div class="bc-spec-val">~95%</div><div class="bc-spec-label">Grid Independence</div></div>
+            <div><div class="bc-spec-val">25kWh</div><div class="bc-spec-label">Recommended Storage</div></div>
+            <div><div class="bc-spec-val">15kW</div><div class="bc-spec-label">Solar Array Size</div></div>
+          </div>
+        </div>
+        <div class="bypass-card">
+          <div class="bc-head">
+            <div class="bc-badge">How It Works</div>
+            <h4>DC-Coupled Bypass Architecture</h4>
+          </div>
+          <p>Our systems use a DC-coupled hybrid inverter that sits between your solar panels, battery bank, and your existing panel. Critical loads — refrigerator, lights, HVAC, well pump — are rerouted through the inverter's output. This means they run on solar and battery power first, 24/7. Only if batteries dip below threshold does the system pull from the grid through your small service panel. Your panel's amperage limit stops being the bottleneck.</p>
+          <div class="bc-specs">
+            <div><div class="bc-spec-val">94%</div><div class="bc-spec-label">System Efficiency</div></div>
+            <div><div class="bc-spec-val">&lt;20ms</div><div class="bc-spec-label">Failover Speed</div></div>
+          </div>
+        </div>
+        <div class="bypass-warning">
+          <div class="bypass-warning-icon">⚡</div>
+          <p><strong>Important:</strong> All bypass configurations are engineered and installed by licensed electricians meeting all applicable electrical code requirements. We work with your utility on any required interconnection agreements. No work is performed that circumvents safety standards — "bypass" refers to routing loads off the utility feed, not bypassing protection equipment.</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: panel diagram -->
+      <div>
+        <div class="panel-diagram">
+          <div class="panel-diagram-title">⚡ Traditional vs. Solar-Bypass Flow</div>
+
+          <div style="margin-bottom:1.5rem;">
+            <div style="font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;font-family:'Inter',sans-serif;">WITHOUT Solar — Everything Goes Through Panel</div>
+            <div class="panel-box">
+              <span class="panel-box-label">Utility Meter (50A / 100A)</span>
+              <span class="panel-box-val red">↓ 100% Load</span>
+            </div>
+            <div class="panel-box">
+              <span class="panel-box-label">Breaker Panel</span>
+              <span class="panel-box-val red">↓ Full Draw</span>
+            </div>
+            <div class="panel-box">
+              <span class="panel-box-label">All Home Loads</span>
+              <span class="panel-box-val red">Grid Only</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--leaf);margin-bottom:0.6rem;font-family:'Inter',sans-serif;">WITH Breezy Bay Solar Bypass System</div>
+            <div class="panel-box bypass">
+              <span class="panel-box-label">☀️ Solar Panels + Battery Bank</span>
+              <span class="panel-box-val green">↓ PRIMARY</span>
+            </div>
+            <div class="panel-arrow">↓</div>
+            <div class="panel-box bypass">
+              <span class="panel-box-label">Hybrid Inverter (your critical loads)</span>
+              <span class="panel-box-val green">↓ Free Power</span>
+            </div>
+            <div class="panel-arrow">↓</div>
+            <div class="panel-box bypass">
+              <span class="panel-box-label">HVAC · Fridge · Lights · Well Pump</span>
+              <span class="panel-box-val green">Solar Powered</span>
+            </div>
+            <div class="panel-arrow" style="color:var(--muted);">↓ only if batteries low</div>
+            <div class="panel-box bypassed">
+              <span class="panel-box-label">Utility Meter (backup only)</span>
+              <span class="panel-box-val gold">~5% Usage</span>
+            </div>
+          </div>
+          <div class="bypass-badge">✓ Near-Zero Grid Draw · No Panel Upgrade Required</div>
+          <p class="panel-note">Results vary based on system size, solar exposure, and load profile. Most 100A service clients achieve 90–95% grid independence. 50A clients typically achieve 75–85%. Free site assessment included with every quote.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FREE ENERGY SECTION
+═══════════════════════════════════════════ -->
+<div class="free-energy-banner" id="free-energy">
+  <div class="feb-glow"></div>
+  <div class="feb-content">
+    <div class="feb-grid">
+      <div>
+        <div class="feb-label">The Big Picture</div>
+        <h2 class="feb-title">The Sun Sends<br>You a <span>Free Bill</span><br>Every Single Day.</h2>
+        <p class="feb-desc">The average U.S. homeowner pays $1,500–$2,400 per year in electricity — for power that falls free from the sky. A properly sized Breezy Bay solar hybrid system doesn't just reduce your bill. Over time, it makes your electricity effectively free. Here's how the math works in your favor.</p>
+        <p class="feb-desc">After the 30% federal tax credit and typical state incentives, most residential systems break even in 5–8 years. After that? Every kilowatt-hour is yours at zero cost for the next 20+ years. Your panels don't expire. Your sun doesn't send invoices.</p>
+        <div style="margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap;">
+          <a href="#contact" class="btn-green">Calculate My Savings</a>
+          <a href="#bypass" class="btn-ghost">View Bypass Options</a>
+        </div>
+      </div>
+      <div>
+        <div class="savings-meter">
+          <div class="meter-big">$0</div>
+          <div class="meter-big-label">Target Monthly Electric Bill</div>
+          <div class="meter-title">How Our Clients Cut Their Bills</div>
+          <div class="meter-row">
+            <div class="meter-label">
+              <span class="meter-name">Grid Draw Eliminated (100A clients)</span>
+              <span class="meter-pct">95%</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill" style="width:95%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label">
+              <span class="meter-name">Grid Draw Eliminated (50A clients)</span>
+              <span class="meter-pct">82%</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill" style="width:82%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label">
+              <span class="meter-name">Clients with $0 Bill Months (summer)</span>
+              <span class="meter-pct">78%</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill" style="width:78%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label">
+              <span class="meter-name">Avg. Annual Bill Reduction (Year 1)</span>
+              <span class="meter-pct">71%</span>
+            </div>
+            <div class="meter-bar"><div class="meter-fill" style="width:71%"></div></div>
+          </div>
+          <p class="meter-note">Based on outcomes from 150+ Breezy Bay installations across residential and outbuilding projects. Results vary by location, system size, and usage. Free site assessment determines your specific projection.</p>
+        </div>
+
+        <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="feb-card">
+            <div class="feb-card-icon">30%</div>
+            <div>
+              <h4>Federal Tax Credit</h4>
+              <p>Claim 30% of your total system cost back on your federal taxes. Applies to solar, battery, and installation.</p>
+            </div>
+          </div>
+          <div class="feb-card">
+            <div class="feb-card-icon">🔋</div>
+            <div>
+              <h4>Solar Storage for Your Home</h4>
+              <p>Rather than sending excess power back to the grid, store it in your battery bank and use it overnight or during outages — keeping every free kilowatt-hour working for you.</p>
+            </div>
+          </div>
+          <div class="feb-card">
+            <div class="feb-card-icon">↑%</div>
+            <div>
+              <h4>Property Value Boost</h4>
+              <p>Homes with solar sell for 3–4% more on average. Battery backup adds further premium in storm-prone regions.</p>
+            </div>
+          </div>
+          <div class="feb-card">
+            <div class="feb-card-icon">★</div>
+            <div>
+              <h4>Panel Warranty — Varies by Manufacturer</h4>
+              <p>Panel warranties depend on the brand and model you choose. We help you select panels with the best warranty coverage for your budget and application — from standard 10-year to premium 25-year production guarantees.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MARINE ELECTRICAL UPGRADES
+═══════════════════════════════════════════ -->
+<div class="marine-section" id="marine">
+  <div class="marine-label">On the Water</div>
+  <h2 class="marine-title">Marine <span class="hl-wave">Battery &amp; Power</span><br>Upgrades That <span class="hl-gold">Change Everything.</span></h2>
+  <p class="marine-subtitle">Stop burning fuel to run your boat. Start running it on free energy.</p>
+  <p class="marine-intro">Breezy Bay Holdings specializes in marine electrical system design and installation — from upgrading your aging house battery bank and generator system to full lithium conversions that power all your modern electronics, appliances, and accessories without ever touching your fuel supply. We handle both custom system design and professional installation by licensed electricians, or we can coordinate licensed marine electricians in your area to handle the install for you.</p>
+
+  <div class="marine-main-grid">
+    <!-- LEFT: marine service cards -->
+    <div class="marine-cards">
+      <div class="marine-card">
+        <div class="mc-head">
+          <div class="mc-icon">⚡</div>
+          <h4>House Battery Lithium Conversion</h4>
+        </div>
+        <p>Swap out your old lead-acid house batteries for a custom-sized LiFePO4 bank. Lithium delivers 3–4× more usable capacity, charges dramatically faster, weighs significantly less, and lasts 3,500+ cycles without maintenance. Run your refrigerator, AC, entertainment, lights, navigation, and appliances all day without starting the engine.</p>
+        <div class="mc-savings">🔋 Up to 4× More Usable Power · No Maintenance</div>
+      </div>
+
+      <div class="marine-card">
+        <div class="mc-head">
+          <div class="mc-icon">⚙️</div>
+          <h4>Generator System Upgrade &amp; Removal</h4>
+        </div>
+        <p>Your generator burns fuel, requires constant maintenance, makes noise, and takes up valuable space. With a properly sized battery bank and solar charging system, many boats can have the generator removed entirely — or significantly reduce run time to emergency-only situations. Depending on your boat size and how far you travel, a full generator-free setup may be within reach. We'll assess your load profile and design the right system to get you there.</p>
+        <div class="mc-savings">⛽ Eliminate or Dramatically Cut Generator Runtime</div>
+      </div>
+
+      <div class="marine-card">
+        <div class="mc-head">
+          <div class="mc-icon">☀️</div>
+          <h4>Marine Solar + Wind Charging</h4>
+        </div>
+        <p>Flexible and rigid marine-grade solar panels sized to your deck space charge your battery bank while you're underway, at anchor, or at the dock. Add a wind turbine for overnight and overcast charging. Combined with a smart MPPT charge controller, your bank stays full from free energy — not from your alternator burning diesel or your generator running at the dock.</p>
+        <div class="mc-savings">☀️ Free Charging at Anchor, Underway &amp; Dockside</div>
+      </div>
+
+      <div class="marine-card">
+        <div class="mc-head">
+          <div class="mc-icon">🚤</div>
+          <h4>Vintage Boat Modernization (1970s &amp; 80s)</h4>
+        </div>
+        <p>Own a classic boat from the '70s or '80s with outdated 12V wiring and no capacity for modern electronics? We specialize in bringing vintage hulls into the modern era. We'll redesign and rewire your electrical system end-to-end — adding sufficient battery capacity, a proper shore power connection, marine solar, and clean distribution — so you can run chartplotters, VHF radios, LED lighting, USB charging, modern refrigeration, and entertainment systems efficiently and reliably. Your classic boat, fully modernized.</p>
+        <div class="mc-savings">🚤 Classic Hull · Modern Power · Zero Compromises</div>
+      </div>
+
+      <div class="marine-card">
+        <div class="mc-head">
+          <div class="mc-icon">📐</div>
+          <h4>Design &amp; Professional Installation</h4>
+        </div>
+        <p>We offer the full package: custom system design tailored to your specific vessel, power needs, and travel patterns — plus professional installation by licensed marine electricians. Can't bring your boat to us? We can coordinate installation through licensed marine electrical professionals in your area. Whether you want a complete turnkey job or just the engineering plan to bring to your local yard, we've got you covered.</p>
+        <div class="mc-savings">📐 Design Only · Full Install · Or Both</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: boat comparison diagram + savings -->
+    <div>
+      <div class="boat-diagram">
+        <div class="bd-title">⚓ Before vs. After: Typical 35ft Cruiser</div>
+
+        <div class="bd-divider">— BEFORE: Lead-Acid + Generator Setup —</div>
+        <div class="bd-row old">
+          <span class="bd-label">House Battery Bank</span>
+          <span class="bd-val red">200Ah usable (lead-acid)</span>
+        </div>
+        <div class="bd-row old">
+          <span class="bd-label">Generator Run Time / Day</span>
+          <span class="bd-val red">4–6 hours</span>
+        </div>
+        <div class="bd-row old">
+          <span class="bd-label">Fuel Cost (generator)</span>
+          <span class="bd-val red">$8–$14 / day</span>
+        </div>
+        <div class="bd-row old">
+          <span class="bd-label">Electronics Capacity</span>
+          <span class="bd-val red">Limited — 12V only</span>
+        </div>
+        <div class="bd-row old">
+          <span class="bd-label">Maintenance (batteries)</span>
+          <span class="bd-val red">Every 1–3 years</span>
+        </div>
+
+        <div class="bd-divider">— AFTER: Breezy Bay LiFePO4 + Solar System —</div>
+        <div class="bd-row new">
+          <span class="bd-label">House Battery Bank</span>
+          <span class="bd-val green">600–800Ah usable (lithium)</span>
+        </div>
+        <div class="bd-row new">
+          <span class="bd-label">Generator Run Time / Day</span>
+          <span class="bd-val green">0 hours (or removed)</span>
+        </div>
+        <div class="bd-row new">
+          <span class="bd-label">Solar Charging</span>
+          <span class="bd-val green">Free — all day</span>
+        </div>
+        <div class="bd-row new">
+          <span class="bd-label">Electronics Capacity</span>
+          <span class="bd-val green">Full modern systems</span>
+        </div>
+        <div class="bd-row new">
+          <span class="bd-label">Battery Maintenance</span>
+          <span class="bd-val green">Zero — 10+ yr life</span>
+        </div>
+        <div class="bd-row both">
+          <span class="bd-label">Est. Annual Fuel Savings</span>
+          <span class="bd-val sky">$2,000–$4,000 / yr</span>
+        </div>
+      </div>
+
+      <div class="marine-disclaimer">
+        <div style="font-size:1.5rem;flex-shrink:0;">⚓</div>
+        <p><strong>Inboard Electric Conversion:</strong> Depending on boat size, weight, and typical travel distances, a full electric inboard motor conversion may be possible — eliminating your engine fuel costs entirely. We evaluate this on a case-by-case basis. Ask us about inboard electric feasibility for your vessel during your free consultation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- boat upgrade tiers -->
+  <div class="boat-tiers">
+    <div class="boat-tier">
+      <div class="bt-icon">⛵</div>
+      <div class="bt-label">Sailboats &amp; Day Boats</div>
+      <div class="bt-name">Coastal</div>
+      <div class="bt-range">100 – 300Ah LiFePO4</div>
+      <div class="bt-use">Navigation, lighting, VHF, USB charging, small refrigerator. Solar + wind keep you topped off at anchor indefinitely.</div>
+    </div>
+    <div class="boat-tier featured">
+      <div class="bt-icon">🚢</div>
+      <div class="bt-label">Most Popular</div>
+      <div class="bt-name">Cruiser</div>
+      <div class="bt-range">400 – 800Ah LiFePO4</div>
+      <div class="bt-use">Full appliances, AC, entertainment, chartplotters, watermaker. Generator eliminated or emergency-only. Vintage boats fully modernized.</div>
+      <div class="bt-badge">★ Most Requested</div>
+    </div>
+    <div class="boat-tier">
+      <div class="bt-icon">🛳️</div>
+      <div class="bt-label">Large Vessels</div>
+      <div class="bt-name">Offshore</div>
+      <div class="bt-range">1,000Ah+ Custom</div>
+      <div class="bt-use">Full ship's power independence. Multiple MPPT controllers, wind, solar, shore power integration. Inboard electric conversion evaluation included.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-label">What We Do</div>
+  <h2>Hyper Installations,<br>Built to Scale</h2>
+  <p class="section-desc">From off-grid sheds and whole-home battery bypass to full marine electrical modernization — every system is precision-engineered, custom-branded, and built for energy independence.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <rect x="2" y="10" width="24" height="16" rx="1"/>
+          <path d="M2 14h24M8 10V6M20 10V6M14 10V6"/>
+          <circle cx="14" cy="18" r="3"/>
+        </svg>
+      </div>
+      <h3>Solar Hybrid Systems</h3>
+      <p>DC-coupled and AC-coupled hybrid configurations that accept solar, wind, hydro, grid, or generator input. Smart priority routing puts free energy first, paid sources last — always.</p>
+      <span class="service-tag">Multi-Source Hybrid</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <rect x="4" y="6" width="20" height="16" rx="2"/>
+          <path d="M4 12h20M10 6V4M18 6V4"/>
+          <path d="M14 14v6M11 17l3-3 3 3"/>
+        </svg>
+      </div>
+      <h3>Custom Power Stations</h3>
+      <p>Your brand. Your size. Your specs. LiFePO4 power stations from 2kWh to 90kWh with custom enclosures, color matching, and logo branding for homes, sheds, and marine vessels.</p>
+      <span class="service-tag">Custom Branded</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <path d="M14 3L4 9v10l10 6 10-6V9L14 3z"/>
+          <path d="M14 3v16M4 9l10 6 10-6"/>
+        </svg>
+      </div>
+      <h3>50A / 100A Panel Bypass</h3>
+      <p>Don't pay $10K for a panel upgrade. Our solar bypass architecture routes your critical loads directly through solar + battery, achieving near-total grid independence without touching your existing service panel.</p>
+      <span class="service-tag">No Panel Upgrade Needed</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <rect x="3" y="14" width="12" height="10" rx="1"/>
+          <path d="M3 18h12M7 14v-4l4-5"/>
+          <path d="M18 8h6M18 11h4M18 14h5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Shed, Garage &amp; Small-Space Power</h3>
+      <p>Want to start small? No problem. We design standalone solar systems for a single outdoor structure — a garage, a shed, a pool pump, a gate, an RV hookup, or anything else running on its own. One panel and a small battery can be the beginning. We size it right from day one so it's expandable later if you want to grow.</p>
+      <span class="service-tag">Start Small, Scale Later</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <rect x="2" y="8" width="10" height="14" rx="1"/>
+          <rect x="16" y="8" width="10" height="14" rx="1"/>
+          <path d="M12 15h4M7 8V6M21 8V6" stroke-linecap="round"/>
+          <path d="M14 12l2 3-2 3" stroke="#39FF14" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Battery-to-Battery Charging</h3>
+      <p>Charge a spare battery bank while you commute — using your vehicle's alternator to top off a secondary lithium battery on the road. Arrive home with a fully charged portable power station ready to run your shed, power tools, campsite, or home essentials. No solar required to start.</p>
+      <span class="service-tag">Charge While You Drive</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#00BFFF" stroke-width="1.5">
+          <path d="M4 20c3-4 7-6 10-6s7 2 10 6"/>
+          <path d="M2 24h24"/>
+          <path d="M10 14V8l4-5 4 5v6"/>
+          <circle cx="14" cy="10" r="1.5" fill="#00BFFF"/>
+        </svg>
+      </div>
+      <h3>Marine Battery &amp; Generator Upgrades</h3>
+      <p>LiFePO4 house battery conversions, generator reduction or removal, solar + wind charging, and full vintage boat modernization. Design only, full installation by licensed electricians, or we coordinate licensed marine electricians for you.</p>
+      <span class="service-tag">Boats &amp; Vessels</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="#FFD700" stroke-width="1.5">
+          <path d="M14 2l3 8h8l-6.5 5 2.5 8L14 18l-7 5 2.5-8L3 10h8z"/>
+        </svg>
+      </div>
+      <h3>Tax Credit &amp; Incentive Stacking</h3>
+      <p>Federal 30% ITC, state rebates, utility incentives, and SREC programs — we stack every available credit so your effective system cost plummets. Most clients recover 35–45% of total cost in Year 1 incentives alone.</p>
+      <span class="service-tag">Up to 45% Back</span>
+    </div>
+  </div>
+</section>
+
+<!-- POWER STATIONS -->
+<section id="power-stations">
+  <div class="section-label">Custom Power Stations</div>
+  <h2>Any Size. Any Brand.<br>Any Application.</h2>
+  <div class="ps-intro">
+    <div>
+      <p class="section-desc">Our power stations are built around LiFePO4 chemistry — the safest, longest-lived battery technology available. We size and brand each unit to your exact requirements, from compact shed backup to multi-cabinet whole-estate systems.</p>
+      <div style="margin-top:2rem;display:flex;flex-direction:column;gap:0.85rem;">
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          LiFePO4 cells — 3,500+ cycle life, thermally stable
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          Custom enclosures: wall-mount, floor-stand, rack-mount, outdoor
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          Color-match, logo emboss, or full custom wrap branding
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          Parallel-stack up to 15 units — up to 90kWh total
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          Built-in MPPT inverter, Bluetooth &amp; WiFi app control
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--muted);">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--leaf);flex-shrink:0;box-shadow:0 0 8px var(--leaf)"></div>
+          Sized for sheds, entire houses, and commercial applications
+        </div>
+      </div>
+    </div>
+    <div class="ps-visual">
+      <div class="ps-orbit"></div>
+      <div class="ps-orbit"></div>
+      <div class="ps-box">
+        <div class="ps-corner tl"></div><div class="ps-corner tr"></div>
+        <div class="ps-corner bl"></div><div class="ps-corner br"></div>
+        <div class="ps-box-inner">
+          <div class="ps-wattage">10kWh</div>
+          <div class="ps-unit">BREEZY BAY · SERIES X</div>
+        </div>
+        <div class="ps-led">
+          <div class="led green"></div>
+          <div class="led gold"></div>
+          <div class="led sky"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ps-tiers">
+    <div class="tier-card">
+      <div class="tier-label">Starter</div>
+      <div class="tier-name">Breeze</div>
+      <div class="tier-range">2 – 5 kWh</div>
+      <div class="tier-use">Perfect starting point. Powers a garage, shed, pool pump, outdoor lighting, or any single-use load off free solar energy. Expandable any time — add panels and batteries as you grow.</div>
+    </div>
+    <div class="tier-card featured">
+      <div class="tier-label">Most Popular</div>
+      <div class="tier-name">Gale</div>
+      <div class="tier-range">10 – 20 kWh</div>
+      <div class="tier-use">Average home essential backup. Powers HVAC, refrigerators, and critical circuits for 24–48 hrs. Perfect bypass solution for 100A service homes.</div>
+      <div class="tier-badge">★ Best Seller</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-label">Pro</div>
+      <div class="tier-name">Storm</div>
+      <div class="tier-range">25 – 50 kWh</div>
+      <div class="tier-use">Large homes, whole-home backup for days. Achieves near-total grid independence on any service size. Store every surplus kilowatt-hour for overnight and cloudy-day use.</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-label">Hyper Scale</div>
+      <div class="tier-name">Surge</div>
+      <div class="tier-range">50 – 90 kWh</div>
+      <div class="tier-use">Estates, small commercial, total energy independence. Parallel-stacked, expandable. Effectively a private power grid on your property.</div>
+    </div>
+  </div>
+</section>
+
+<!-- START SMALL CALLOUT -->
+<div style="background:linear-gradient(135deg,#0E1205,#070C01);border-top:2px solid var(--sol1);border-bottom:2px solid var(--leaf);padding:4rem 4rem;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(255,215,0,0.05) 0%,transparent 65%);"></div>
+  <div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center;">
+    <div>
+      <div style="font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--sol1);margin-bottom:0.9rem;display:flex;align-items:center;gap:0.8rem;"><span style="display:block;width:30px;height:2px;background:var(--sol1);"></span>Not Ready for a Full System? That's Okay.</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4vw,3.5rem);line-height:0.95;color:var(--white);margin-bottom:1rem;">Start With <span style="color:var(--sol1);">One Thing.</span><br>We'll Design <span style="color:var(--leaf);">Just That.</span></h2>
+      <p style="font-family:'Inter',sans-serif;font-size:0.95rem;color:var(--muted);line-height:1.78;max-width:620px;margin-bottom:1.5rem;">You don't have to go all-in on day one. If you just want to power your outdoor garage, run your shed lights and tools, keep your pool pump running for free, or solar-charge one specific thing on your property — we'll design a system for exactly that, nothing more. No overselling, no unnecessary complexity. A small, clean, right-sized system that does its one job perfectly and is ready to expand whenever you are.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.7rem;margin-bottom:1.5rem;">
+        <span style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);color:var(--sol1);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🏚️ Outdoor Garage</span>
+        <span style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);color:var(--sol1);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🛖 Shed or Workshop</span>
+        <span style="background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.2);color:var(--leaf);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🏊 Pool Pump</span>
+        <span style="background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.2);color:var(--leaf);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">💡 Outdoor Lighting</span>
+        <span style="background:rgba(0,191,255,0.07);border:1px solid rgba(0,191,255,0.2);color:var(--sky2);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🚐 RV Hookup</span>
+        <span style="background:rgba(0,191,255,0.07);border:1px solid rgba(0,191,255,0.2);color:var(--sky2);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🔌 Single Circuit</span>
+        <span style="background:rgba(255,140,0,0.08);border:1px solid rgba(255,140,0,0.2);color:var(--sol2);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:2px;">🌿 Anything Else</span>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--muted);line-height:1.7;font-style:italic;">Every large system we've built started somewhere small. The goal is to get you generating free energy today — and building on it at your own pace, on your own terms.</p>
+    </div>
+    <div style="text-align:center;flex-shrink:0;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--sol1);line-height:1;text-shadow:0 0 40px rgba(255,215,0,0.4);">1</div>
+      <div style="font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem;">Panel Can<br>Start It All</div>
+      <div style="margin-top:1.5rem;">
+        <a href="#contact" style="background:linear-gradient(135deg,var(--sol1),var(--sol3));color:#000;font-weight:800;padding:0.9rem 1.8rem;border-radius:2px;text-decoration:none;font-family:'Syne',sans-serif;font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;display:inline-block;box-shadow:0 0 20px rgba(255,215,0,0.25);">Design My Small System</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALLATIONS -->
+<section id="installations">
+  <div class="section-label">Installation Types</div>
+  <h2>Built for Every<br>Structure &amp; Scale</h2>
+  <p class="section-desc">One shed or one pool pump to a 4,000 sq ft whole-home bypass — we engineer the right system for your footprint, load, and budget. Start wherever makes sense for you.</p>
+  <div class="install-grid">
+    <div class="install-card large">
+      <div class="install-visual">
+        <div style="text-align:center;">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:1rem;">
+            <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+            <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:0.85rem;letter-spacing:0.15em;color:var(--sol1);">WHOLE-HOME SYSTEM</div>
+          <div style="font-family:'Bebas Neue';font-size:2rem;color:var(--leaf);text-shadow:0 0 20px rgba(57,255,20,0.4);margin-top:0.3rem;">90kWh</div>
+        </div>
+      </div>
+      <div class="install-body">
+        <div class="install-tag">Flagship Installation</div>
+        <h3>Whole-Home Solar + Battery System</h3>
+        <p>Our flagship covers 100% of your home's energy. Solar panels charge a dedicated LiFePO4 battery bank that auto-transfers during outages within milliseconds. Works with existing 50A or 100A panels — our bypass architecture means your critical loads run on free solar power first, 24/7, with the grid as passive backup.</p>
+        <div class="install-specs">
+          <div><div class="spec-val">90kWh</div><div class="spec-label">Max Storage</div></div>
+          <div><div class="spec-val">240V</div><div class="spec-label">Split-Phase</div></div>
+          <div><div class="spec-val">10kW</div><div class="spec-label">Cont. Output</div></div>
+          <div><div class="spec-val">72hr+</div><div class="spec-label">Backup Time</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="install-card">
+      <div class="install-visual">
+        <div style="text-align:center;">
+          <div style="font-family:'Bebas Neue';font-size:2rem;color:var(--sol1);line-height:1;text-shadow:0 0 20px rgba(255,215,0,0.4);">SHED / GARAGE</div>
+          <div style="font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-top:0.4rem;">Start Small · Scale Later</div>
+          <div style="margin-top:0.8rem;display:flex;gap:4px;justify-content:center;">
+            <div class="panel-cell"></div><div class="panel-cell"></div><div class="panel-cell"></div>
+          </div>
+          <div style="margin-top:0.6rem;font-size:0.62rem;color:var(--leaf);font-family:'Bebas Neue';letter-spacing:0.1em;">Pool · Lights · Tools · Anything</div>
+        </div>
+      </div>
+      <div class="install-body">
+        <div class="install-tag">Start Small Series</div>
+        <h3>Garage, Shed, Pool &amp; Single-Use Systems</h3>
+        <p>Not ready to go whole-home? Start with one thing. We design standalone solar systems for a single structure or single load — your outdoor garage, your shed, your pool pump, your gate, your RV hookup, or anything else. We right-size the system for exactly what you need today, built to expand later at zero extra re-engineering cost.</p>
+        <div class="install-specs">
+          <div><div class="spec-val">100W+</div><div class="spec-label">Min Panel Size</div></div>
+          <div><div class="spec-val">Any</div><div class="spec-label">Load Type</div></div>
+          <div><div class="spec-val">Yes</div><div class="spec-label">Expandable</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="install-card">
+      <div class="install-visual">
+        <div style="text-align:center;">
+          <div style="font-family:'Bebas Neue';font-size:2rem;color:var(--sol2);line-height:1;">HYBRID</div>
+          <div style="font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-top:0.3rem;">Grid + Solar + Battery</div>
+          <div style="margin-top:1rem;display:flex;gap:6px;justify-content:center;align-items:center;">
+            <div style="font-size:0.62rem;color:var(--leaf);font-family:'Bebas Neue';letter-spacing:0.1em;">SOLAR</div>
+            <div style="width:16px;height:1px;background:var(--leaf);"></div>
+            <div style="font-size:0.62rem;color:var(--sol1);font-family:'Bebas Neue';letter-spacing:0.1em;">BATT</div>
+            <div style="width:16px;height:1px;background:var(--sol1);"></div>
+            <div style="font-size:0.62rem;color:var(--muted);font-family:'Bebas Neue';letter-spacing:0.1em;">GRID</div>
+          </div>
+        </div>
+      </div>
+      <div class="install-body">
+        <div class="install-tag">Hybrid Grid-Tie + Bypass</div>
+        <h3>Grid-Tie Hybrid with Bypass Failover</h3>
+        <p>Stay grid-connected as a passive backup while your battery bank handles outages and stores every kilowatt-hour your panels generate. Solar and battery carry your loads — free stored energy powers your home around the clock, with the grid available only when truly needed.</p>
+        <div class="install-specs">
+          <div><div class="spec-val">30%</div><div class="spec-label">Tax Credit</div></div>
+          <div><div class="spec-val">~7yr</div><div class="spec-label">Avg Payback</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-label">How It Works</div>
+  <h2>Five Steps to<br>Energy Independence</h2>
+  <div class="process-steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Site Assessment</h4>
+      <p>We evaluate your roof, panel size (50A/100A/200A), energy usage, and structure to design the ideal bypass system.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Custom Design</h4>
+      <p>Engineers size every component — panels, inverter, battery, bypass architecture, branding — to your exact load profile.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Permits &amp; Approvals</h4>
+      <p>We handle all permits, utility interconnection agreements, solar storage registration, and HOA submittals — end to end, fully managed by licensed electricians.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>Hyper Installation</h4>
+      <p>Licensed electricians install in 1–3 days. Minimal disruption. Full cleanup. Inspection-ready every time. No panel upgrade needed.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <h4>Activate &amp; Monitor</h4>
+      <p>System goes live. App connected. Watch your grid draw drop toward zero. We monitor performance for 12 months post-install.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="section-label">Client Reviews</div>
+  <h2>Real Results.<br>Real Savings.</h2>
+  <p class="section-desc">Outcomes from solar hybrid, battery backup, 50A/100A bypass, and marine electrical upgrade clients.</p>
+  <div class="reviews-grid">
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">I had a 100-amp panel and dreaded the cost of upgrading. Breezy Bay told me I didn't need to. They set up a 20kWh solar bypass system and now 92% of my energy comes from my own roof. My last electric bill was $11.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">MR</div>
+        <div>
+          <div class="reviewer-name">Marcus R.</div>
+          <div class="reviewer-loc">100A Bypass Install · Tampa, FL</div>
+        </div>
+      </div>
+      <span class="review-tag">100A Bypass</span>
+    </div>
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">I have a 1978 Hatteras and the wiring was a nightmare — outdated systems, dead batteries every season, a diesel generator running constantly at anchor. Breezy Bay redesigned everything with a 600Ah lithium bank, solar panels, and a wind turbine. I haven't started that generator in four months.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">RK</div>
+        <div>
+          <div class="reviewer-name">Robert K.</div>
+          <div class="reviewer-loc">1978 Hatteras 38 · Annapolis, MD</div>
+        </div>
+      </div>
+      <span class="review-tag">Vintage Boat Modernization</span>
+    </div>
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">We have a 50-amp service on an older property. Everyone said we'd need a full panel upgrade first. Breezy Bay routed our critical loads through a solar + battery bypass and we're running the house on sunlight. Incredible.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">LH</div>
+        <div>
+          <div class="reviewer-name">Linda H.</div>
+          <div class="reviewer-loc">50A Bypass Install · Savannah, GA</div>
+        </div>
+      </div>
+      <span class="review-tag">50A Bypass</span>
+    </div>
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">Our 34ft cruiser used to burn through $300 in generator fuel every two-week trip. This summer we spent $0 on fuel at anchor. The 400Ah lithium bank with 600W solar and a wind turbine runs everything — fridge, watermaker, all the electronics — without the generator even turning on.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">JM</div>
+        <div>
+          <div class="reviewer-name">Jim &amp; Marlene S.</div>
+          <div class="reviewer-loc">34ft Cruiser · Chesapeake Bay</div>
+        </div>
+      </div>
+      <span class="review-tag">Marine Solar + Battery</span>
+    </div>
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">They custom-branded our power station units for our rental cabins — matching our lodge colors with our logo. Guests love it and it's been flawless through two winters. The build quality is remarkable.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">LW</div>
+        <div>
+          <div class="reviewer-name">Liam W.</div>
+          <div class="reviewer-loc">Custom Branded Units · Blue Ridge, GA</div>
+        </div>
+      </div>
+      <span class="review-tag">Custom Branding</span>
+    </div>
+    <div class="review-card">
+      <div class="review-quote">"</div>
+      <div class="stars">★★★★★</div>
+      <p class="review-text">Permits, HOA sign-off, utility paperwork — they handled everything. The licensed electricians were fast, clean, and professional. Three months in, my battery is full every evening from the sun and my bill is essentially zero. The free energy is real. This pays for itself.</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">AK</div>
+        <div>
+          <div class="reviewer-name">Anthony K.</div>
+          <div class="reviewer-loc">Grid-Tie Solar · Austin, TX</div>
+        </div>
+      </div>
+      <span class="review-tag">Full-Service Install</span>
+    </div>
+  </div></section>
+
+<!-- BRANDS -->
+<section id="brands" style="background:var(--deep);padding:5rem 4rem;">
+  <div class="brand-intro">
+    <div class="section-label" style="justify-content:center;">Technology Partners</div>
+    <h2>We Install the Best</h2>
+    <p class="section-desc" style="margin:0.8rem auto;text-align:center;">We source, configure, and warranty the leading battery and solar platforms — or build completely custom to your specs with your branding.</p>
+  </div>
+  <div class="brands-scroll">
+    <span class="brand-pill">EcoFlow</span>
+    <span class="brand-pill">Tesla Powerwall</span>
+    <span class="brand-pill">Enphase IQ</span>
+    <span class="brand-pill">Bluetti</span>
+    <span class="brand-pill">Anker SOLIX</span>
+    <span class="brand-pill">FranklinWH</span>
+    <span class="brand-pill">Generac PWRcell</span>
+    <span class="brand-pill">Victron Energy</span>
+    <span class="brand-pill">EG4 Electronics</span>
+    <span class="brand-pill">Sol-Ark</span>
+    <span class="brand-pill">Battle Born Batteries</span>
+    <span class="brand-pill">Renogy Marine</span>
+    <span class="brand-pill">Custom Build</span>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-glow"></div>
+  <div class="section-label" style="justify-content:center;">Get Started</div>
+  <h2>Design Your<br>Free Energy System</h2>
+  <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Home, shed, boat, or all three — tell us your setup and goals. Our engineers will build a free custom proposal including hybrid charging options, bypass analysis, and savings projections within 48 hours.</p>
+  <div class="contact-form">
+    <div class="form-row">
+      <input class="form-input" type="text" placeholder="First &amp; Last Name">
+      <input class="form-input" type="email" placeholder="Email Address">
+    </div>
+    <div class="form-row">
+      <input class="form-input" type="tel" placeholder="Phone Number">
+      <input class="form-input" type="text" placeholder="City, State">
+    </div>
+    <select class="form-input">
+      <option value="" disabled selected>Current Electrical Service / Vessel Type</option>
+      <option>Home — 50 Amp Service</option>
+      <option>Home — 100 Amp Service</option>
+      <option>Home — 200 Amp Service</option>
+      <option>Boat — Sailboat / Day Boat</option>
+      <option>Boat — Cruiser (30–45ft)</option>
+      <option>Boat — Large Vessel (45ft+)</option>
+      <option>Shed / Outbuilding</option>
+      <option>Not Sure</option>
+    </select>
+    <select class="form-input">
+      <option value="" disabled selected>Installation Type</option>
+      <option>Start Small — Garage / Shed / Pool / Single Load</option>
+      <option>Whole-Home Solar + Battery Bypass</option>
+      <option>50A / 100A Panel Bypass System</option>
+      <option>Hybrid Grid-Tie (Solar + Wind + Grid)</option>
+      <option>Off-Grid Shed / Workshop</option>
+      <option>Custom Branded Power Station</option>
+      <option>Marine — House Battery Lithium Conversion</option>
+      <option>Marine — Generator Reduction or Removal</option>
+      <option>Marine — Solar + Wind Charging System</option>
+      <option>Marine — Vintage Boat Full Modernization (70s/80s)</option>
+      <option>Marine — System Design Only</option>
+      <option>Commercial / Multi-Unit</option>
+      <option>Multiple / Not Sure Yet — Need Consultation</option>
+    </select>
+    <textarea class="form-input" placeholder="Tell us about your project — property type, boat make/model/year, panel size, energy goals, custom branding needs, or any other details..."></textarea>
+    <button class="form-submit">Get My Free System Design →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div style="font-family:'Bebas Neue';font-size:1.15rem;letter-spacing:0.06em;color:var(--white);margin-bottom:0.3rem;">Breezy Bay Holdings</div>
+    <div class="footer-copy">© 2025 Breezy Bay Holdings Solar &amp; Power Division. All rights reserved.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#hybrid-charging">Hybrid Charging</a>
+    <a href="#bypass">50A/100A Bypass</a>
+    <a href="#marine">Marine</a>
+    <a href="#power-stations">Power Stations</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = e.target.dataset.dir === 'x' ? 'translateX(0)' : 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.07 });
+
+  document.querySelectorAll('.service-card,.tier-card,.review-card,.install-card,.step,.bypass-card,.feb-card,.panel-box,.marine-card,.boat-tier,.cs-card,.cf-node').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    io.observe(el);
+  });
+
+  document.querySelectorAll('.marine-card,.bypass-card').forEach(el => {
+    el.dataset.dir = 'x';
+    el.style.transform = 'translateX(-16px)';
+  });
+
+  // Animated kWh counter
+  const wattEl = document.querySelector('.ps-wattage');
+  if (wattEl) {
+    const io2 = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        let cur = 0;
+        const t = setInterval(() => {
+          cur += 0.5;
+          wattEl.textContent = cur.toFixed(1) + 'kWh';
+          if (cur >= 10) { wattEl.textContent = '10kWh'; clearInterval(t); }
+        }, 40);
+        io2.disconnect();
+      }
+    }, { threshold: 0.5 });
+    io2.observe(wattEl);
+  }
+
+  // Form submit
+  const btn = document.querySelector('.form-submit');
+  if (btn) {
+    btn.addEventListener('click', function() {
+      this.textContent = '✓ Request Received — Free Proposal Within 48 Hours!';
+      this.style.background = 'linear-gradient(135deg, #39FF14, #00C853)';
+      setTimeout(() => {
+        this.textContent = 'Get My Free System Design →';
+        this.style.background = '';
+      }, 5000);
+    });
+  }
+</script>
+</body>
+</html>
