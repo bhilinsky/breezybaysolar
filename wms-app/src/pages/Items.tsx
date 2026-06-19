@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
+import { parseCsv } from '../lib/csv'
 import type { Category, Item } from '../types'
+
+const CSV_COLUMNS = ['sku', 'name', 'description', 'category', 'unit', 'reorder_point', 'default_cost', 'weight_lbs']
 
 const emptyForm = {
   sku: '',
@@ -22,6 +25,9 @@ export default function Items() {
   const [form, setForm] = useState(emptyForm)
   const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [importResult, setImportResult] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -95,6 +101,78 @@ export default function Items() {
     void load()
   }
 
+  async function handleImportFile(file: File) {
+    setImporting(true)
+    setImportResult(null)
+    try {
+      const text = await file.text()
+      const rows = parseCsv(text)
+      if (rows.length < 2) {
+        setImportResult('CSV has no data rows.')
+        return
+      }
+
+      const header = rows[0].map((h) => h.trim().toLowerCase())
+      const colIndex = (col: string) => header.indexOf(col)
+      const skuIdx = colIndex('sku')
+      const nameIdx = colIndex('name')
+      if (skuIdx === -1 || nameIdx === -1) {
+        setImportResult(`Header row must include at least "sku" and "name". Found: ${header.join(', ')}`)
+        return
+      }
+
+      const dataRows = rows.slice(1).filter((r) => (r[skuIdx] ?? '').trim() !== '')
+      const categoryNames = [
+        ...new Set(
+          dataRows
+            .map((r) => (colIndex('category') !== -1 ? (r[colIndex('category')] ?? '').trim() : ''))
+            .filter((name) => name !== ''),
+        ),
+      ]
+
+      const categoryIdByName = new Map(categories.map((c) => [c.name, c.id]))
+      const missingCategories = categoryNames.filter((name) => !categoryIdByName.has(name))
+      if (missingCategories.length > 0) {
+        const { data: createdCategories, error: categoryError } = await supabase
+          .from('categories')
+          .insert(missingCategories.map((name) => ({ name })))
+          .select('id, name')
+        if (categoryError) {
+          setImportResult(`Failed creating categories: ${categoryError.message}`)
+          return
+        }
+        for (const c of createdCategories ?? []) categoryIdByName.set(c.name, c.id)
+      }
+
+      const payload = dataRows.map((r) => {
+        const get = (col: string) => (colIndex(col) !== -1 ? (r[colIndex(col)] ?? '').trim() : '')
+        const categoryName = get('category')
+        return {
+          sku: get('sku'),
+          name: get('name') || get('sku'),
+          description: get('description') || null,
+          category_id: categoryName ? categoryIdByName.get(categoryName) ?? null : null,
+          unit: get('unit') || 'each',
+          reorder_point: get('reorder_point') ? Number(get('reorder_point')) : 0,
+          default_cost: get('default_cost') ? Number(get('default_cost')) : null,
+          weight_lbs: get('weight_lbs') ? Number(get('weight_lbs')) : null,
+        }
+      })
+
+      const { error: upsertError } = await supabase.from('items').upsert(payload, { onConflict: 'sku' })
+      if (upsertError) {
+        setImportResult(`Import failed: ${upsertError.message}`)
+        return
+      }
+
+      await logActivity('imported', 'item', null, { count: payload.length })
+      setImportResult(`Imported ${payload.length} item${payload.length === 1 ? '' : 's'}.`)
+      void load()
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const filtered = items.filter((item) => {
     const q = search.toLowerCase()
     return item.sku.toLowerCase().includes(q) || item.name.toLowerCase().includes(q)
@@ -104,10 +182,38 @@ export default function Items() {
     <div>
       <div className="page-header">
         <h1>Items</h1>
-        <button className="btn-primary" onClick={startCreate}>
-          + New item
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+            {importing ? 'Importing…' : 'Import CSV'}
+          </button>
+          <button className="btn-primary" onClick={startCreate}>
+            + New item
+          </button>
+        </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) void handleImportFile(file)
+          e.target.value = ''
+        }}
+      />
+      {importResult && (
+        <p className="muted">
+          {importResult}{' '}
+          <button type="button" className="btn-link" onClick={() => setImportResult(null)}>
+            dismiss
+          </button>
+        </p>
+      )}
+      <p className="muted">
+        CSV columns: {CSV_COLUMNS.join(', ')} — only sku and name are required; category is matched/created by name.
+      </p>
 
       <input
         className="search-input"

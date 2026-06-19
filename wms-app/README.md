@@ -27,7 +27,11 @@ It ships three ways from one codebase:
    a setup screen asking for those two values. Paste them in and continue.
    They're saved locally in the browser/app, so this is a one-time step per
    device; there's nothing to rebuild if you change projects later (use
-   "Change Supabase project" in the sidebar).
+   "Change Supabase project" in the sidebar). If the project doesn't have
+   the app's tables yet, the setup screen detects that and shows the full
+   migration SQL inline with a "Copy SQL" button — paste it into the
+   Supabase SQL Editor, then click "I ran it — check again." No need to dig
+   through this repo.
 5. Create your first user: either sign up from the app's login screen, or
    add one under Supabase → Authentication → Users.
 
@@ -81,6 +85,11 @@ Once deployed over HTTPS, visiting it on a phone offers "Add to Home Screen"
   from an order's detail page (Orders → open an order → "Export for
   ShipRush"). ShipRush's CSV import lets you map arbitrary column headers,
   so this isn't tied to one fixed schema.
+- `src/lib/csv.ts` + Items page "Import CSV" button — bulk-load an existing
+  inventory list (columns: sku, name, description, category, unit,
+  reorder_point, default_cost, weight_lbs — only sku/name required;
+  categories are matched or created by name). Lets a new customer migrate
+  their existing spreadsheet instead of typing items in one by one.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `supabase/migrations/0001_init.sql` — base schema + RLS policies.
 - `supabase/migrations/0002_crm_contractors_shipping.sql` — adds customer
