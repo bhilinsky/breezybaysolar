@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<QBWCXML>
+  <AppName>WMS Platform</AppName>
+  <AppID></AppID>
+  <AppURL>http://localhost:8737/wms-qbwc</AppURL>
+  <AppDescription>WMS Platform - Inventory &amp; Accounting Sync</AppDescription>
+  <AppSupport>http://localhost:8737</AppSupport>
+  <UserName>wms</UserName>
+  <OwnerID>{3B9C8C5A-1D2E-4F6A-8B0C-9D7E5F3A2B1C}</OwnerID>
+  <FileID>{4C8D9E6B-2E3F-5A7B-9C1D-0E8F604B3C2D}</FileID>
+  <QBType>QBFS</QBType>
+  <Scheduler><RunEveryNMinutes>30</RunEveryNMinutes></Scheduler>
+  <IsReadOnly>true</IsReadOnly>
+</QBWCXML>
