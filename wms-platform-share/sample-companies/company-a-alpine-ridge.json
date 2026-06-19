@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "exported": "2026-06-19T12:00:00.000Z",
+  "items": [
+    {"sku":"ALP-1001","upc":"","name":"Trekking Poles Carbon Pair","cat":"Camping","uom":"EA","cost":18.50,"price":39.99,"loc":"A-1-L-1-1","qty":120,"min":20,"reorder":40,"sup":"OutfitterWholesale","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"ALP-1002","upc":"","name":"4-Person Dome Tent","cat":"Camping","uom":"EA","cost":64.00,"price":149.99,"loc":"A-2-L-1-2","qty":35,"min":10,"reorder":15,"sup":"OutfitterWholesale","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"ALP-1003","upc":"","name":"Insulated Sleeping Bag 0F","cat":"Camping","uom":"EA","cost":28.00,"price":69.99,"loc":"A-2-L-2-1","qty":60,"min":15,"reorder":25,"sup":"SummitGear","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"ALP-1004","upc":"","name":"Portable Camp Stove","cat":"Cooking","uom":"EA","cost":22.00,"price":54.99,"loc":"B-1-L-1-1","qty":45,"min":10,"reorder":20,"sup":"SummitGear","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"ALP-1005","upc":"","name":"Hydration Pack 2L","cat":"Hydration","uom":"EA","cost":9.50,"price":24.99,"loc":"B-1-L-2-1","qty":90,"min":20,"reorder":35,"sup":"TrailTech","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"ALP-1006","upc":"","name":"Headlamp 300lm Rechargeable","cat":"Lighting","uom":"EA","cost":7.25,"price":19.99,"loc":"B-2-L-1-1","qty":150,"min":30,"reorder":50,"sup":"TrailTech","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"}
+  ],
+  "orders": [
+    {"id":"SO-A-2026-001","cid":"AU002","date":"2026-05-12","status":"shipped","items":[{"sku":"ALP-1001","name":"Trekking Poles Carbon Pair","loc":"A-1-L-1-1","qty":10,"price":39.99},{"sku":"ALP-1005","name":"Hydration Pack 2L","loc":"B-1-L-2-1","qty":20,"price":24.99}],"sub":899.70,"tax":71.98,"ship":0,"total":971.68,"tracking":"UPS-1ZALPHA001","po":"PO-BASE-1001","terms":"Net 30"},
+    {"id":"SO-A-2026-002","cid":"AU003","date":"2026-05-14","status":"delivered","items":[{"sku":"ALP-1002","name":"4-Person Dome Tent","loc":"A-2-L-1-2","qty":5,"price":149.99}],"sub":749.95,"tax":0,"ship":0,"total":749.95,"tracking":"FEDEX-ALPHA1102","po":"PO-TRAIL-220","terms":"Net 60"},
+    {"id":"SO-A-2026-003","cid":"AU002","date":"2026-05-18","status":"processing","items":[{"sku":"ALP-1003","name":"Insulated Sleeping Bag 0F","loc":"A-2-L-2-1","qty":15,"price":69.99},{"sku":"ALP-1006","name":"Headlamp 300lm Rechargeable","loc":"B-2-L-1-1","qty":25,"price":19.99}],"sub":1549.60,"tax":123.97,"ship":0,"total":1673.57,"tracking":"","po":"PO-BASE-1010","terms":"Net 30"}
+  ],
+  "purchaseOrders": [
+    {"id":"PO-A-2026-001","sup":"OutfitterWholesale","date":"2026-05-01","exp":"2026-05-15","status":"partial","lines":[{"sku":"ALP-1001","name":"Trekking Poles Carbon Pair","qty":200,"rcv":200,"cost":18.50},{"sku":"ALP-1002","name":"4-Person Dome Tent","qty":60,"rcv":0,"cost":64.00}],"total":7540.00},
+    {"id":"PO-A-2026-002","sup":"SummitGear","date":"2026-05-05","exp":"2026-05-19","status":"open","lines":[{"sku":"ALP-1003","name":"Insulated Sleeping Bag 0F","qty":80,"rcv":0,"cost":28.00}],"total":2240.00}
+  ],
+  "users": [
+    {"id":"AU001","name":"Dana Rourke","email":"admin@alpineridge.com","pass":"admin123","role":"admin","company":"Alpine Ridge Outdoor Supply","ini":"DR"},
+    {"id":"AU002","name":"Greg Holt","email":"greg@basecampretail.com","pass":"pass123","role":"customer","company":"Basecamp Retail Co","ini":"GH","tier":"Gold","cLimit":30000,"taxEx":false,"phone":"(303) 555-0110","addr":"88 Summit Ave, Denver, CO 80202"},
+    {"id":"AU003","name":"Priya Nair","email":"priya@trailheadshops.com","pass":"pass123","role":"customer","company":"Trailhead Shops Inc","ini":"PN","tier":"Silver","cLimit":15000,"taxEx":true,"phone":"(509) 555-0188","addr":"210 River Rd, Spokane, WA 99201"}
+  ],
+  "orgSettings": {
+    "name": "Alpine Ridge Outdoor Supply",
+    "companyName": "Alpine Ridge Outdoor Supply",
+    "legalName": "Alpine Ridge Outdoor Supply LLC",
+    "addr": "410 Timberline Rd, Bozeman, MT 59715",
+    "phone": "(406) 555-0142",
+    "oldWarehouse": "",
+    "logo": "",
+    "timezone": "America/Denver",
+    "warehouse": {"aisles":"A,B,C","sides":"L,R","bays":4,"levels":5,"positions":5},
+    "ourNames": ["alpine ridge"]
+  },
+  "orderSeq": 4,
+  "poSeq": 3
+}

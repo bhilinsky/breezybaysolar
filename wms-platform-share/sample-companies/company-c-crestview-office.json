@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "exported": "2026-06-19T12:00:00.000Z",
+  "items": [
+    {"sku":"CVO-3001","upc":"","name":"Ergonomic Office Chair","cat":"Furniture","uom":"EA","cost":75.00,"price":169.99,"loc":"A-1-L-1-1","qty":25,"min":5,"reorder":10,"sup":"OfficeWorks","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"CVO-3002","upc":"","name":"Standing Desk 48in","cat":"Furniture","uom":"EA","cost":110.00,"price":249.99,"loc":"A-1-L-2-1","qty":18,"min":4,"reorder":8,"sup":"OfficeWorks","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"CVO-3003","upc":"","name":"Laser Printer Toner Black","cat":"Supplies","uom":"EA","cost":19.00,"price":44.99,"loc":"A-2-L-1-1","qty":200,"min":40,"reorder":70,"sup":"PrintSupplyCo","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"CVO-3004","upc":"","name":"Copy Paper Case 10-ream","cat":"Supplies","uom":"CS","cost":28.00,"price":54.99,"loc":"B-1-L-1-1","qty":150,"min":30,"reorder":50,"sup":"PrintSupplyCo","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"CVO-3005","upc":"","name":"Wireless Keyboard & Mouse Combo","cat":"Electronics","uom":"EA","cost":14.00,"price":34.99,"loc":"B-1-L-2-1","qty":80,"min":15,"reorder":25,"sup":"TechDesk","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"CVO-3006","upc":"","name":"Monitor 27in LED","cat":"Electronics","uom":"EA","cost":95.00,"price":199.99,"loc":"B-2-L-1-1","qty":35,"min":8,"reorder":15,"sup":"TechDesk","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"}
+  ],
+  "orders": [
+    {"id":"SO-C-2026-001","cid":"CU002","date":"2026-05-11","status":"shipped","items":[{"sku":"CVO-3001","name":"Ergonomic Office Chair","loc":"A-1-L-1-1","qty":6,"price":169.99},{"sku":"CVO-3005","name":"Wireless Keyboard & Mouse Combo","loc":"B-1-L-2-1","qty":12,"price":34.99}],"sub":1439.82,"tax":115.19,"ship":0,"total":1555.01,"tracking":"UPS-1ZCREST0145","po":"PO-PARK-310","terms":"Net 30"},
+    {"id":"SO-C-2026-002","cid":"CU003","date":"2026-05-15","status":"delivered","items":[{"sku":"CVO-3002","name":"Standing Desk 48in","loc":"A-1-L-2-1","qty":3,"price":249.99}],"sub":749.97,"tax":0,"ship":0,"total":749.97,"tracking":"FEDEX-CREST3360","po":"PO-BEACON-118","terms":"Net 30"},
+    {"id":"SO-C-2026-003","cid":"CU002","date":"2026-05-19","status":"processing","items":[{"sku":"CVO-3003","name":"Laser Printer Toner Black","loc":"A-2-L-1-1","qty":40,"price":44.99},{"sku":"CVO-3004","name":"Copy Paper Case 10-ream","loc":"B-1-L-1-1","qty":20,"price":54.99}],"sub":2899.40,"tax":231.95,"ship":0,"total":3131.35,"tracking":"","po":"PO-PARK-322","terms":"Net 45"}
+  ],
+  "purchaseOrders": [
+    {"id":"PO-C-2026-001","sup":"OfficeWorks","date":"2026-05-03","exp":"2026-05-17","status":"open","lines":[{"sku":"CVO-3001","name":"Ergonomic Office Chair","qty":50,"rcv":0,"cost":75.00},{"sku":"CVO-3002","name":"Standing Desk 48in","qty":30,"rcv":0,"cost":110.00}],"total":7050.00},
+    {"id":"PO-C-2026-002","sup":"PrintSupplyCo","date":"2026-05-07","exp":"2026-05-21","status":"received","lines":[{"sku":"CVO-3003","name":"Laser Printer Toner Black","qty":300,"rcv":300,"cost":19.00},{"sku":"CVO-3004","name":"Copy Paper Case 10-ream","qty":250,"rcv":250,"cost":28.00}],"total":12700.00}
+  ],
+  "users": [
+    {"id":"CU001","name":"Sam Whitfield","email":"admin@crestviewoffice.com","pass":"admin123","role":"admin","company":"Crestview Office Solutions","ini":"SW"},
+    {"id":"CU002","name":"Rachel Kim","email":"rachel@parksideconsulting.com","pass":"pass123","role":"customer","company":"Parkside Consulting Group","ini":"RK","tier":"Silver","cLimit":20000,"taxEx":false,"phone":"(214) 555-0144","addr":"500 Elm St, Dallas, TX 75201"},
+    {"id":"CU003","name":"Owen Walsh","email":"owen@beaconlawfirm.com","pass":"pass123","role":"customer","company":"Beacon Law Firm LLP","ini":"OW","tier":"Gold","cLimit":35000,"taxEx":true,"phone":"(713) 555-0192","addr":"77 Main St, Houston, TX 77002"}
+  ],
+  "orgSettings": {
+    "name": "Crestview Office Solutions",
+    "companyName": "Crestview Office Solutions",
+    "legalName": "Crestview Office Solutions LLC",
+    "addr": "1200 Commerce Pkwy, Austin, TX 78701",
+    "phone": "(512) 555-0166",
+    "oldWarehouse": "",
+    "logo": "",
+    "timezone": "America/Chicago",
+    "warehouse": {"aisles":"A,B,C","sides":"L,R","bays":4,"levels":5,"positions":5},
+    "ourNames": ["crestview"]
+  },
+  "orderSeq": 4,
+  "poSeq": 3
+}

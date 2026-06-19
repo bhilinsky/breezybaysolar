@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "exported": "2026-06-19T12:00:00.000Z",
+  "items": [
+    {"sku":"BHM-2001","upc":"","name":"Marine Rope 1/2in x 100ft","cat":"Rigging","uom":"EA","cost":32.00,"price":74.99,"loc":"A-1-L-1-1","qty":70,"min":15,"reorder":25,"sup":"CoastalRigging","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"BHM-2002","upc":"","name":"Anchor Galvanized 15lb","cat":"Hardware","uom":"EA","cost":41.00,"price":89.99,"loc":"A-1-L-2-1","qty":40,"min":10,"reorder":18,"sup":"CoastalRigging","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"BHM-2003","upc":"","name":"Bilge Pump 12V 800GPH","cat":"Electrical","uom":"EA","cost":26.50,"price":64.99,"loc":"A-2-L-1-1","qty":55,"min":12,"reorder":20,"sup":"MarineElectric","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"BHM-2004","upc":"","name":"Marine Battery Deep Cycle","cat":"Electrical","uom":"EA","cost":88.00,"price":179.99,"loc":"B-1-L-1-1","qty":30,"min":8,"reorder":14,"sup":"MarineElectric","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"BHM-2005","upc":"","name":"Dock Line Cleat 8in","cat":"Hardware","uom":"EA","cost":6.75,"price":16.99,"loc":"B-1-L-2-1","qty":130,"min":25,"reorder":40,"sup":"CoastalRigging","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"},
+    {"sku":"BHM-2006","upc":"","name":"Marine VHF Radio Handheld","cat":"Electronics","uom":"EA","cost":58.00,"price":124.99,"loc":"B-2-L-1-1","qty":22,"min":6,"reorder":10,"sup":"HarborComm","mth":"FIFO","glI":"4000","glC":"5000","glS":"1200","status":"in_stock"}
+  ],
+  "orders": [
+    {"id":"SO-B-2026-001","cid":"BU002","date":"2026-05-10","status":"delivered","items":[{"sku":"BHM-2001","name":"Marine Rope 1/2in x 100ft","loc":"A-1-L-1-1","qty":8,"price":74.99},{"sku":"BHM-2005","name":"Dock Line Cleat 8in","loc":"B-1-L-2-1","qty":30,"price":16.99}],"sub":1109.62,"tax":88.77,"ship":0,"total":1198.39,"tracking":"UPS-1ZBLUE0091","po":"PO-PORT-771","terms":"Net 30"},
+    {"id":"SO-B-2026-002","cid":"BU003","date":"2026-05-13","status":"shipped","items":[{"sku":"BHM-2004","name":"Marine Battery Deep Cycle","loc":"B-1-L-1-1","qty":6,"price":179.99}],"sub":1079.94,"tax":86.40,"ship":0,"total":1166.34,"tracking":"FEDEX-BLUE2204","po":"PO-GALE-409","terms":"Net 45"},
+    {"id":"SO-B-2026-003","cid":"BU002","date":"2026-05-17","status":"processing","items":[{"sku":"BHM-2003","name":"Bilge Pump 12V 800GPH","loc":"A-2-L-1-1","qty":10,"price":64.99},{"sku":"BHM-2006","name":"Marine VHF Radio Handheld","loc":"B-2-L-1-1","qty":4,"price":124.99}],"sub":1149.86,"tax":91.99,"ship":0,"total":1241.85,"tracking":"","po":"PO-PORT-790","terms":"Net 30"}
+  ],
+  "purchaseOrders": [
+    {"id":"PO-B-2026-001","sup":"CoastalRigging","date":"2026-05-02","exp":"2026-05-16","status":"received","lines":[{"sku":"BHM-2001","name":"Marine Rope 1/2in x 100ft","qty":100,"rcv":100,"cost":32.00},{"sku":"BHM-2005","name":"Dock Line Cleat 8in","qty":200,"rcv":200,"cost":6.75}],"total":4550.00},
+    {"id":"PO-B-2026-002","sup":"MarineElectric","date":"2026-05-06","exp":"2026-05-20","status":"open","lines":[{"sku":"BHM-2004","name":"Marine Battery Deep Cycle","qty":40,"rcv":0,"cost":88.00}],"total":3520.00}
+  ],
+  "users": [
+    {"id":"BU001","name":"Morgan Lee","email":"admin@blueharbor.com","pass":"admin123","role":"admin","company":"Blue Harbor Marine Supply","ini":"ML"},
+    {"id":"BU002","name":"Tyler Banks","email":"tyler@portsideboats.com","pass":"pass123","role":"customer","company":"Portside Boat Works","ini":"TB","tier":"Gold","cLimit":40000,"taxEx":false,"phone":"(757) 555-0123","addr":"14 Marina Dr, Norfolk, VA 23510"},
+    {"id":"BU003","name":"Elena Cruz","email":"elena@galemarine.com","pass":"pass123","role":"customer","company":"Gale Marine Outfitters","ini":"EC","tier":"Platinum","cLimit":60000,"taxEx":false,"phone":"(954) 555-0177","addr":"300 Bayshore Blvd, Fort Lauderdale, FL 33301"}
+  ],
+  "orgSettings": {
+    "name": "Blue Harbor Marine Supply",
+    "companyName": "Blue Harbor Marine Supply",
+    "legalName": "Blue Harbor Marine Supply Inc",
+    "addr": "75 Wharf St, Newport, RI 02840",
+    "phone": "(401) 555-0199",
+    "oldWarehouse": "",
+    "logo": "",
+    "timezone": "America/New_York",
+    "warehouse": {"aisles":"A,B,C","sides":"L,R","bays":4,"levels":5,"positions":5},
+    "ourNames": ["blue harbor"]
+  },
+  "orderSeq": 4,
+  "poSeq": 3
+}
