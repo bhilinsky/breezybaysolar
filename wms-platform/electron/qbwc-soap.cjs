@@ -234,8 +234,28 @@ const ENTITY_STEPS = [
   },
 ]
 
+// This app only ever reads from QuickBooks — it must never send Add/Mod/Del
+// requests that would change company-file data. Enforce that at both
+// definition time (every step) and at send time (the actual built XML),
+// so a future edit can't silently turn this into a two-way sync.
+const WRITE_RQ_PATTERN = /<(?:\w+:)?\w*(?:Add|Mod|Del)Rq[\s>]/
+
+function assertReadOnly(xml, label) {
+  if (WRITE_RQ_PATTERN.test(xml)) {
+    throw new Error(`Refusing to send non-read-only QuickBooks request (${label}): would modify company file data`)
+  }
+  return xml
+}
+
+ENTITY_STEPS.forEach((s) => {
+  if (!/QueryRq$/.test(s.reqTag)) {
+    throw new Error(`ENTITY_STEPS misconfigured: ${s.type} (${s.reqTag}) is not a read-only query`)
+  }
+  assertReadOnly(s.build(), s.reqTag)
+})
+
 function buildQbXmlRequest(innerRq) {
-  return `<?xml version="1.0" encoding="utf-8"?><?qbxml version="13.0"?><QBXML><QBXMLMsgsRq onError="continueOnError">${innerRq}</QBXMLMsgsRq></QBXML>`
+  return `<?xml version="1.0" encoding="utf-8"?><?qbxml version="13.0"?><QBXML><QBXMLMsgsRq onError="continueOnError">${assertReadOnly(innerRq, 'QBXMLMsgsRq')}</QBXMLMsgsRq></QBXML>`
 }
 
 function soapEnvelope(bodyXml) {
