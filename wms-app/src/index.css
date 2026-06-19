@@ -373,9 +373,26 @@ td {
   color: var(--leaf2);
 }
 
-.badge-cancelled {
+.badge-cancelled,
+.badge-inactive {
   background: rgba(255, 93, 93, 0.15);
   color: var(--danger);
+}
+
+.badge-lead {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd166;
+}
+
+.badge-prospect {
+  background: rgba(0, 191, 255, 0.15);
+  color: #6fd6ff;
+}
+
+.badge-customer,
+.badge-active {
+  background: rgba(0, 200, 83, 0.15);
+  color: var(--leaf2);
 }
 
 /* ── Modal ── */

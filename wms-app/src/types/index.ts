@@ -30,6 +30,7 @@ export interface Item {
   unit: string
   reorder_point: number
   default_cost: number | null
+  weight_lbs: number | null
   created_at: string
   updated_at: string
 }
@@ -75,6 +76,8 @@ export interface PurchaseOrderItem {
   unit_cost: number | null
 }
 
+export type LeadStatus = 'lead' | 'prospect' | 'customer' | 'inactive'
+
 export interface Customer {
   id: string
   name: string
@@ -82,6 +85,31 @@ export interface Customer {
   email: string | null
   phone: string | null
   address: string | null
+  lead_status: LeadStatus
+  follow_up_date: string | null
+  created_at: string
+}
+
+export interface CustomerNote {
+  id: string
+  customer_id: string
+  note: string
+  created_by: string | null
+  created_at: string
+}
+
+export type ContractorStatus = 'active' | 'inactive'
+
+export interface Contractor {
+  id: string
+  name: string
+  contact_name: string | null
+  email: string | null
+  phone: string | null
+  address: string | null
+  trade: string | null
+  status: ContractorStatus
+  notes: string | null
   created_at: string
 }
 
@@ -91,6 +119,7 @@ export interface SalesOrder {
   id: string
   order_number: string
   customer_id: string | null
+  contractor_id: string | null
   status: SalesOrderStatus
   notes: string | null
   created_by: string | null

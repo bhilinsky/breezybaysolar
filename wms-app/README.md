@@ -74,10 +74,18 @@ Once deployed over HTTPS, visiting it on a phone offers "Add to Home Screen"
 ## Project structure
 
 - `src/pages/` — Dashboard, Items, Categories, Inventory, Locations,
-  Receiving (purchase orders), Orders (sales orders), Suppliers, Customers.
+  Receiving (purchase orders), Orders (sales orders), Suppliers, Customers
+  (CRM: lead status + notes timeline), Contractors (install crews).
 - `src/lib/supabase.ts` — Supabase client.
+- `src/lib/shiprush.ts` — builds/downloads a ShipRush-compatible CSV export
+  from an order's detail page (Orders → open an order → "Export for
+  ShipRush"). ShipRush's CSV import lets you map arbitrary column headers,
+  so this isn't tied to one fixed schema.
 - `src/context/AuthContext.tsx` — auth/session state.
-- `supabase/migrations/0001_init.sql` — full schema + RLS policies.
+- `supabase/migrations/0001_init.sql` — base schema + RLS policies.
+- `supabase/migrations/0002_crm_contractors_shipping.sql` — adds customer
+  lead status/notes, the `contractors` table, contractor assignment on sales
+  orders, and `items.weight_lbs` for shipping weight. Run after `0001`.
 - `electron/main.cjs` — desktop window shell.
 
 ## v1 scope / known simplifications

@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity, generateNumber } from '../lib/activity'
-import type { Customer, Item, Location, SalesOrder, SalesOrderItem } from '../types'
+import { downloadShipRushCsv } from '../lib/shiprush'
+import type { Contractor, Customer, Item, Location, SalesOrder, SalesOrderItem } from '../types'
 
 export default function Orders() {
   const [orders, setOrders] = useState<SalesOrder[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [contractors, setContractors] = useState<Contractor[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [locations, setLocations] = useState<Location[]>([])
   const [loading, setLoading] = useState(true)
@@ -17,14 +19,16 @@ export default function Orders() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const [ordersRes, customersRes, itemsRes, locationsRes] = await Promise.all([
+    const [ordersRes, customersRes, contractorsRes, itemsRes, locationsRes] = await Promise.all([
       supabase.from('sales_orders').select('*').order('created_at', { ascending: false }),
       supabase.from('customers').select('*').order('name'),
+      supabase.from('contractors').select('*').order('name'),
       supabase.from('items').select('*').order('name'),
       supabase.from('locations').select('*').order('code'),
     ])
     setOrders(ordersRes.data ?? [])
     setCustomers(customersRes.data ?? [])
+    setContractors(contractorsRes.data ?? [])
     setItems(itemsRes.data ?? [])
     setLocations(locationsRes.data ?? [])
     setLoading(false)
@@ -60,6 +64,7 @@ export default function Orders() {
       <SalesOrderDetail
         order={selectedOrder}
         customers={customers}
+        contractors={contractors}
         items={items}
         locations={locations}
         onBack={() => {
@@ -151,6 +156,7 @@ export default function Orders() {
 function SalesOrderDetail({
   order,
   customers,
+  contractors,
   items,
   locations,
   onBack,
@@ -158,6 +164,7 @@ function SalesOrderDetail({
 }: {
   order: SalesOrder
   customers: Customer[]
+  contractors: Contractor[]
   items: Item[]
   locations: Location[]
   onBack: () => void
@@ -170,6 +177,7 @@ function SalesOrderDetail({
   const [newPrice, setNewPrice] = useState('')
   const [fulfillLocationId, setFulfillLocationId] = useState(locations[0]?.id ?? '')
   const [fulfillQty, setFulfillQty] = useState<Record<string, number>>({})
+  const [contractorId, setContractorId] = useState(order.contractor_id ?? '')
 
   const loadLines = useCallback(async () => {
     setLoading(true)
@@ -251,6 +259,21 @@ function SalesOrderDetail({
     await onChanged()
   }
 
+  async function assignContractor(id: string) {
+    setContractorId(id)
+    const { error } = await supabase
+      .from('sales_orders')
+      .update({ contractor_id: id || null })
+      .eq('id', order.id)
+    if (error) return alert(error.message)
+    await onChanged()
+  }
+
+  function exportShipRush() {
+    const customer = customers.find((c) => c.id === order.customer_id) ?? null
+    downloadShipRushCsv(order, customer, lines, items)
+  }
+
   return (
     <div>
       <button className="btn-link" onClick={onBack}>
@@ -261,6 +284,24 @@ function SalesOrderDetail({
         <span className={`badge badge-${order.status}`}>{order.status}</span>
       </div>
       <p className="muted">Customer: {customers.find((c) => c.id === order.customer_id)?.name ?? '—'}</p>
+
+      <section className="panel">
+        <h2>Install crew / contractor</h2>
+        <div className="form-row">
+          <select value={contractorId} onChange={(e) => void assignContractor(e.target.value)}>
+            <option value="">Unassigned</option>
+            {contractors.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.trade ? ` — ${c.trade}` : ''}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn-secondary" onClick={exportShipRush}>
+            Export for ShipRush
+          </button>
+        </div>
+      </section>
 
       <section className="panel">
         <h2>Fulfill from</h2>

@@ -12,6 +12,7 @@ const links = [
   { to: '/orders', label: 'Orders' },
   { to: '/suppliers', label: 'Suppliers' },
   { to: '/customers', label: 'Customers' },
+  { to: '/contractors', label: 'Contractors' },
 ]
 
 export default function Layout() {
