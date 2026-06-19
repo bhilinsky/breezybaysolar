@@ -23,9 +23,17 @@ It ships three ways from one codebase:
    per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
-4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
+4. Open the app (browser, PWA, or desktop build) — on first launch it shows
+   a setup screen asking for those two values. Paste them in and continue.
+   They're saved locally in the browser/app, so this is a one-time step per
+   device; there's nothing to rebuild if you change projects later (use
+   "Change Supabase project" in the sidebar).
 5. Create your first user: either sign up from the app's login screen, or
    add one under Supabase → Authentication → Users.
+
+For local development you can skip the setup screen by instead copying
+`.env.example` to `.env` and filling in the same two values — useful if
+you want every fresh `npm run dev` to already point at a project.
 
 ## 2. Run it in development
 

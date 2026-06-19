@@ -1,7 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
+import { isSupabaseConfigured } from './lib/supabase'
 import Layout from './components/Layout'
+import Setup from './pages/Setup'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Items from './pages/Items'
@@ -20,16 +22,31 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function RequireSupabaseConfig({ children }: { children: React.ReactNode }) {
+  if (!isSupabaseConfigured) return <Navigate to="/setup" replace />
+  return <>{children}</>
+}
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/setup" element={<Setup />} />
+      <Route
+        path="/login"
+        element={
+          <RequireSupabaseConfig>
+            <Login />
+          </RequireSupabaseConfig>
+        }
+      />
       <Route
         path="/"
         element={
-          <RequireAuth>
-            <Layout />
-          </RequireAuth>
+          <RequireSupabaseConfig>
+            <RequireAuth>
+              <Layout />
+            </RequireAuth>
+          </RequireSupabaseConfig>
         }
       >
         <Route index element={<Dashboard />} />

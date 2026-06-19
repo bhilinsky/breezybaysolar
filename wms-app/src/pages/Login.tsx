@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { isSupabaseConfigured } from '../lib/supabase'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -37,13 +36,6 @@ export default function Login() {
             <div className="brand-sub">WMS</div>
           </div>
         </div>
-
-        {!isSupabaseConfigured && (
-          <p className="warning-banner">
-            Supabase isn't configured yet. Copy <code>.env.example</code> to <code>.env</code> and add your project
-            URL and anon key.
-          </p>
-        )}
 
         <h1>{mode === 'signin' ? 'Sign in' : 'Create account'}</h1>
 

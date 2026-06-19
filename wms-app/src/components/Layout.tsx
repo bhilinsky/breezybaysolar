@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { clearStoredSupabaseConfig } from '../lib/supabaseConfig'
 
 const links = [
   { to: '/', label: 'Dashboard' },
@@ -15,6 +16,13 @@ const links = [
 
 export default function Layout() {
   const { profile, user, signOut } = useAuth()
+
+  const changeBackend = async () => {
+    if (!confirm('Disconnect from this Supabase project and set up a different one?')) return
+    await signOut()
+    clearStoredSupabaseConfig()
+    window.location.href = '/setup'
+  }
 
   return (
     <div className="app-shell">
@@ -42,6 +50,9 @@ export default function Layout() {
           <div className="user-name">{profile?.full_name || user?.email}</div>
           <button className="btn-secondary" onClick={() => signOut()}>
             Sign out
+          </button>
+          <button className="btn-link" onClick={changeBackend}>
+            Change Supabase project
           </button>
         </div>
       </aside>
