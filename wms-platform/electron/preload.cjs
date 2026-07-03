@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   qbwcTriggerSync: () => ipcRenderer.invoke('qbwc-trigger-sync'),
   qbwcSaveSettings: (settings) => ipcRenderer.invoke('qbwc-save-settings', settings),
   qbwcGetSettings: () => ipcRenderer.invoke('qbwc-get-settings'),
+  saveBackup: (jsonString) => ipcRenderer.invoke('save-backup', jsonString),
+  loadBackup: () => ipcRenderer.invoke('load-backup'),
 })
 
 ipcRenderer.on('qb-import-data', (_event, data) => {

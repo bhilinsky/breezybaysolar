@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
@@ -148,4 +148,25 @@ ipcMain.handle('screenshot-po', async (_event, _poId) => {
   if (!mainWindow) return null
   const image = await mainWindow.webContents.capturePage()
   return image.toDataURL()
+})
+
+ipcMain.handle('save-backup', async (_event, jsonString) => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: 'Save WMS Backup',
+    defaultPath: `wms-backup-${new Date().toISOString().slice(0, 10)}.json`,
+    filters: [{ name: 'JSON Backup', extensions: ['json'] }],
+  })
+  if (result.canceled || !result.filePath) return { ok: false }
+  fs.writeFileSync(result.filePath, jsonString, 'utf8')
+  return { ok: true, filePath: result.filePath }
+})
+
+ipcMain.handle('load-backup', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Import WMS Backup',
+    filters: [{ name: 'JSON Backup', extensions: ['json'] }],
+    properties: ['openFile'],
+  })
+  if (result.canceled || !result.filePaths.length) return { ok: false }
+  return { ok: true, content: fs.readFileSync(result.filePaths[0], 'utf8') }
 })

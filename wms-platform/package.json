@@ -17,7 +17,8 @@
     "directories": { "output": "release" },
     "win": { "target": "nsis", "icon": "resources/icon-512.png" },
     "mac": { "target": "dmg", "icon": "resources/icon-512.png", "category": "public.app-category.business" },
-    "linux": { "target": "AppImage", "icon": "resources/icon-512.png", "category": "Office" }
+    "linux": { "target": "AppImage", "icon": "resources/icon-512.png", "category": "Office" },
+    "electronDownload": { "isVerifyChecksum": false }
   },
   "devDependencies": {
     "electron": "^42.4.1",
