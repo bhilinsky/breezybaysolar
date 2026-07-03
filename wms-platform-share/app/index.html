@@ -582,6 +582,12 @@ let scanLog=[];
 let countSession=null;
 let payrollRuns=[];
 let prSeq=0;
+
+// ── CRM DATA ──────────────────────────────────────────────────────────────────
+let crmContacts=[];   // {id,name,company,email,phone,title,source,tags,notes,custId,created,lastContact}
+let crmDeals=[];      // {id,title,contactId,value,stage,closeDate,notes,created,updated}
+let crmActivities=[]; // {id,type,contactId,dealId,note,date,by,done}
+let crmContactSeq=1,crmDealSeq=1,crmActSeq=1;
 let ediLog=_lsGet('wms_edilog',[]);
 let ediSeq=ediLog.length?Math.max(...ediLog.map(e=>+(e.id||'0').replace(/\D/g,'')||0)):0;
 
@@ -632,6 +638,10 @@ function _flushPersist(){
     _doWriteKey('wms_plseq',plSeq);        _doWriteKey('wms_soaccseq',soAccSeq);
     _doWriteKey('wms_prseq',prSeq);        _doWriteKey('wms_count',countSession);
     _doWriteKey('wms_edilog',ediLog);
+    _doWriteKey('wms_crm_contacts',crmContacts);
+    _doWriteKey('wms_crm_deals',crmDeals);
+    _doWriteKey('wms_crm_acts',crmActivities);
+    _doWriteKey('wms_crm_seq',{crmContactSeq,crmDealSeq,crmActSeq});
   }catch(e){console.warn('persist flush failed',e);}
   try{_showSaveIndicator('saved');}catch(e){}
 }
@@ -676,6 +686,10 @@ function loadPersisted(){
     const pr=localStorage.getItem('wms_payroll');if(pr)try{payrollRuns=JSON.parse(pr);_persistCache['wms_payroll']=pr;}catch(e){}
     const prs=localStorage.getItem('wms_prseq');if(prs){prSeq=+prs;_persistCache['wms_prseq']=prs;}
     const el=localStorage.getItem('wms_edilog');if(el)try{ediLog=JSON.parse(el);ediSeq=ediLog.length?Math.max(...ediLog.map(e=>+(e.id||'0').replace(/\D/g,'')||0)):0;_persistCache['wms_edilog']=el;}catch(e){}
+    const cc=localStorage.getItem('wms_crm_contacts');if(cc)try{crmContacts=JSON.parse(cc);_persistCache['wms_crm_contacts']=cc;}catch(e){}
+    const cd=localStorage.getItem('wms_crm_deals');if(cd)try{crmDeals=JSON.parse(cd);_persistCache['wms_crm_deals']=cd;}catch(e){}
+    const ca=localStorage.getItem('wms_crm_acts');if(ca)try{crmActivities=JSON.parse(ca);_persistCache['wms_crm_acts']=ca;}catch(e){}
+    const cs=localStorage.getItem('wms_crm_seq');if(cs)try{const s=JSON.parse(cs);crmContactSeq=s.crmContactSeq||1;crmDealSeq=s.crmDealSeq||1;crmActSeq=s.crmActSeq||1;_persistCache['wms_crm_seq']=cs;}catch(e){}
     // Pre-load accounting data into cache too
     ['wms_gl','wms_je','wms_ar','wms_ap','wms_bank','wms_vendp','wms_boms','wms_wo','wms_acseq','wms_suplist'].forEach(k=>{
       const v=localStorage.getItem(k);if(v)_persistCache[k]=v;
@@ -1244,6 +1258,8 @@ function showAdm(tab,btn){
     bkp:{title:'Backup',icon:'ti-database-export',fn:()=>rBackup(),w:860,h:540},
     qbs:{title:'Accounting Sync',icon:'ti-refresh',fn:()=>rQBSync(),w:780,h:580},
     edi:{title:'EDI Center',icon:'ti-plug-connected',fn:()=>rEDICenter(),w:1060,h:680},
+    crm:{title:'CRM',icon:'ti-address-book',fn:()=>rCRM(),w:1100,h:700},
+    api:{title:'API Connections',icon:'ti-plug-connected',fn:()=>rApiHub(),w:960,h:640},
     cfg:{title:'Settings',icon:'ti-settings',fn:()=>rCfg(),w:920,h:620},
   };
   if(mdiMap[tab]){
@@ -18058,6 +18074,358 @@ function swFinish(){
 function _swLaunch(){
   document.getElementById('setup-wizard').style.display='none';
   document.getElementById('login').style.display='flex';
+}
+
+// ══ CRM MODULE ════════════════════════════════════════════════════════════════
+function rCRM(){
+  const el=mdiContentEl('crm');if(!el)return;
+  const stages=['New Lead','Contacted','Qualified','Proposal','Won','Lost'];
+  const stageColor={
+    'New Lead':'#4a90d9','Contacted':'#7b68ee','Qualified':'#f59e0b',
+    'Proposal':'#10b981','Won':'#22c55e','Lost':'#ef4444'
+  };
+
+  function saveCRMContact(c){
+    const idx=crmContacts.findIndex(x=>x.id===c.id);
+    if(idx>=0)crmContacts[idx]=c; else{c.id='CRM'+String(crmContactSeq++).padStart(4,'0');crmContacts.push(c);}
+    persist();
+  }
+  function deleteCRMContact(id){crmContacts=crmContacts.filter(x=>x.id!==id);crmDeals=crmDeals.filter(x=>x.contactId!==id);crmActivities=crmActivities.filter(x=>x.contactId!==id);persist();}
+  function saveCRMDeal(d){
+    const idx=crmDeals.findIndex(x=>x.id===d.id);
+    if(idx>=0)crmDeals[idx]=d; else{d.id='DEAL'+String(crmDealSeq++).padStart(4,'0');crmDeals.push(d);}
+    persist();
+  }
+  function logCRMActivity(a){
+    a.id='ACT'+String(crmActSeq++).padStart(4,'0');
+    a.date=a.date||new Date().toISOString().slice(0,10);
+    crmActivities.push(a);persist();
+  }
+
+  function renderContacts(){
+    const q=(document.getElementById('crm-q')||{}).value||'';
+    const rows=crmContacts.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q.toLowerCase()));
+    return `<div style="display:flex;gap:8px;margin-bottom:10px">
+      <input id="crm-q" placeholder="Search contacts…" value="${q}" oninput="showAdm('crm')" style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid #ccc;font-size:13px">
+      <button onclick="crmContactForm(null)" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px">+ Add Contact</button>
+    </div>
+    <table class="tbl" style="font-size:13px">
+      <thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Stage</th><th>Actions</th></tr></thead>
+      <tbody>${rows.length?rows.map(c=>`<tr>
+        <td><b>${c.name||''}</b></td>
+        <td>${c.company||''}</td>
+        <td><a href="mailto:${c.email||''}">${c.email||''}</a></td>
+        <td>${c.phone||''}</td>
+        <td><span style="background:${stageColor[c.stage]||'#888'};color:#fff;border-radius:10px;padding:2px 8px;font-size:11px">${c.stage||'New Lead'}</span></td>
+        <td style="white-space:nowrap">
+          <button onclick="crmContactForm('${c.id}')" style="background:#4a90d9;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;margin-right:4px">Edit</button>
+          <button onclick="if(confirm('Delete ${(c.name||'').replace(/'/g,"\\'")}?')){window._crmDel&&window._crmDel('${c.id}')}" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px">Del</button>
+        </td>
+      </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No contacts yet</td></tr>'}</tbody>
+    </table>`;
+  }
+
+  function renderPipeline(){
+    const cols=stages.slice(0,5).map(s=>{
+      const deals=crmDeals.filter(d=>d.stage===s);
+      const total=deals.reduce((a,d)=>a+(+d.value||0),0);
+      return `<div style="flex:1;min-width:160px;background:#f8fafc;border-radius:8px;padding:10px;border-top:3px solid ${stageColor[s]}">
+        <div style="font-weight:600;font-size:12px;color:${stageColor[s]};margin-bottom:6px">${s} (${deals.length})</div>
+        <div style="font-size:11px;color:#666;margin-bottom:8px">$${total.toLocaleString()}</div>
+        ${deals.map(d=>`<div style="background:#fff;border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid #e2e8f0;font-size:12px;cursor:pointer" onclick="crmDealForm('${d.id}')">
+          <div style="font-weight:600">${d.title||'Untitled'}</div>
+          <div style="color:#888;font-size:11px">${(crmContacts.find(c=>c.id===d.contactId)||{}).name||d.company||''}</div>
+          <div style="color:#2563eb;font-size:11px;font-weight:600">$${(+d.value||0).toLocaleString()}</div>
+        </div>`).join('')}
+        <button onclick="crmDealForm(null,'${s}')" style="width:100%;background:transparent;border:1px dashed #ccc;border-radius:6px;padding:4px;cursor:pointer;font-size:11px;color:#888;margin-top:4px">+ Add Deal</button>
+      </div>`;
+    }).join('');
+    return `<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px">${cols}</div>`;
+  }
+
+  function renderActivities(){
+    const sorted=[...crmActivities].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,50);
+    const typeIcon={call:'📞',email:'📧',meeting:'🤝',note:'📝'};
+    return `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button onclick="crmActivityForm(null)" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px">+ Log Activity</button>
+    </div>
+    <table class="tbl" style="font-size:13px">
+      <thead><tr><th>Date</th><th>Type</th><th>Contact</th><th>Notes</th></tr></thead>
+      <tbody>${sorted.length?sorted.map(a=>{const c=crmContacts.find(x=>x.id===a.contactId)||{};return`<tr>
+        <td>${a.date||''}</td>
+        <td>${typeIcon[a.type]||'📌'} ${a.type||''}</td>
+        <td>${c.name||a.company||''}</td>
+        <td>${a.notes||''}</td>
+      </tr>`}).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:20px">No activities yet</td></tr>'}</tbody>
+    </table>`;
+  }
+
+  function renderDashboard(){
+    const totalDeals=crmDeals.length;
+    const wonDeals=crmDeals.filter(d=>d.stage==='Won');
+    const pipeline=crmDeals.filter(d=>!['Won','Lost'].includes(d.stage)).reduce((a,d)=>a+(+d.value||0),0);
+    const wonVal=wonDeals.reduce((a,d)=>a+(+d.value||0),0);
+    const cards=[
+      {label:'Contacts',val:crmContacts.length,color:'#4a90d9',icon:'ti-users'},
+      {label:'Open Deals',val:crmDeals.filter(d=>!['Won','Lost'].includes(d.stage)).length,color:'#7b68ee',icon:'ti-briefcase'},
+      {label:'Pipeline Value',val:'$'+pipeline.toLocaleString(),color:'#f59e0b',icon:'ti-currency-dollar'},
+      {label:'Won (Total)',val:'$'+wonVal.toLocaleString(),color:'#22c55e',icon:'ti-trophy'},
+    ];
+    return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px">
+      ${cards.map(c=>`<div style="background:${c.color};color:#fff;border-radius:10px;padding:16px 14px;text-align:center">
+        <div style="font-size:24px;font-weight:700">${c.val}</div>
+        <div style="font-size:12px;opacity:0.85;margin-top:4px">${c.label}</div>
+      </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="background:#f8fafc;border-radius:8px;padding:14px">
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px">Recent Activities</div>
+        ${crmActivities.slice(-5).reverse().map(a=>{const typeIcon={call:'📞',email:'📧',meeting:'🤝',note:'📝'};const c=crmContacts.find(x=>x.id===a.contactId)||{};return`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #e2e8f0">${typeIcon[a.type]||'📌'} <b>${c.name||''}</b> — ${a.notes||''} <span style="color:#888;float:right">${a.date||''}</span></div>`}).join('')||'<div style="color:#888;font-size:12px">No activities</div>'}
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:14px">
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px">Deal Stage Summary</div>
+        ${stages.map(s=>{const c=crmDeals.filter(d=>d.stage===s).length;return`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:${stageColor[s]}">${s}</span><span>${c} deal${c!==1?'s':''}</span></div>`}).join('')}
+      </div>
+    </div>`;
+  }
+
+  window._crmDel=function(id){deleteCRMContact(id);showAdm('crm');};
+
+  const tabs=[
+    {id:'dash',label:'Dashboard',icon:'ti-dashboard'},
+    {id:'contacts',label:'Contacts',icon:'ti-users'},
+    {id:'pipeline',label:'Pipeline',icon:'ti-sitemap'},
+    {id:'activities',label:'Activities',icon:'ti-calendar'},
+  ];
+  let activeTab=el.dataset.crmTab||'dash';
+
+  function renderAll(){
+    let body='';
+    if(activeTab==='dash') body=renderDashboard();
+    else if(activeTab==='contacts') body=renderContacts();
+    else if(activeTab==='pipeline') body=renderPipeline();
+    else if(activeTab==='activities') body=renderActivities();
+
+    el.innerHTML=`<div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e2e8f0">
+      ${tabs.map(t=>`<button onclick="window._crmTab('${t.id}')" style="border:none;background:none;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:${activeTab===t.id?'#2563eb':'#666'};border-bottom:${activeTab===t.id?'2px solid #2563eb':'2px solid transparent'};margin-bottom:-2px"><i class="ti ${t.icon}" style="margin-right:4px"></i>${t.label}</button>`).join('')}
+    </div>
+    <div id="crm-body">${body}</div>`;
+  }
+
+  window._crmTab=function(t){activeTab=t;el.dataset.crmTab=t;renderAll();};
+  renderAll();
+}
+
+window.crmContactForm=function(id){
+  const c=id?crmContacts.find(x=>x.id===id):null;
+  const stages=['New Lead','Contacted','Qualified','Proposal','Won','Lost'];
+  const html=`<div style="padding:20px;min-width:380px">
+    <h3 style="margin:0 0 16px">${c?'Edit':'New'} Contact</h3>
+    <label style="font-size:12px">Name *</label>
+    <input id="cf-name" value="${c?c.name||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Company</label>
+    <input id="cf-co" value="${c?c.company||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Email</label>
+    <input id="cf-email" type="email" value="${c?c.email||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Phone</label>
+    <input id="cf-phone" value="${c?c.phone||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Stage</label>
+    <select id="cf-stage" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+      ${stages.map(s=>`<option${(c&&c.stage===s)||(!c&&s==='New Lead')?' selected':''}>${s}</option>`).join('')}
+    </select>
+    <label style="font-size:12px">Notes</label>
+    <textarea id="cf-notes" rows="3" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 14px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">${c?c.notes||'':''}</textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeModal()" style="border:1px solid #ccc;background:#fff;border-radius:6px;padding:7px 16px;cursor:pointer">Cancel</button>
+      <button onclick="window._saveCRMContactForm('${id||''}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer">Save</button>
+    </div>
+  </div>`;
+  openModal(html);
+};
+
+window._saveCRMContactForm=function(id){
+  const name=document.getElementById('cf-name').value.trim();
+  if(!name){alert('Name required');return;}
+  const c={
+    id:id||null,name,
+    company:document.getElementById('cf-co').value.trim(),
+    email:document.getElementById('cf-email').value.trim(),
+    phone:document.getElementById('cf-phone').value.trim(),
+    stage:document.getElementById('cf-stage').value,
+    notes:document.getElementById('cf-notes').value.trim(),
+  };
+  const existing=id?crmContacts.find(x=>x.id===id):null;
+  if(existing){Object.assign(existing,c);}else{c.id='CRM'+String(crmContactSeq++).padStart(4,'0');crmContacts.push(c);}
+  persist();closeModal();showAdm('crm');
+};
+
+window.crmDealForm=function(id,defaultStage){
+  const d=id?crmDeals.find(x=>x.id===id):null;
+  const stages=['New Lead','Contacted','Qualified','Proposal','Won','Lost'];
+  const html=`<div style="padding:20px;min-width:380px">
+    <h3 style="margin:0 0 16px">${d?'Edit':'New'} Deal</h3>
+    <label style="font-size:12px">Deal Title *</label>
+    <input id="df-title" value="${d?d.title||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Contact</label>
+    <select id="df-contact" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+      <option value="">— None —</option>
+      ${crmContacts.map(c=>`<option value="${c.id}"${d&&d.contactId===c.id?' selected':''}>${c.name}${c.company?' ('+c.company+')':''}</option>`).join('')}
+    </select>
+    <label style="font-size:12px">Value ($)</label>
+    <input id="df-value" type="number" min="0" value="${d?d.value||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Stage</label>
+    <select id="df-stage" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+      ${stages.map(s=>`<option${(d&&d.stage===s)||(defaultStage===s)||(!d&&!defaultStage&&s==='New Lead')?' selected':''}>${s}</option>`).join('')}
+    </select>
+    <label style="font-size:12px">Close Date</label>
+    <input id="df-close" type="date" value="${d?d.closeDate||'':''}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 14px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeModal()" style="border:1px solid #ccc;background:#fff;border-radius:6px;padding:7px 16px;cursor:pointer">Cancel</button>
+      <button onclick="window._saveCRMDealForm('${id||''}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer">Save</button>
+    </div>
+  </div>`;
+  openModal(html);
+};
+
+window._saveCRMDealForm=function(id){
+  const title=document.getElementById('df-title').value.trim();
+  if(!title){alert('Title required');return;}
+  const d={
+    id:id||null,title,
+    contactId:document.getElementById('df-contact').value,
+    value:parseFloat(document.getElementById('df-value').value)||0,
+    stage:document.getElementById('df-stage').value,
+    closeDate:document.getElementById('df-close').value,
+  };
+  const existing=id?crmDeals.find(x=>x.id===id):null;
+  if(existing){Object.assign(existing,d);}else{d.id='DEAL'+String(crmDealSeq++).padStart(4,'0');crmDeals.push(d);}
+  persist();closeModal();showAdm('crm');
+};
+
+window.crmActivityForm=function(contactId){
+  const html=`<div style="padding:20px;min-width:360px">
+    <h3 style="margin:0 0 16px">Log Activity</h3>
+    <label style="font-size:12px">Type</label>
+    <select id="af-type" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+      <option>call</option><option>email</option><option>meeting</option><option>note</option>
+    </select>
+    <label style="font-size:12px">Contact</label>
+    <select id="af-contact" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+      <option value="">— None —</option>
+      ${crmContacts.map(c=>`<option value="${c.id}"${contactId===c.id?' selected':''}>${c.name}</option>`).join('')}
+    </select>
+    <label style="font-size:12px">Date</label>
+    <input id="af-date" type="date" value="${new Date().toISOString().slice(0,10)}" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px">
+    <label style="font-size:12px">Notes</label>
+    <textarea id="af-notes" rows="3" style="display:block;width:100%;box-sizing:border-box;margin:4px 0 14px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeModal()" style="border:1px solid #ccc;background:#fff;border-radius:6px;padding:7px 16px;cursor:pointer">Cancel</button>
+      <button onclick="window._saveCRMActivity()" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer">Save</button>
+    </div>
+  </div>`;
+  openModal(html);
+};
+
+window._saveCRMActivity=function(){
+  const a={
+    type:document.getElementById('af-type').value,
+    contactId:document.getElementById('af-contact').value,
+    date:document.getElementById('af-date').value,
+    notes:document.getElementById('af-notes').value.trim(),
+  };
+  a.id='ACT'+String(crmActSeq++).padStart(4,'0');
+  crmActivities.push(a);persist();closeModal();showAdm('crm');
+};
+
+// ══ API HUB MODULE ═════════════════════════════════════════════════════════════
+function rApiHub(){
+  const el=mdiContentEl('api');if(!el)return;
+  const settings=orgSettings||{};
+  const awsOk=!!(settings.awsRegion&&settings.awsAccessKey&&settings.awsBucket);
+
+  const qbwcStatus=(()=>{
+    try{const s=JSON.parse(localStorage.getItem('wms_settings')||'{}');return s.qbSyncEnabled?'Configured':'Not configured';}catch(e){return 'Not configured';}
+  })();
+
+  function statusBadge(ok,label){
+    return `<span style="background:${ok?'#22c55e':'#94a3b8'};color:#fff;border-radius:10px;padding:2px 10px;font-size:11px;font-weight:600">${label}</span>`;
+  }
+
+  const connectors=[
+    {
+      name:'QuickBooks Desktop (QBWC)',
+      icon:'💼',
+      desc:'Read-only sync via QuickBooks Web Connector. Imports customers, vendors, and inventory from QuickBooks Desktop.',
+      status:qbwcStatus,
+      ok:qbwcStatus==='Configured',
+      actions:`<button onclick="showAdm('qbs')" style="background:#4a90d9;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Open QB Sync</button>`,
+    },
+    {
+      name:'AWS S3 / Cloud Storage',
+      icon:'☁️',
+      desc:'Import inventory and order data from Amazon S3. Supports JSON manifest files uploaded by external systems.',
+      status:awsOk?'Connected':'Not configured',
+      ok:awsOk,
+      actions:`<button onclick="showAdm('cfg')" style="background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Configure AWS</button>`,
+    },
+    {
+      name:'EDI (Electronic Data Interchange)',
+      icon:'📦',
+      desc:'Process EDI 850 Purchase Orders and 856 ASNs. Manage trading partner connections and document exchange.',
+      status:'Active',
+      ok:true,
+      actions:`<button onclick="showAdm('edi')" style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Open EDI Center</button>`,
+    },
+    {
+      name:'ShipRush / Shipping',
+      icon:'🚚',
+      desc:'Connect shipping carriers for label printing and rate shopping. Integrates with UPS, FedEx, USPS, and more.',
+      status:'Available — not configured',
+      ok:false,
+      actions:`<button onclick="alert('ShipRush integration coming soon. Contact support for early access.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
+    },
+    {
+      name:'REST API / Webhooks',
+      icon:'🔌',
+      desc:'Expose WMS data via REST endpoints or push events to external systems via webhooks. For custom ERP integrations.',
+      status:'Available — not configured',
+      ok:false,
+      actions:`<button onclick="alert('REST API access coming soon. Contact support.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
+    },
+    {
+      name:'ERPNext / Frappe',
+      icon:'🏭',
+      desc:'Bidirectional sync with ERPNext for items, purchase orders, and stock entries. Requires ERPNext API key.',
+      status:'Available — not configured',
+      ok:false,
+      actions:`<button onclick="alert('ERPNext integration coming soon. Contact support.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
+    },
+  ];
+
+  el.innerHTML=`
+    <div style="margin-bottom:16px">
+      <h3 style="margin:0 0 4px;font-size:15px">API & Integration Hub</h3>
+      <p style="margin:0;font-size:12px;color:#666">Manage all external connections for WMS Share. Click any connector to configure or open its module.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+      ${connectors.map(c=>`
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">${c.icon}</span>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13px">${c.name}</div>
+              <div>${statusBadge(c.ok,c.status)}</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#555;line-height:1.5">${c.desc}</div>
+          <div style="margin-top:4px">${c.actions}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:20px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
+      <div style="font-weight:600;font-size:13px;color:#1e40af;margin-bottom:4px">Need a custom integration?</div>
+      <div style="font-size:12px;color:#1e40af">Contact <a href="mailto:support@breezybay.net" style="color:#2563eb">support@breezybay.net</a> for custom API development, EDI trading partner setup, or enterprise ERP integration services.</div>
+    </div>`;
 }
 
 // ── STARTUP CHECK ─────────────────────────────────────────────────────────────

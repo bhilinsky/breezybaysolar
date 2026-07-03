@@ -186,6 +186,20 @@ app.whenReady().then(() => {
       { label: 'Scan Station', click() { run(`showAdm('scn')`) } },
       { label: 'Transfer Orders', click() { run(`showAdm('trf')`) } },
     ]},
+    { label: 'CRM', submenu: [
+      { label: 'CRM Dashboard', accelerator: 'CmdOrCtrl+Shift+C', click() { run(`showAdm('crm')`) } },
+      { type: 'separator' },
+      { label: 'Contacts', click() { run(`showAdm('crm');setTimeout(()=>window._crmTab&&_crmTab('contacts'),200)`) } },
+      { label: 'Pipeline', click() { run(`showAdm('crm');setTimeout(()=>window._crmTab&&_crmTab('pipeline'),200)`) } },
+      { label: 'Activities', click() { run(`showAdm('crm');setTimeout(()=>window._crmTab&&_crmTab('activities'),200)`) } },
+    ]},
+    { label: 'Integrations', submenu: [
+      { label: 'API & Connections Hub', click() { run(`showAdm('api')`) } },
+      { type: 'separator' },
+      { label: 'QuickBooks Sync', click() { run(`showAdm('qbs')`) } },
+      { label: 'AWS / Cloud Import', click() { run(`showAdm('cfg')`) } },
+      { label: 'EDI Center', click() { run(`showAdm('edi')`) } },
+    ]},
     { label: 'Reports', submenu: [
       { label: 'Report Center', click() { run(`showAdm('rpt')`) } },
       { type: 'separator' },
