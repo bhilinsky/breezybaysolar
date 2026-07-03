@@ -194,7 +194,7 @@ app.whenReady().then(() => {
       { label: 'Activities', click() { run(`showAdm('crm');setTimeout(()=>window._crmTab&&_crmTab('activities'),200)`) } },
     ]},
     { label: 'Integrations', submenu: [
-      { label: 'API & Connections Hub', click() { run(`showAdm('api')`) } },
+      { label: 'All Integrations', click() { run(`showAdm('intg')`) } },
       { type: 'separator' },
       { label: 'QuickBooks Sync', click() { run(`showAdm('qbs')`) } },
       { label: 'AWS / Cloud Import', click() { run(`showAdm('cfg')`) } },

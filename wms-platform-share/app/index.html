@@ -470,7 +470,7 @@ textarea.qb-inp{height:52px;padding:4px 8px;resize:none;}
         <button class="nb" onclick="showAdm('aai',this)"><i class="ti ti-robot"></i>AI Assistant</button>
         <div class="ns">Integrations</div>
         <button class="nb" onclick="showAdm('crm',this)"><i class="ti ti-address-book"></i>CRM</button>
-        <button class="nb" onclick="showAdm('api',this)"><i class="ti ti-plug-connected"></i>API Hub</button>
+        <button class="nb" onclick="showAdm('intg',this)"><i class="ti ti-plug"></i>Integrations</button>
         <div class="ns">Admin</div>
         <button class="nb" onclick="showAdm('usr',this)"><i class="ti ti-users"></i>Users</button>
         <button class="nb" onclick="showAdm('rps',this)"><i class="ti ti-id-badge-2"></i>Sales Reps</button>
@@ -1262,7 +1262,7 @@ function showAdm(tab,btn){
     qbs:{title:'Accounting Sync',icon:'ti-refresh',fn:()=>rQBSync(),w:780,h:580},
     edi:{title:'EDI Center',icon:'ti-plug-connected',fn:()=>rEDICenter(),w:1060,h:680},
     crm:{title:'CRM',icon:'ti-address-book',fn:()=>rCRM(),w:1100,h:700},
-    api:{title:'API Connections',icon:'ti-plug-connected',fn:()=>rApiHub(),w:960,h:640},
+    intg:{title:'Integrations',icon:'ti-plug',fn:()=>rIntegrations(),w:1000,h:680},
     cfg:{title:'Settings',icon:'ti-settings',fn:()=>rCfg(),w:920,h:620},
   };
   if(mdiMap[tab]){
@@ -18340,95 +18340,151 @@ window._saveCRMActivity=function(){
   crmActivities.push(a);persist();closeModal();showAdm('crm');
 };
 
-// ══ API HUB MODULE ═════════════════════════════════════════════════════════════
-function rApiHub(){
-  const el=mdiContentEl('api');if(!el)return;
-  const settings=orgSettings||{};
-  const awsOk=!!(settings.awsRegion&&settings.awsAccessKey&&settings.awsBucket);
-
-  const qbwcStatus=(()=>{
-    try{const s=JSON.parse(localStorage.getItem('wms_settings')||'{}');return s.qbSyncEnabled?'Configured':'Not configured';}catch(e){return 'Not configured';}
-  })();
-
-  function statusBadge(ok,label){
-    return `<span style="background:${ok?'#22c55e':'#94a3b8'};color:#fff;border-radius:10px;padding:2px 10px;font-size:11px;font-weight:600">${label}</span>`;
-  }
-
-  const connectors=[
-    {
-      name:'QuickBooks Desktop (QBWC)',
-      icon:'💼',
-      desc:'Read-only sync via QuickBooks Web Connector. Imports customers, vendors, and inventory from QuickBooks Desktop.',
-      status:qbwcStatus,
-      ok:qbwcStatus==='Configured',
-      actions:`<button onclick="showAdm('qbs')" style="background:#4a90d9;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Open QB Sync</button>`,
-    },
-    {
-      name:'AWS S3 / Cloud Storage',
-      icon:'☁️',
-      desc:'Import inventory and order data from Amazon S3. Supports JSON manifest files uploaded by external systems.',
-      status:awsOk?'Connected':'Not configured',
-      ok:awsOk,
-      actions:`<button onclick="showAdm('cfg')" style="background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Configure AWS</button>`,
-    },
-    {
-      name:'EDI (Electronic Data Interchange)',
-      icon:'📦',
-      desc:'Process EDI 850 Purchase Orders and 856 ASNs. Manage trading partner connections and document exchange.',
-      status:'Active',
-      ok:true,
-      actions:`<button onclick="showAdm('edi')" style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Open EDI Center</button>`,
-    },
-    {
-      name:'ShipRush / Shipping',
-      icon:'🚚',
-      desc:'Connect shipping carriers for label printing and rate shopping. Integrates with UPS, FedEx, USPS, and more.',
-      status:'Available — not configured',
-      ok:false,
-      actions:`<button onclick="alert('ShipRush integration coming soon. Contact support for early access.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
-    },
-    {
-      name:'REST API / Webhooks',
-      icon:'🔌',
-      desc:'Expose WMS data via REST endpoints or push events to external systems via webhooks. For custom ERP integrations.',
-      status:'Available — not configured',
-      ok:false,
-      actions:`<button onclick="alert('REST API access coming soon. Contact support.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
-    },
-    {
-      name:'ERPNext / Frappe',
-      icon:'🏭',
-      desc:'Bidirectional sync with ERPNext for items, purchase orders, and stock entries. Requires ERPNext API key.',
-      status:'Available — not configured',
-      ok:false,
-      actions:`<button onclick="alert('ERPNext integration coming soon. Contact support.')" style="background:#7b68ee;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">Learn More</button>`,
-    },
-  ];
-
+// ══ INTEGRATIONS MODULE ════════════════════════════════════════════════════════
+function rIntegrations(){
+  const el=_acEl('intg');if(!el)return;
+  const ig=orgSettings.integrations||{};
   el.innerHTML=`
-    <div style="margin-bottom:16px">
-      <h3 style="margin:0 0 4px;font-size:15px">API & Integration Hub</h3>
-      <p style="margin:0;font-size:12px;color:#666">Manage all external connections for WMS Share. Click any connector to configure or open its module.</p>
+<div style="padding:16px;max-width:880px;margin:0 auto;">
+  <div style="font-size:14px;font-weight:700;color:#0d2557;margin-bottom:4px;">Integrations</div>
+  <div style="font-size:11px;color:#64748b;margin-bottom:16px;">Connect CRM, shipping, and freight platforms. Enter credentials below once you have accounts set up — connections activate automatically when valid keys are saved.</div>
+
+  <!-- CRM Section -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:#0d2557;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-building-skyscraper" style="color:#0369a1;"></i> CRM Platforms</div>
+    ${_igCard('salesforce','Salesforce','ti-cloud',ig.salesforce,[
+      {k:'instanceUrl',l:'Instance URL',ph:'https://yourorg.my.salesforce.com'},
+      {k:'clientId',l:'Consumer Key (Client ID)',ph:''},
+      {k:'clientSecret',l:'Consumer Secret',ph:'',pw:true},
+      {k:'username',l:'Username',ph:''},
+    ])}
+    ${_igCard('hubspot','HubSpot','ti-arrow-up-right-circle',ig.hubspot,[
+      {k:'apiKey',l:'Private App Token',ph:'pat-na1-…',pw:true},
+      {k:'portalId',l:'Portal / Hub ID',ph:''},
+    ])}
+    ${_igCard('zoho','Zoho CRM','ti-cube',ig.zoho,[
+      {k:'clientId',l:'Client ID',ph:''},
+      {k:'clientSecret',l:'Client Secret',ph:'',pw:true},
+      {k:'orgId',l:'Organization ID',ph:''},
+    ])}
+    ${_igCard('pipedrive','Pipedrive','ti-chart-funnel',ig.pipedrive,[
+      {k:'apiToken',l:'API Token',ph:'',pw:true},
+      {k:'companyDomain',l:'Company Domain',ph:'yourcompany.pipedrive.com'},
+    ])}
+  </div>
+
+  <!-- Shipping Section -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:#0d2557;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-package" style="color:#16a34a;"></i> Shipping Platforms</div>
+    ${_igCard('shiprush','ShipRush','ti-truck-delivery',ig.shiprush,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'accountId',l:'Account ID',ph:''},
+    ])}
+    ${_igCard('shipstation','ShipStation','ti-box-seam',ig.shipstation,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'apiSecret',l:'API Secret',ph:'',pw:true},
+    ])}
+    ${_igCard('easypost','EasyPost','ti-rocket',ig.easypost,[
+      {k:'apiKey',l:'API Key',ph:'EZAK…',pw:true},
+    ])}
+  </div>
+
+  <!-- Freight Carriers Section -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:#0d2557;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-truck" style="color:#dc2626;"></i> Freight Carriers</div>
+    ${_igCard('fedexFreight','FedEx Freight','ti-brand-fedex',ig.fedexFreight,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'apiSecret',l:'API Secret',ph:'',pw:true},
+      {k:'accountNumber',l:'Account Number',ph:''},
+    ])}
+    ${_igCard('upsFreight','UPS Freight','ti-brand-ups',ig.upsFreight,[
+      {k:'clientId',l:'Client ID',ph:''},
+      {k:'clientSecret',l:'Client Secret',ph:'',pw:true},
+      {k:'accountNumber',l:'Account Number',ph:''},
+    ])}
+    ${_igCard('xpo','XPO Logistics','ti-truck-loading',ig.xpo,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'accountNumber',l:'Account Number',ph:''},
+    ])}
+    ${_igCard('oldDominion','Old Dominion Freight','ti-truck-loading',ig.oldDominion,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'accountNumber',l:'Account Number',ph:''},
+    ])}
+    ${_igCard('saia','Saia LTL Freight','ti-truck-loading',ig.saia,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'accountNumber',l:'Account Number',ph:''},
+    ])}
+  </div>
+
+  <!-- Jobsite Photo Apps -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:#0d2557;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-camera" style="color:#7c3aed;"></i> Jobsite Photo & Field Apps</div>
+    ${_igCard('companycam','CompanyCam','ti-camera',ig.companycam,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+    ])}
+    ${_igCard('buildertrend','Buildertrend','ti-building-cottage',ig.buildertrend,[
+      {k:'apiKey',l:'API Key',ph:'',pw:true},
+      {k:'companyId',l:'Company ID',ph:''},
+    ])}
+    ${_igCard('procore','Procore','ti-clipboard-list',ig.procore,[
+      {k:'clientId',l:'Client ID',ph:''},
+      {k:'clientSecret',l:'Client Secret',ph:'',pw:true},
+    ])}
+  </div>
+
+  <div style="font-size:10px;color:#94a3b8;text-align:center;padding:10px;">
+    Credentials are stored locally on this device. None of these connections are active until valid API keys are entered and saved.
+  </div>
+</div>`;
+}
+
+function _igCard(key,name,icon,cfg,fields){
+  cfg=cfg||{};
+  const connected=fields.every(f=>cfg[f.k]&&cfg[f.k].length>0);
+  return`<div style="border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="_igToggle('${key}')">
+      <i class="ti ${icon}" style="font-size:14px;color:#475569;"></i>
+      <span style="font-size:11px;font-weight:600;color:#1e293b;">${name}</span>
+      <span style="margin-left:auto;font-size:9px;padding:2px 8px;border-radius:10px;background:${connected?'#dcfce7':'#f1f5f9'};color:${connected?'#16a34a':'#94a3b8'};">${connected?'● Connected':'Not Connected'}</span>
+      <i class="ti ti-chevron-down" id="ig-chev-${key}" style="font-size:12px;color:#94a3b8;transition:transform .15s;${window['_igOpen_'+key]?'transform:rotate(180deg);':''}"></i>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
-      ${connectors.map(c=>`
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:24px">${c.icon}</span>
-            <div style="flex:1">
-              <div style="font-weight:600;font-size:13px">${c.name}</div>
-              <div>${statusBadge(c.ok,c.status)}</div>
-            </div>
-          </div>
-          <div style="font-size:12px;color:#555;line-height:1.5">${c.desc}</div>
-          <div style="margin-top:4px">${c.actions}</div>
-        </div>
-      `).join('')}
+    <div id="ig-body-${key}" style="display:${window['_igOpen_'+key]?'block':'none'};margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${fields.map(f=>`<div style="${fields.length%2!==0&&fields.indexOf(f)===fields.length-1?'grid-column:1/-1;':''}">
+          <label style="font-size:10px;color:#64748b;">${f.l}</label>
+          <input id="ig-${key}-${f.k}" type="${f.pw?'password':'text'}" value="${esc(cfg[f.k]||'')}" placeholder="${f.ph}" style="width:100%;padding:5px 7px;border:1px solid #e2e8f0;border-radius:4px;font-size:11px;margin-top:2px;">
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button onclick="_igSave('${key}',${JSON.stringify(fields.map(f=>f.k))})" style="background:#1a3d7c;color:#fff;border:none;border-radius:4px;padding:5px 12px;font-size:10px;cursor:pointer;">Save</button>
+        ${connected?`<button onclick="_igDisconnect('${key}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:4px;padding:5px 12px;font-size:10px;cursor:pointer;">Disconnect</button>`:''}
+      </div>
     </div>
-    <div style="margin-top:20px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
-      <div style="font-weight:600;font-size:13px;color:#1e40af;margin-bottom:4px">Need a custom integration?</div>
-      <div style="font-size:12px;color:#1e40af">Contact <a href="mailto:support@breezybay.net" style="color:#2563eb">support@breezybay.net</a> for custom API development, EDI trading partner setup, or enterprise ERP integration services.</div>
-    </div>`;
+  </div>`;
+}
+function _igToggle(key){
+  window['_igOpen_'+key]=!window['_igOpen_'+key];
+  const body=document.getElementById('ig-body-'+key);
+  const chev=document.getElementById('ig-chev-'+key);
+  if(body)body.style.display=window['_igOpen_'+key]?'block':'none';
+  if(chev)chev.style.transform=window['_igOpen_'+key]?'rotate(180deg)':'';
+}
+function _igSave(key,fieldKeys){
+  if(!orgSettings.integrations)orgSettings.integrations={};
+  if(!orgSettings.integrations[key])orgSettings.integrations[key]={};
+  fieldKeys.forEach(fk=>{
+    const val=document.getElementById(`ig-${key}-${fk}`)?.value||'';
+    orgSettings.integrations[key][fk]=val;
+  });
+  persist(true);
+  rIntegrations();
+  alert(key+' settings saved.');
+}
+function _igDisconnect(key){
+  if(!confirm('Disconnect this integration? Saved credentials will be cleared.'))return;
+  if(orgSettings.integrations)orgSettings.integrations[key]={};
+  persist(true);
+  rIntegrations();
 }
 
 // ── STARTUP CHECK ─────────────────────────────────────────────────────────────
