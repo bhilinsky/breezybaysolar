@@ -13785,6 +13785,32 @@ create policy "anon all" on public.wms_users for all using (true) with check (tr
   </div>
 </div>
 
+<div class="card" style="margin-bottom:10px;border-color:#fbbf24;background:#fffbeb;">
+  <div class="st" style="color:#b45309;display:flex;align-items:center;gap:7px;"><i class="ti ti-cloud-computing" style="font-size:15px;"></i> AWS / Amazon Inventory Integration
+    <span id="aws-status-badge" style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;background:${(orgSettings.aws&&orgSettings.aws.endpoint)?'#dcfce7':'#f1f5f9'};color:${(orgSettings.aws&&orgSettings.aws.endpoint)?'#15803d':'#94a3b8'};border:1px solid ${(orgSettings.aws&&orgSettings.aws.endpoint)?'#86efac':'#e2e8f0'};">${(orgSettings.aws&&orgSettings.aws.endpoint)?'Configured':'Not configured'}</span>
+  </div>
+  <div style="font-size:11px;color:#78350f;margin-bottom:10px;">Connect to your AWS inventory endpoint (SP-API, Lambda, or custom REST API) to pull live inventory into WMS. Or configure S3 presigned URL to fetch an inventory export file.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <div class="fgroup" style="grid-column:1/-1;"><label class="fl">AWS API Endpoint URL</label><input class="inp" id="cfg-aws-endpoint" value="${esc((orgSettings.aws||{}).endpoint||'')}" placeholder="https://your-api.execute-api.us-east-1.amazonaws.com/prod/inventory"></div>
+    <div class="fgroup"><label class="fl">API Key / Bearer Token</label><input class="inp" id="cfg-aws-key" value="${esc((orgSettings.aws||{}).apiKey||'')}" placeholder="API Gateway key or SP-API token"></div>
+    <div class="fgroup"><label class="fl">AWS Region</label><input class="inp" id="cfg-aws-region" value="${esc((orgSettings.aws||{}).region||'us-east-1')}" placeholder="us-east-1"></div>
+    <div class="fgroup"><label class="fl">AWS Access Key ID (optional)</label><input class="inp" id="cfg-aws-akid" value="${esc((orgSettings.aws||{}).accessKeyId||'')}" placeholder="AKIA…"></div>
+    <div class="fgroup"><label class="fl">AWS Secret Access Key (optional)</label><input class="inp" id="cfg-aws-sak" type="password" value="${esc((orgSettings.aws||{}).secretAccessKey||'')}" placeholder="Secret"></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button class="btn-p" onclick="saveAWSSettings()"><i class="ti ti-device-floppy"></i> Save AWS settings</button>
+    <button class="btn" onclick="awsPullInventory()" style="border-color:#d97706;color:#b45309;"><i class="ti ti-cloud-download"></i> Pull inventory now</button>
+    <div id="aws-pull-result" style="font-size:11px;"></div>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:#78350f;line-height:1.7;">
+    <strong>Supported data sources:</strong><br>
+    • <strong>Amazon SP-API</strong> — set endpoint to your SP-API proxy/Lambda wrapper URL<br>
+    • <strong>AWS Lambda</strong> — any Lambda function URL returning <code>{"items":[{sku,name,qty,price,...}]}</code><br>
+    • <strong>S3 Presigned URL</strong> — paste a time-limited S3 URL to a CSV/JSON inventory export<br>
+    • <strong>Amazon FBA / Seller Central</strong> — download the inventory report CSV and use <strong>Accounting → QB Import → Upload AWS export file</strong>
+  </div>
+</div>
+
 <div class="card" style="background:#f0fdf4;border-color:#86efac;">
   <div class="st" style="color:#15803d;">Hosting guide — share with your team</div>
   <div style="font-size:12px;color:#166534;line-height:2;">
@@ -15146,6 +15172,70 @@ if(!ab)return;
     +'</label>'
     +'</div>'
 
+    // QB XML section
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+    +'<div style="background:#6d28d9;color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ti ti-file-code-2"></i></div>'
+    +'<div><div style="font-size:14px;font-weight:800;color:#0f172a;">QB XML Export Import</div>'
+    +'<div style="font-size:11px;color:#64748b;">Import a QuickBooks XML export — accounts, customers, vendors, items, invoices, bills, and more</div></div>'
+    +'</div>'
+    +'<div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:12px;font-size:11px;color:#4c1d95;margin-bottom:14px;line-height:1.8;">'
+    +'<strong>How to export QB XML from QuickBooks Desktop:</strong><br>'
+    +'1. In QuickBooks, go to <strong>File → Utilities → Export → Lists to IIF Files</strong> (or use the QB SDK XML export)<br>'
+    +'2. For QB XML: use the <strong>QB SDK / QBXML</strong> export — generates an .xml file<br>'
+    +'3. Alternatively, use <strong>QuickBooks Online → Settings → Export Data</strong> to get XML<br>'
+    +'4. Upload the .xml file below'
+    +'</div>'
+    +'<label style="display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;border:2px dashed #c4b5fd;border-radius:10px;cursor:pointer;background:#f5f3ff;transition:background .15s;" onmouseover="this.style.background=\'#ede9fe\'" onmouseout="this.style.background=\'#f5f3ff\'">'
+    +'<i class="ti ti-upload" style="font-size:28px;color:#6d28d9;"></i>'
+    +'<div><div style="font-size:13px;font-weight:700;color:#6d28d9;">Click to select QB XML file</div>'
+    +'<div style="font-size:11px;color:#64748b;">Supports .xml and .XML files</div></div>'
+    +'<input type="file" accept=".xml,.XML" style="display:none;" onchange="runQBXMLImport(this)">'
+    +'</label>'
+    +'</div>'
+
+    // AWS Inventory section
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+    +'<div style="background:#d97706;color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ti ti-cloud-computing"></i></div>'
+    +'<div><div style="font-size:14px;font-weight:800;color:#0f172a;">AWS / Amazon Inventory</div>'
+    +'<div style="font-size:11px;color:#64748b;">Pull inventory from AWS (SP-API, Lambda endpoint, or S3 presigned URL) or upload an AWS inventory export</div></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">'
+    +(((orgSettings.aws||{}).endpoint)?'<button class="btn-p" onclick="awsPullInventory()" style="background:#d97706;border-color:#d97706;"><i class="ti ti-cloud-download"></i> Pull from AWS now</button>':'')
+    +'<label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:6px;border:1px solid #d97706;color:#b45309;">'
+    +'<i class="ti ti-upload"></i> Upload AWS export file<input type="file" accept=".csv,.CSV,.json,.JSON,.xlsx,.xls" style="display:none;" onchange="awsImportFile(this)"></label>'
+    +(!(orgSettings.aws||{}).endpoint?'<span style="font-size:11px;color:#92400e;align-self:center;"><i class="ti ti-settings"></i> Configure AWS endpoint in <strong>Settings</strong> to enable live pull</span>':'')
+    +'</div>'
+    +'<div style="font-size:11px;color:#64748b;line-height:1.7;">'
+    +'<strong>Supported formats:</strong> AWS SP-API inventory report JSON, Amazon FBA CSV, custom Lambda JSON <code>{"items":[{sku,name,qty,price,cost,...}]}</code>, or any standard inventory CSV/Excel.<br>'
+    +'Configure your AWS endpoint URL and credentials in <strong>Settings → AWS Integration</strong>.'
+    +'</div>'
+    +'</div>'
+
+    // Full Migration (multi-file drop)
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+    +'<div style="background:#16a34a;color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ti ti-stack-3"></i></div>'
+    +'<div><div style="font-size:14px;font-weight:800;color:#0f172a;">Full Migration — Drop All Files</div>'
+    +'<div style="font-size:11px;color:#64748b;">Drag &amp; drop any mix of IIF, QB XML, CSV, or Excel files for a single-click full data migration</div></div>'
+    +'</div>'
+    +'<div style="border:2px dashed #16a34a;border-radius:10px;padding:32px;text-align:center;background:#f0fdf4;cursor:pointer;transition:background .15s;" '
+    +'ondragover="event.preventDefault();this.style.background=\'#dcfce7\'" '
+    +'ondragleave="this.style.background=\'#f0fdf4\'" '
+    +'ondrop="qbcHandleDrop(event)" '
+    +'onclick="document.getElementById(\'qbc-multi-input\').click()">'
+    +'<i class="ti ti-stack-3" style="font-size:36px;color:#16a34a;display:block;margin-bottom:8px;"></i>'
+    +'<div style="font-size:14px;font-weight:700;color:#166534;">Drop IIF, XML, CSV, or Excel files here</div>'
+    +'<div style="font-size:11px;color:#64748b;margin-top:4px;">or click to browse — mix and match any file types</div>'
+    +'<input type="file" accept=".iif,.IIF,.xml,.XML,.csv,.CSV,.xlsx,.xls" multiple style="display:none;" id="qbc-multi-input" onchange="qbcHandleFiles(this.files)">'
+    +'</div>'
+    +'<div id="qbc-file-list" style="margin-top:10px;"></div>'
+    +'<div id="qbc-migrate-btn" style="display:none;margin-top:12px;">'
+    +'<button onclick="runFullMigration()" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">⚡ Run Full Migration</button>'
+    +'</div>'
+    +'</div>'
+
     // Import log
     +(window._qbImportLog&&window._qbImportLog.length
       ?'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;">'
@@ -15583,6 +15673,355 @@ function showImportResult(result){
     +'</div>'
     +'</div>';
   document.body.appendChild(overlay);
+}
+
+// ── QB XML IMPORT ─────────────────────────────────────────────────────────────
+function runQBXMLImport(inp){
+  const f=inp.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    inp.value='';
+    try{
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(e.target.result,'text/xml');
+      const result=parseQBXMLDoc(doc,f.name);
+      if(!window._qbImportLog)window._qbImportLog=[];
+      window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'QB XML',summary:result.summary});
+      rebuildMaps();persist();
+      showImportResult(result);
+    }catch(err){alert('Error parsing QB XML file: '+err.message);}
+  };
+  rd.readAsText(f);
+}
+
+function parseQBXMLDoc(doc,fname){
+  const counts={acct:0,cust:0,vend:0,item:0,invoice:0,bill:0,so:0,payment:0,je:0,skip:0,company:0};
+  const getText=(el,tag)=>el?.getElementsByTagName(tag)?.[0]?.textContent?.trim()||'';
+
+  const co=doc.getElementsByTagName('CompanyRet')[0]||doc.getElementsByTagName('Company')[0];
+  if(co){
+    const name=getText(co,'CompanyName')||getText(co,'LegalCompanyName');
+    const addr=co.getElementsByTagName('Address')[0]||co.getElementsByTagName('CompanyAddress')[0];
+    const addr1=getText(addr,'Addr1')||getText(addr,'Line1');
+    const addr2=getText(addr,'Addr2')||getText(addr,'Line2');
+    const city=getText(addr,'City');const state=getText(addr,'State');const zip=getText(addr,'PostalCode');
+    const phone=getText(co,'Phone')||getText(co,'MainPhone');
+    if(name&&!orgSettings.name){
+      if(addr1){orgSettings.addr=[addr1,addr2,city,state,zip].filter(Boolean).join(', ');}
+      if(phone)orgSettings.phone=phone;
+      counts.company=1;
+    }
+  }
+
+  const typeMap={Bank:'Asset',AccountsReceivable:'Asset',AccountsPayable:'Liability',
+    CreditCard:'Liability',OtherCurrentAsset:'Asset',FixedAsset:'Asset',
+    LongTermLiability:'Liability',Equity:'Equity',Income:'Income',
+    CostOfGoodsSold:'COGS',Expense:'Expense',OtherExpense:'Expense',OtherIncome:'Income'};
+  Array.from(doc.getElementsByTagName('AccountRet')).forEach(el=>{
+    const name=getText(el,'FullName')||getText(el,'Name');if(!name)return;
+    if(glAccts.find(a=>a.name===name))return;
+    const t=getText(el,'AccountType');
+    const accType=typeMap[t]||'Expense';
+    glAccts.push({code:getText(el,'AccountNumber')||String(8000+glAccts.length),
+      name,type:accType,sub:t||'Other',
+      normal:['Equity','Liability','Income'].includes(accType)?'Cr':'Dr',
+      bal:parseFloat(getText(el,'CurrentBalance'))||0});
+    counts.acct++;
+  });
+
+  Array.from(doc.getElementsByTagName('CustomerRet')).forEach(el=>{
+    const name=getText(el,'FullName')||getText(el,'Name');if(!name)return;
+    if(users.find(u=>u.role==='customer'&&(u.company===name||u.name===name)))return;
+    const ba=el.getElementsByTagName('BillAddress')[0];
+    const addr1=getText(ba,'Addr1');const addr2=getText(ba,'Addr2');
+    const city=getText(ba,'City');const state=getText(ba,'State');const zip=getText(ba,'PostalCode');
+    users.push({id:'U'+Date.now()+Math.random().toString(36).slice(2,5),
+      name:getText(el,'Contact')||name,company:name,
+      email:getText(el,'Email')||'',pass:'pass123',role:'customer',
+      ini:name.slice(0,2).toUpperCase(),tier:'Silver',
+      cLimit:parseFloat(getText(el,'CreditLimit'))||25000,
+      taxEx:getText(el,'IsTaxable')==='false',
+      phone:getText(el,'Phone')||getText(el,'MainPhone')||'',
+      addr:addr1,addr1,addr2,city,state,zip,country:'US',
+      terms:getText(el,'Terms')||'Net 30',
+      notes:getText(el,'Notes')||''});
+    counts.cust++;
+  });
+
+  Array.from(doc.getElementsByTagName('VendorRet')).forEach(el=>{
+    const name=getText(el,'Name')||getText(el,'FullName');if(!name)return;
+    if(!SUPPLIERS.includes(name)){SUPPLIERS.push(name);counts.vend++;}
+    if(vendorProfiles&&!vendorProfiles.find(v=>v.name===name)){
+      const ba=el.getElementsByTagName('VendorAddress')[0];
+      vendorProfiles.push({id:'VP'+Date.now()+Math.random().toString(36).slice(2,4),
+        name,contact:getText(el,'Contact')||'',email:getText(el,'Email')||'',
+        phone:getText(el,'Phone')||'',addr:getText(ba,'Addr1')||'',
+        terms:getText(el,'Terms')||'Net 30',
+        acctNum:getText(el,'AccountNumber')||''});
+    }
+  });
+
+  Array.from(doc.getElementsByTagName('ItemInventoryRet'))
+    .concat(Array.from(doc.getElementsByTagName('ItemNonInventoryRet')))
+    .concat(Array.from(doc.getElementsByTagName('ItemServiceRet')))
+    .forEach(el=>{
+      const name=getText(el,'FullName')||getText(el,'Name');if(!name)return;
+      if(items.find(i=>i.name===name))return;
+      const qty=parseFloat(getText(el,'QuantityOnHand'))||0;
+      items.push({sku:getText(el,'ManufacturerPartNumber')||getText(el,'SalesCode')||('IMP-'+String(items.length+1).padStart(4,'0')),
+        upc:'',name,cat:el.tagName.replace('Ret','').replace('ItemInventory','Inventory').replace('ItemNonInventory','Non-Inventory').replace('ItemService','Service'),
+        uom:'EA',cost:parseFloat(getText(el,'PurchaseCost'))||0,
+        price:parseFloat(getText(el,'SalesPrice'))||0,
+        loc:'A-1-L-1-1',qty,min:parseFloat(getText(el,'ReorderPoint'))||0,reorder:0,
+        status:qty>0?'in_stock':'out_of_stock',
+        sup:getText(el,'PrefVendorRef Name')||getText(el,'PrefVendor')||'',
+        mth:'FIFO',glI:'4000',glC:'5000',glS:'1200',
+        desc:getText(el,'SalesDesc')||getText(el,'PurchaseDesc')||''});
+      counts.item++;
+    });
+
+  Array.from(doc.getElementsByTagName('InvoiceRet')).forEach(el=>{
+    const id=getText(el,'RefNumber');
+    if(id&&arInvoices.find(i=>i.id===id)){counts.skip++;return;}
+    const custName=getText(el,'CustomerRef FullName')||getText(el,'CustomerRef Name')||getText(el,'CustomerName');
+    const cust=getOrMakeCust(custName);if(!cust){counts.skip++;return;}
+    const lines=Array.from(el.getElementsByTagName('InvoiceLineRet')).map(l=>{
+      const qty=Math.abs(parseFloat(getText(l,'Quantity'))||1);
+      const price=Math.abs(parseFloat(getText(l,'Rate'))||0);
+      const item=getOrMakeItem(getText(l,'ItemRef FullName')||getText(l,'ItemRef Name'),price,0);
+      return{sku:item?item.sku:'',desc:getText(l,'Desc')||'',qty,price,ext:+(qty*price).toFixed(2),qtyInvoiced:0};
+    });
+    const sub=+lines.reduce((t,l)=>t+l.ext,0).toFixed(2);
+    const total=parseFloat(getText(el,'Subtotal'))||parseFloat(getText(el,'TotalAmount'))||sub;
+    invSeq++;
+    const invId=id||('INV-QB-'+String(invSeq).padStart(3,'0'));
+    arInvoices.push({id:invId,cid:cust.id,
+      date:iifDate(getText(el,'TxnDate')),
+      due:iifDate(getText(el,'DueDate'))||parseDue(iifDate(getText(el,'TxnDate')),'Net 30'),
+      terms:getText(el,'Terms')||'Net 30',lines,sub,
+      tax:+(total-sub).toFixed(2),total,paid:0,status:'open',
+      memo:getText(el,'Memo')||''});
+    counts.invoice++;
+  });
+
+  Array.from(doc.getElementsByTagName('BillRet')).forEach(el=>{
+    const id=getText(el,'RefNumber');
+    if(id&&apBills.find(b=>b.id===id)){counts.skip++;return;}
+    const sup=getText(el,'VendorRef FullName')||getText(el,'VendorRef Name')||'QB Vendor';
+    const total=parseFloat(getText(el,'AmountDue'))||0;
+    billSeq++;
+    apBills.push({id:id||('BILL-QB-'+String(billSeq).padStart(3,'0')),
+      sup,date:iifDate(getText(el,'TxnDate')),
+      due:iifDate(getText(el,'DueDate'))||parseDue(iifDate(getText(el,'TxnDate')),'Net 30'),
+      terms:getText(el,'Terms')||'Net 30',total,paid:0,status:'open',
+      memo:getText(el,'Memo')||'',
+      lines:Array.from(el.getElementsByTagName('ItemLineRet')).map(l=>({
+        acct:getText(l,'ItemRef FullName')||'',desc:getText(l,'Desc')||'',
+        qty:1,rate:parseFloat(getText(l,'Amount'))||0,ext:parseFloat(getText(l,'Amount'))||0
+      }))});
+    counts.bill++;
+  });
+
+  const summary=(counts.company?'Company info updated. ':'')+
+    counts.acct+' accounts, '+counts.cust+' customers, '+counts.vend+' vendors, '+
+    counts.item+' items, '+counts.invoice+' invoices, '+counts.bill+' bills'+
+    (counts.skip?' ('+counts.skip+' skipped)':'');
+  return{counts,summary};
+}
+
+// ── FULL MIGRATION: MULTI-FILE DROP ──────────────────────────────────────────
+let _qbcFiles=[];
+function qbcHandleDrop(e){
+  e.preventDefault();
+  e.currentTarget.style.background='#f0fdf4';
+  qbcHandleFiles(e.dataTransfer.files);
+}
+function qbcHandleFiles(fileList){
+  _qbcFiles=[..._qbcFiles,...Array.from(fileList)];
+  const seen=new Set();
+  _qbcFiles=_qbcFiles.filter(f=>{if(seen.has(f.name))return false;seen.add(f.name);return true;});
+  const listEl=document.getElementById('qbc-file-list');
+  const btnEl=document.getElementById('qbc-migrate-btn');
+  if(!listEl)return;
+  if(!_qbcFiles.length){listEl.innerHTML='';if(btnEl)btnEl.style.display='none';return;}
+  const iconFor=f=>{
+    const ext=f.name.split('.').pop().toLowerCase();
+    if(ext==='iif')return'<i class="ti ti-file-code" style="color:#0d3264;"></i>';
+    if(ext==='xml')return'<i class="ti ti-file-code-2" style="color:#6d28d9;"></i>';
+    if(ext==='json')return'<i class="ti ti-file-code" style="color:#d97706;"></i>';
+    return'<i class="ti ti-file-spreadsheet" style="color:#0f766e;"></i>';
+  };
+  listEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">'
+    +_qbcFiles.map((f,i)=>'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:12px;display:flex;align-items:center;gap:6px;">'
+      +iconFor(f)+' '+esc(f.name)
+      +' <button onclick="_qbcRemove('+i+')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;line-height:1;">×</button>'
+      +'</div>').join('')
+    +'</div>';
+  if(btnEl)btnEl.style.display='block';
+}
+function _qbcRemove(i){_qbcFiles.splice(i,1);qbcHandleFiles([]);}
+
+function runFullMigration(){
+  if(!_qbcFiles.length){alert('No files selected.');return;}
+  const btn=document.querySelector('#qbc-migrate-btn button');
+  if(btn){btn.textContent='⏳ Importing…';btn.disabled=true;}
+  let pending=_qbcFiles.length;
+  const allResults=[];
+  if(!window._qbImportLog)window._qbImportLog=[];
+  _qbcFiles.forEach(f=>{
+    const rd=new FileReader();
+    rd.onload=e=>{
+      const text=e.target.result;
+      const ext=f.name.split('.').pop().toLowerCase();
+      try{
+        let result;
+        if(ext==='iif'){
+          result=parseIIFText(text);
+          window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'IIF',summary:result.summary});
+        } else if(ext==='xml'){
+          const doc=new DOMParser().parseFromString(text,'text/xml');
+          result=parseQBXMLDoc(doc,f.name);
+          window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'QB XML',summary:result.summary});
+        } else if(ext==='json'){
+          result=_importAWSJSON(JSON.parse(text),f.name);
+          window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'JSON/AWS',summary:result.summary});
+        } else {
+          const rows=typeof Papa!=='undefined'?Papa.parse(text,{header:true,skipEmptyLines:true}).data:[];
+          const headers=rows[0]?Object.keys(rows[0]).map(k=>k.toLowerCase()):[];
+          let csvType='customers';
+          if(headers.some(h=>h.includes('item')||h.includes('sku')||h.includes('part')||h.includes('asin')))csvType='items';
+          else if(headers.some(h=>h.includes('vendor')))csvType='vendors';
+          const typeMap2={customers:0,items:1,invoices:2,vendors:3,accounts:4};
+          const radios=document.querySelectorAll('input[name="csv-type"]');
+          if(radios[typeMap2[csvType]])radios[typeMap2[csvType]].checked=true;
+          result={counts:{},summary:'CSV/Excel auto-detected as '+csvType};
+          window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'CSV ('+csvType+')',summary:result.summary});
+        }
+        allResults.push(result);
+      }catch(err){
+        allResults.push({counts:{},summary:'Error in '+f.name+': '+err.message});
+        window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'Error',summary:err.message});
+      }
+      pending--;
+      if(pending===0){
+        rebuildMaps();persist();
+        _qbcFiles=[];
+        if(btn){btn.textContent='⚡ Run Full Migration';btn.disabled=false;}
+        const combined={counts:{acct:0,cust:0,vend:0,item:0,invoice:0,bill:0,so:0,payment:0,je:0,skip:0},
+          summary:allResults.map(r=>r.summary).join(' | ')};
+        allResults.forEach(r=>Object.keys(r.counts||{}).forEach(k=>{combined.counts[k]=(combined.counts[k]||0)+(r.counts[k]||0);}));
+        showImportResult(combined);
+      }
+    };
+    rd.readAsText(f);
+  });
+}
+
+// ── AWS INVENTORY INTEGRATION ─────────────────────────────────────────────────
+function saveAWSSettings(){
+  const endpoint=(document.getElementById('cfg-aws-endpoint')?.value||'').trim();
+  const apiKey=(document.getElementById('cfg-aws-key')?.value||'').trim();
+  const region=(document.getElementById('cfg-aws-region')?.value||'').trim();
+  const accessKeyId=(document.getElementById('cfg-aws-akid')?.value||'').trim();
+  const secretAccessKey=(document.getElementById('cfg-aws-sak')?.value||'').trim();
+  orgSettings.aws={endpoint,apiKey,region,accessKeyId,secretAccessKey};
+  persist();
+  const badge=document.getElementById('aws-status-badge');
+  if(badge){badge.textContent=endpoint?'Configured':'Not configured';badge.style.background=endpoint?'#dcfce7':'#f1f5f9';badge.style.color=endpoint?'#15803d':'#94a3b8';badge.style.borderColor=endpoint?'#86efac':'#e2e8f0';}
+  alert('AWS settings saved.');
+}
+
+async function awsPullInventory(){
+  const aws=orgSettings.aws||{};
+  if(!aws.endpoint){alert('Configure AWS endpoint in Settings → AWS Integration first.');return;}
+  const el=document.getElementById('aws-pull-result');
+  if(el)el.innerHTML='<span style="color:#64748b;">Pulling from AWS…</span>';
+  try{
+    const headers={'Accept':'application/json'};
+    if(aws.apiKey)headers['Authorization']='Bearer '+aws.apiKey;
+    if(aws.accessKeyId&&aws.secretAccessKey){headers['x-amz-access-key-id']=aws.accessKeyId;headers['x-amz-secret-access-key']=aws.secretAccessKey;}
+    if(aws.region)headers['x-amz-region']=aws.region;
+    const r=await fetch(aws.endpoint,{method:'GET',headers});
+    if(!r.ok)throw new Error('HTTP '+r.status+' from AWS endpoint');
+    const data=await r.json();
+    const result=_importAWSJSON(data,'AWS live pull');
+    if(!window._qbImportLog)window._qbImportLog=[];
+    window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:'AWS endpoint',type:'AWS Pull',summary:result.summary});
+    rebuildMaps();persist();
+    if(el)el.innerHTML='<span style="color:#16a34a;"><i class="ti ti-circle-check"></i> '+result.summary+'</span>';
+    showImportResult(result);
+  }catch(e){
+    if(el)el.innerHTML='<span style="color:#dc2626;"><i class="ti ti-circle-x"></i> '+e.message+'</span>';
+  }
+}
+
+function awsImportFile(inp){
+  const f=inp.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    inp.value='';
+    try{
+      const ext=f.name.split('.').pop().toLowerCase();
+      let result;
+      if(ext==='json'){
+        result=_importAWSJSON(JSON.parse(e.target.result),f.name);
+      } else {
+        // CSV/Excel — map common AWS/Amazon column names to WMS fields
+        const rows=typeof Papa!=='undefined'?Papa.parse(e.target.result,{header:true,skipEmptyLines:true}).data:[];
+        let added=0;
+        rows.forEach(r=>{
+          const sku=r.sku||r.SKU||r['seller-sku']||r.asin||r.ASIN||r.item_id||r['Item ID']||'';
+          const name=r.name||r.Name||r.description||r.Description||r.item_name||r['item-name']||r.title||r.Title||sku;
+          if(!sku&&!name)return;
+          if(items.find(i=>i.sku===sku||i.name===name))return;
+          const qty=parseInt(r.qty||r.quantity||r['quantity-available']||r.stock||r.Qty||0)||0;
+          items.push({sku:sku||('AWS-'+String(items.length+1).padStart(4,'0')),upc:r.upc||r.UPC||'',
+            name:name||sku,cat:r.category||r.Category||r['product-category']||'AWS Import',uom:r.uom||r.UOM||'EA',
+            cost:parseFloat(r.cost||r.Cost||r['unit-cost']||0)||0,
+            price:parseFloat(r.price||r.Price||r['your-price']||r['sale-price']||0)||0,
+            loc:r.location||r.Location||r.loc||'A-1-L-1-1',qty,min:0,reorder:0,
+            status:qty>0?'in_stock':'out_of_stock',
+            sup:r.supplier||r.Supplier||r.vendor||r.brand||'',mth:'FIFO',glI:'4000',glC:'5000',glS:'1200'});
+          added++;
+        });
+        result={counts:{item:added},summary:added+' items imported from AWS CSV'};
+      }
+      if(!window._qbImportLog)window._qbImportLog=[];
+      window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'AWS Import',summary:result.summary});
+      rebuildMaps();persist();
+      showImportResult(result);
+    }catch(err){alert('Error importing AWS file: '+err.message);}
+  };
+  rd.readAsText(f);
+}
+
+function _importAWSJSON(data,src){
+  // Handles: {items:[...]}, {inventory:[...]}, {data:[...]}, or raw array
+  const rows=data.items||data.inventory||data.data||data.products||(Array.isArray(data)?data:[]);
+  let added=0,updated=0;
+  rows.forEach(r=>{
+    const sku=r.sku||r.SKU||r.seller_sku||r.asin||r.ASIN||r.item_id||'';
+    const name=r.name||r.title||r.description||r.item_name||sku;
+    if(!sku&&!name)return;
+    const existing=items.find(i=>i.sku===sku||(sku&&i.sku===sku)||(name&&i.name===name));
+    const qty=parseInt(r.qty||r.quantity||r.quantity_available||r.stock||0)||0;
+    if(existing){
+      if(qty!==undefined)existing.qty=qty;
+      if(r.price||r.your_price)existing.price=parseFloat(r.price||r.your_price)||existing.price;
+      existing.status=existing.qty===0?'out_of_stock':existing.qty<=existing.min?'low_stock':'in_stock';
+      updated++;
+    } else {
+      items.push({sku:sku||('AWS-'+String(items.length+1).padStart(4,'0')),upc:r.upc||r.asin||'',
+        name:name||sku,cat:r.category||r.product_category||'AWS Import',uom:r.uom||'EA',
+        cost:parseFloat(r.cost||r.unit_cost||0)||0,
+        price:parseFloat(r.price||r.your_price||r.sale_price||0)||0,
+        loc:r.location||r.warehouse_location||'A-1-L-1-1',qty,min:0,reorder:0,
+        status:qty>0?'in_stock':'out_of_stock',
+        sup:r.supplier||r.vendor||r.brand||'',mth:'FIFO',glI:'4000',glC:'5000',glS:'1200'});
+      added++;
+    }
+  });
+  return{counts:{item:added},summary:added+' items added, '+updated+' updated from '+src};
 }
 
 function emailInvoice(invId){
