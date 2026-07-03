@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
@@ -29,6 +29,8 @@ function saveSettings(settings) {
 }
 
 let currentSettings = DEFAULT_SETTINGS
+
+function run(js) { if (mainWindow) mainWindow.webContents.executeJavaScript(js) }
 
 function qwcXml(settings) {
   const template = fs.readFileSync(path.join(resourcesPath(), 'WMSPlatform.qwc'), 'utf8')
@@ -98,21 +100,109 @@ function createWindow() {
     height: 900,
     minWidth: 1024,
     minHeight: 640,
+    title: 'WMS Share — Warehouse Management',
     backgroundColor: '#0d3264',
+    icon: path.join(resourcesPath(), 'icon-512.png'),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      webSecurity: false,
       preload: path.join(__dirname, 'preload.cjs'),
     },
   })
 
   mainWindow.loadFile(path.join(__dirname, '..', 'app', 'index.html'))
+
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.key === 'F12') mainWindow.webContents.toggleDevTools()
+    if (input.key === 'F5') mainWindow.webContents.reload()
+  })
+
+  mainWindow.on('closed', () => { mainWindow = null })
 }
 
 app.whenReady().then(() => {
   currentSettings = loadSettings()
   httpServer = startQbwcServer(currentSettings.port)
   createWindow()
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    { label: 'File', submenu: [
+      { label: 'New Invoice', accelerator: 'CmdOrCtrl+I', click() { run(`if(typeof openInvoiceForm==="function")openInvoiceForm(null)`) } },
+      { label: 'New Sales Order', accelerator: 'CmdOrCtrl+N', click() { run(`if(typeof openSOForm==="function")openSOForm(null,null)`) } },
+      { type: 'separator' },
+      { label: 'Export Backup…', accelerator: 'CmdOrCtrl+E', click() {
+        run(`(function(){const keys=['wms_items','wms_users','wms_orders','wms_ar','wms_ap','wms_je','wms_gl','wms_bank','wms_sacc','wms_po','wms_picklists','wms_inv','wms_settings','wms_bom','wms_wo','wms_reps','wms_vend','wms_payroll','wms_vp_inquiries'];const d={};keys.forEach(k=>{const v=localStorage.getItem(k);if(v)try{d[k]=JSON.parse(v);}catch(e){d[k]=v;}});if(window.electronAPI?.saveBackup)window.electronAPI.saveBackup(JSON.stringify(d)).then(r=>{if(r?.ok)alert('Backup saved to: '+r.filePath)})})()`)
+      }},
+      { label: 'Import Backup…', click() {
+        if (!mainWindow) return
+        dialog.showOpenDialog(mainWindow, { title: 'Import WMS Backup', filters: [{ name: 'JSON Backup', extensions: ['json'] }], properties: ['openFile'] }).then(r => {
+          if (!r.canceled && r.filePaths.length) {
+            const content = fs.readFileSync(r.filePaths[0], 'utf8')
+            run(`(function(){try{const d=JSON.parse(${JSON.stringify(content)});Object.keys(d).forEach(k=>localStorage.setItem(k,JSON.stringify(d[k])));alert('Backup restored. Reloading…');location.reload()}catch(e){alert('Import failed: '+e.message)}})()`)
+          }
+        })
+      }},
+      { type: 'separator' },
+      { label: 'Print', accelerator: 'CmdOrCtrl+P', click() { run(`window.print()`) } },
+      { type: 'separator' },
+      { label: 'Quit', accelerator: 'Alt+F4', click() { app.quit() } },
+    ]},
+    { label: 'Edit', submenu: [
+      { role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+      { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' },
+    ]},
+    { label: 'View', submenu: [
+      { role: 'reload' }, { role: 'forceReload' }, { type: 'separator' },
+      { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { type: 'separator' },
+      { role: 'togglefullscreen' },
+      { label: 'Developer Tools', accelerator: 'F12', click() { mainWindow?.webContents.toggleDevTools() } },
+    ]},
+    { label: 'Company', submenu: [
+      { label: 'Settings', click() { run(`showAdm('cfg')`) } },
+      { label: 'Users', click() { run(`showAdm('usr')`) } },
+      { label: 'QuickBooks Sync', click() { run(`showAdm('cfg')`) } },
+    ]},
+    { label: 'Customers', submenu: [
+      { label: 'Customer Center', accelerator: 'CmdOrCtrl+J', click() { run(`showAdm('cst')`) } },
+      { label: 'New Invoice', click() { run(`openInvoiceForm&&openInvoiceForm(null)`) } },
+      { label: 'New Sales Order', click() { run(`openSOForm&&openSOForm(null,null)`) } },
+      { label: 'A/R Aging', click() { run(`rRpt('ar_aging')`) } },
+    ]},
+    { label: 'Vendors', submenu: [
+      { label: 'Vendor Center', click() { run(`showAdm('vnd')`) } },
+      { label: 'Vendor Portal', click() { run(`showAdm('vp')`) } },
+      { label: 'A/P Aging', click() { run(`rRpt('ap_aging')`) } },
+    ]},
+    { label: 'Inventory', submenu: [
+      { label: 'Item Catalog', click() { run(`showAdm('cat')`) } },
+      { label: 'Inventory', click() { run(`showAdm('inv')`) } },
+      { label: 'Receiving', click() { run(`showAdm('rcv')`) } },
+      { label: 'Inventory Valuation', click() { run(`rRpt('inv_val')`) } },
+    ]},
+    { label: 'Warehouse', submenu: [
+      { label: '3D Warehouse', click() { run(`showAdm('wh')`) } },
+      { label: 'Pick Station', click() { run(`showAdm('pck')`) } },
+      { label: 'Scan Station', click() { run(`showAdm('scn')`) } },
+      { label: 'Transfer Orders', click() { run(`showAdm('trf')`) } },
+    ]},
+    { label: 'Reports', submenu: [
+      { label: 'Report Center', click() { run(`showAdm('rpt')`) } },
+      { type: 'separator' },
+      { label: 'Profit & Loss', click() { run(`rRpt('pl')`) } },
+      { label: 'Balance Sheet', click() { run(`rRpt('bs')`) } },
+      { label: 'A/R Aging', click() { run(`rRpt('ar_aging')`) } },
+      { label: 'A/P Aging', click() { run(`rRpt('ap_aging')`) } },
+      { label: 'Sales by Customer', click() { run(`rRpt('sales_cust')`) } },
+      { label: 'Sales by Item', click() { run(`rRpt('sales_item')`) } },
+      { label: 'Inventory Valuation', click() { run(`rRpt('inv_val')`) } },
+    ]},
+    { label: 'Help', submenu: [
+      { label: 'About WMS Share v1.0.0', click() {
+        dialog.showMessageBox(mainWindow, { type: 'info', title: 'About', message: 'WMS Share Edition v1.0.0', detail: 'Warehouse Management & Accounting\n\n© 2026 Breezy Bay', buttons: ['OK'] })
+      }},
+    ]},
+  ]))
 })
 
 app.on('window-all-closed', () => {
