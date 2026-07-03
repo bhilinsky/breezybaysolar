@@ -13577,6 +13577,32 @@ function rCfg(){
   </div>
 </div>
 
+<div class="card" style="margin-bottom:10px;border-color:#fbbf24;background:#fffbeb;">
+  <div class="st" style="color:#b45309;display:flex;align-items:center;gap:7px;"><i class="ti ti-cloud-computing" style="font-size:15px;"></i> AWS / Amazon Inventory Integration
+    <span id="aws-status-badge" style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;background:${(orgSettings.aws&&orgSettings.aws.endpoint)?'#dcfce7':'#f1f5f9'};color:${(orgSettings.aws&&orgSettings.aws.endpoint)?'#15803d':'#94a3b8'};border:1px solid ${(orgSettings.aws&&orgSettings.aws.endpoint)?'#86efac':'#e2e8f0'};">${(orgSettings.aws&&orgSettings.aws.endpoint)?'Configured':'Not configured'}</span>
+  </div>
+  <div style="font-size:11px;color:#78350f;margin-bottom:10px;">Connect to your AWS inventory endpoint (SP-API, Lambda, or custom REST API) to pull live inventory into WMS. Or configure S3 presigned URL to fetch an inventory export file.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <div class="fgroup" style="grid-column:1/-1;"><label class="fl">AWS API Endpoint URL</label><input class="inp" id="cfg-aws-endpoint" value="${esc((orgSettings.aws||{}).endpoint||'')}" placeholder="https://your-api.execute-api.us-east-1.amazonaws.com/prod/inventory"></div>
+    <div class="fgroup"><label class="fl">API Key / Bearer Token</label><input class="inp" id="cfg-aws-key" value="${esc((orgSettings.aws||{}).apiKey||'')}" placeholder="API Gateway key or SP-API token"></div>
+    <div class="fgroup"><label class="fl">AWS Region</label><input class="inp" id="cfg-aws-region" value="${esc((orgSettings.aws||{}).region||'us-east-1')}" placeholder="us-east-1"></div>
+    <div class="fgroup"><label class="fl">AWS Access Key ID (optional)</label><input class="inp" id="cfg-aws-akid" value="${esc((orgSettings.aws||{}).accessKeyId||'')}" placeholder="AKIA…"></div>
+    <div class="fgroup"><label class="fl">AWS Secret Access Key (optional)</label><input class="inp" id="cfg-aws-sak" type="password" value="${esc((orgSettings.aws||{}).secretAccessKey||'')}" placeholder="Secret"></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button class="btn-p" onclick="saveAWSSettings()"><i class="ti ti-device-floppy"></i> Save AWS settings</button>
+    <button class="btn" onclick="awsPullInventory()" style="border-color:#d97706;color:#b45309;"><i class="ti ti-cloud-download"></i> Pull inventory now</button>
+    <div id="aws-pull-result" style="font-size:11px;"></div>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:#78350f;line-height:1.7;">
+    <strong>Supported data sources:</strong><br>
+    • <strong>Amazon SP-API</strong> — set endpoint to your SP-API proxy/Lambda wrapper URL<br>
+    • <strong>AWS Lambda</strong> — any Lambda function URL returning <code>{"items":[{sku,name,qty,price,...}]}</code><br>
+    • <strong>S3 Presigned URL</strong> — paste a time-limited S3 URL to a CSV/JSON inventory export<br>
+    • <strong>Amazon FBA / Seller Central</strong> — download the inventory report CSV and use <strong>Accounting → QB Import → Upload AWS export file</strong>
+  </div>
+</div>
+
 <div class="card" style="background:#f0fdf4;border-color:#86efac;">
   <div class="st" style="color:#15803d;">Hosting guide — share with your team</div>
   <div style="font-size:12px;color:#166534;line-height:2;">
@@ -15003,6 +15029,25 @@ function rQBImport(){
     +'</label>'
     +'</div>'
 
+    // AWS Inventory section
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+    +'<div style="background:#d97706;color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ti ti-cloud-computing"></i></div>'
+    +'<div><div style="font-size:14px;font-weight:800;color:#0f172a;">AWS / Amazon Inventory</div>'
+    +'<div style="font-size:11px;color:#64748b;">Pull inventory from AWS (SP-API, Lambda, or S3 presigned URL) or upload an Amazon FBA / Seller Central export</div></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">'
+    +(((orgSettings.aws||{}).endpoint)?'<button class="btn-p" onclick="awsPullInventory()" style="background:#d97706;border-color:#d97706;"><i class="ti ti-cloud-download"></i> Pull from AWS now</button>':'')
+    +'<label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:6px;border:1px solid #d97706;color:#b45309;">'
+    +'<i class="ti ti-upload"></i> Upload AWS export file<input type="file" accept=".csv,.CSV,.json,.JSON,.xlsx,.xls" style="display:none;" onchange="awsImportFile(this)"></label>'
+    +(!(orgSettings.aws||{}).endpoint?'<span style="font-size:11px;color:#92400e;align-self:center;"><i class="ti ti-settings"></i> Configure AWS endpoint in <strong>Settings</strong> to enable live pull</span>':'')
+    +'</div>'
+    +'<div style="font-size:11px;color:#64748b;line-height:1.7;">'
+    +'<strong>Supported formats:</strong> SP-API inventory report JSON, Amazon FBA CSV, Lambda JSON <code>{"items":[{sku,name,qty,...}]}</code>, or any inventory CSV/Excel.<br>'
+    +'Configure your AWS credentials in <strong>Settings → AWS Integration</strong>.'
+    +'</div>'
+    +'</div>'
+
     // Import log
     +(window._qbImportLog&&window._qbImportLog.length
       ?'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;">'
@@ -15724,6 +15769,111 @@ function showImportResult(result){
     +'</div>'
     +'</div>';
   document.body.appendChild(overlay);
+}
+
+// ── AWS INVENTORY INTEGRATION ─────────────────────────────────────────────────
+function saveAWSSettings(){
+  const endpoint=(document.getElementById('cfg-aws-endpoint')?.value||'').trim();
+  const apiKey=(document.getElementById('cfg-aws-key')?.value||'').trim();
+  const region=(document.getElementById('cfg-aws-region')?.value||'').trim();
+  const accessKeyId=(document.getElementById('cfg-aws-akid')?.value||'').trim();
+  const secretAccessKey=(document.getElementById('cfg-aws-sak')?.value||'').trim();
+  orgSettings.aws={endpoint,apiKey,region,accessKeyId,secretAccessKey};
+  persist();
+  const badge=document.getElementById('aws-status-badge');
+  if(badge){badge.textContent=endpoint?'Configured':'Not configured';badge.style.background=endpoint?'#dcfce7':'#f1f5f9';badge.style.color=endpoint?'#15803d':'#94a3b8';badge.style.borderColor=endpoint?'#86efac':'#e2e8f0';}
+  alert('AWS settings saved.');
+}
+
+async function awsPullInventory(){
+  const aws=orgSettings.aws||{};
+  if(!aws.endpoint){alert('Configure AWS endpoint in Settings → AWS Integration first.');return;}
+  const el=document.getElementById('aws-pull-result');
+  if(el)el.innerHTML='<span style="color:#64748b;">Pulling from AWS…</span>';
+  try{
+    const headers={'Accept':'application/json'};
+    if(aws.apiKey)headers['Authorization']='Bearer '+aws.apiKey;
+    if(aws.accessKeyId&&aws.secretAccessKey){headers['x-amz-access-key-id']=aws.accessKeyId;headers['x-amz-secret-access-key']=aws.secretAccessKey;}
+    if(aws.region)headers['x-amz-region']=aws.region;
+    const r=await fetch(aws.endpoint,{method:'GET',headers});
+    if(!r.ok)throw new Error('HTTP '+r.status+' from AWS endpoint');
+    const data=await r.json();
+    const result=_importAWSJSON(data,'AWS live pull');
+    if(!window._qbImportLog)window._qbImportLog=[];
+    window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:'AWS endpoint',type:'AWS Pull',summary:result.summary});
+    rebuildMaps();persist();
+    if(el)el.innerHTML='<span style="color:#16a34a;"><i class="ti ti-circle-check"></i> '+result.summary+'</span>';
+    showImportResult(result);
+  }catch(e){
+    if(el)el.innerHTML='<span style="color:#dc2626;"><i class="ti ti-circle-x"></i> '+e.message+'</span>';
+  }
+}
+
+function awsImportFile(inp){
+  const f=inp.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    inp.value='';
+    try{
+      const ext=f.name.split('.').pop().toLowerCase();
+      let result;
+      if(ext==='json'){
+        result=_importAWSJSON(JSON.parse(e.target.result),f.name);
+      } else {
+        const rows=typeof Papa!=='undefined'?Papa.parse(e.target.result,{header:true,skipEmptyLines:true}).data:[];
+        let added=0;
+        rows.forEach(r=>{
+          const sku=r.sku||r.SKU||r['seller-sku']||r.asin||r.ASIN||r.item_id||r['Item ID']||'';
+          const name=r.name||r.Name||r.description||r.Description||r.item_name||r['item-name']||r.title||r.Title||sku;
+          if(!sku&&!name)return;
+          if(items.find(i=>i.sku===sku||i.name===name))return;
+          const qty=parseInt(r.qty||r.quantity||r['quantity-available']||r.stock||r.Qty||0)||0;
+          items.push({sku:sku||('AWS-'+String(items.length+1).padStart(4,'0')),upc:r.upc||r.UPC||'',
+            name:name||sku,cat:r.category||r.Category||r['product-category']||'AWS Import',uom:r.uom||r.UOM||'EA',
+            cost:parseFloat(r.cost||r.Cost||r['unit-cost']||0)||0,
+            price:parseFloat(r.price||r.Price||r['your-price']||r['sale-price']||0)||0,
+            loc:r.location||r.Location||r.loc||'A-1-L-1-1',qty,min:0,reorder:0,
+            status:qty>0?'in_stock':'out_of_stock',
+            sup:r.supplier||r.Supplier||r.vendor||r.brand||'',mth:'FIFO',glI:'4000',glC:'5000',glS:'1200'});
+          added++;
+        });
+        result={counts:{item:added},summary:added+' items imported from AWS CSV'};
+      }
+      if(!window._qbImportLog)window._qbImportLog=[];
+      window._qbImportLog.unshift({date:new Date().toISOString().split('T')[0],file:f.name,type:'AWS Import',summary:result.summary});
+      rebuildMaps();persist();
+      showImportResult(result);
+    }catch(err){alert('Error importing AWS file: '+err.message);}
+  };
+  rd.readAsText(f);
+}
+
+function _importAWSJSON(data,src){
+  const rows=data.items||data.inventory||data.data||data.products||(Array.isArray(data)?data:[]);
+  let added=0,updated=0;
+  rows.forEach(r=>{
+    const sku=r.sku||r.SKU||r.seller_sku||r.asin||r.ASIN||r.item_id||'';
+    const name=r.name||r.title||r.description||r.item_name||sku;
+    if(!sku&&!name)return;
+    const existing=items.find(i=>(sku&&i.sku===sku)||(name&&i.name===name));
+    const qty=parseInt(r.qty||r.quantity||r.quantity_available||r.stock||0)||0;
+    if(existing){
+      if(qty!==undefined)existing.qty=qty;
+      if(r.price||r.your_price)existing.price=parseFloat(r.price||r.your_price)||existing.price;
+      existing.status=existing.qty===0?'out_of_stock':existing.qty<=existing.min?'low_stock':'in_stock';
+      updated++;
+    } else {
+      items.push({sku:sku||('AWS-'+String(items.length+1).padStart(4,'0')),upc:r.upc||r.asin||'',
+        name:name||sku,cat:r.category||r.product_category||'AWS Import',uom:r.uom||'EA',
+        cost:parseFloat(r.cost||r.unit_cost||0)||0,
+        price:parseFloat(r.price||r.your_price||r.sale_price||0)||0,
+        loc:r.location||r.warehouse_location||'A-1-L-1-1',qty,min:0,reorder:0,
+        status:qty>0?'in_stock':'out_of_stock',
+        sup:r.supplier||r.vendor||r.brand||'',mth:'FIFO',glI:'4000',glC:'5000',glS:'1200'});
+      added++;
+    }
+  });
+  return{counts:{item:added},summary:added+' items added, '+updated+' updated from '+src};
 }
 
 function emailInvoice(invId){
