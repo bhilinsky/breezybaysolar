@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
-import type { Location } from '../types'
+import type { Location, LocationType } from '../types'
 
-const emptyForm = { code: '', name: '', description: '' }
+const locationTypes: { value: LocationType; label: string }[] = [
+  { value: 'warehouse', label: 'Warehouse' },
+  { value: 'safe', label: 'Safe / vault' },
+  { value: 'display_case', label: 'Display case' },
+  { value: 'storefront_floor', label: 'Storefront floor' },
+  { value: 'other', label: 'Other' },
+]
+
+const emptyForm = { code: '', name: '', description: '', type: 'warehouse' as LocationType }
 
 export default function Locations() {
   const [locations, setLocations] = useState<Location[]>([])
@@ -30,6 +38,7 @@ export default function Locations() {
       code: form.code.trim(),
       name: form.name.trim(),
       description: form.description.trim() || null,
+      type: form.type,
     }
     const { data, error: insertError } = await supabase.from('locations').insert(payload).select('id').single()
     if (insertError) return setError(insertError.message)
@@ -64,6 +73,7 @@ export default function Locations() {
             <tr>
               <th>Code</th>
               <th>Name</th>
+              <th>Type</th>
               <th>Description</th>
               <th></th>
             </tr>
@@ -73,6 +83,7 @@ export default function Locations() {
               <tr key={location.id}>
                 <td>{location.code}</td>
                 <td>{location.name}</td>
+                <td>{locationTypes.find((t) => t.value === location.type)?.label ?? location.type}</td>
                 <td>{location.description ?? '—'}</td>
                 <td className="row-actions">
                   <button className="btn-link danger" onClick={() => handleDelete(location)}>
@@ -83,7 +94,7 @@ export default function Locations() {
             ))}
             {locations.length === 0 && (
               <tr>
-                <td colSpan={4} className="muted">
+                <td colSpan={5} className="muted">
                   No locations yet.
                 </td>
               </tr>
@@ -103,6 +114,16 @@ export default function Locations() {
             <label>
               Name
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            </label>
+            <label>
+              Type
+              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as LocationType })}>
+                {locationTypes.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
             </label>
             <label>
               Description

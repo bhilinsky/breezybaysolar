@@ -439,6 +439,84 @@ td {
   font-size: 0.85rem;
 }
 
+/* ── Storefront ── */
+.storefront-container {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  background: var(--panel-2);
+}
+
+.storefront-container-label {
+  margin-bottom: 0.4rem;
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+/* ── Onboarding ── */
+.onboarding-card {
+  width: 480px;
+}
+
+.onboarding-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.onboarding-option {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+}
+
+.onboarding-option input {
+  margin-top: 0.2rem;
+}
+
+.onboarding-option.selected {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.onboarding-option-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.onboarding-option-desc {
+  font-size: 0.78rem;
+}
+
+/* ── Scan to move ── */
+.scan-input {
+  font-size: 1.4rem;
+  padding: 0.9rem 1rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.scan-video {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.scan-result-card {
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+  background: rgba(255, 215, 0, 0.06);
+}
+
 .full-screen-loading {
   display: flex;
   align-items: center;

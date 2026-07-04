@@ -1,9 +1,13 @@
 # Breezy Bay WMS
 
 A warehouse management system: track items, stock levels by location, receive
-purchase orders into inventory, and fulfill outgoing orders. Multiple people
-can use it at once from different devices — all data lives in a shared
-[Supabase](https://supabase.com) project (Postgres + auth + realtime).
+purchase orders into inventory, and fulfill outgoing orders. It also doubles
+as a storefront system — display cases and showroom floor are just another
+location type, racks/trays move between them as a unit, and every move gets
+logged by scanning a barcode/QR tag (camera or a USB/Bluetooth scanner).
+Multiple people can use it at once from different devices — all data lives
+in a shared [Supabase](https://supabase.com) project (Postgres + auth +
+realtime).
 
 It ships three ways from one codebase:
 
@@ -17,15 +21,20 @@ It ships three ways from one codebase:
 ## 1. Set up Supabase (one-time)
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Open the SQL editor and run `supabase/migrations/0001_init.sql` from this
-   repo. It creates all tables, the low-stock view, and row-level security
-   policies (any signed-in user has full access — this app is single-tenant
-   per Supabase project).
+2. Open the SQL editor and run `supabase/migrations/0001_init.sql`, then
+   `supabase/migrations/0002_storefront.sql`, from this repo. Together they
+   create all tables, the low-stock view, and row-level security policies
+   (any signed-in user has full access — this app is single-tenant per
+   Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
 4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
 5. Create your first user: either sign up from the app's login screen, or
    add one under Supabase → Authentication → Users.
+6. On first sign-in you'll be walked through a one-time setup screen asking
+   what kind of business this is (retailer/storefront, service, manufacturer,
+   distributor, or web store) — this only tailors a couple of labels in the
+   nav, it doesn't hide anything.
 
 ## 2. Run it in development
 
@@ -66,11 +75,30 @@ Once deployed over HTTPS, visiting it on a phone offers "Add to Home Screen"
 ## Project structure
 
 - `src/pages/` — Dashboard, Items, Categories, Inventory, Locations,
-  Receiving (purchase orders), Orders (sales orders), Suppliers, Customers.
+  Storefront (display-case view), Containers (racks/trays), Scan to move,
+  Receiving (purchase orders), Orders (sales orders), Suppliers, Customers,
+  Onboarding (first-run business-type picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
-- `supabase/migrations/0001_init.sql` — full schema + RLS policies.
+- `src/hooks/useBusinessProfile.ts` — the one-row business profile set
+  during onboarding.
+- `supabase/migrations/0001_init.sql` — base schema + RLS policies.
+- `supabase/migrations/0002_storefront.sql` — business profile, location
+  types, item barcodes, containers/racks, and the movement log.
 - `electron/main.cjs` — desktop window shell.
+
+### Storefront / rack scanning model
+
+- **Locations** now have a `type` (warehouse, safe, display case, storefront
+  floor, other) — the Storefront page shows only display-case/storefront-floor
+  locations and what's currently sitting in them.
+- **Containers** (racks/trays) are their own entity with a scannable `code`,
+  hold a set of items, and move between locations as a unit — e.g. a ring
+  tray going from the safe to a window case.
+- **Scan to move**: scan (camera or hardware scanner) a rack's code or an
+  item's SKU/barcode, pick the destination location, confirm — this updates
+  `inventory_levels`/`containers.location_id` and writes a row to the new
+  `movements` table, giving a full audit trail of every move.
 
 ## v1 scope / known simplifications
 
@@ -83,3 +111,9 @@ Once deployed over HTTPS, visiting it on a phone offers "Add to Home Screen"
   than a single DB transaction. Fine at small-warehouse scale; if you need
   stronger atomicity under concurrent use, move that logic into a Postgres
   RPC function.
+- The camera scanner (`@zxing/browser`) needs an HTTPS origin (or
+  `localhost`) to get camera permission — same requirement as the PWA
+  install prompt.
+- The business-type picker only relabels a couple of nav items today; it
+  doesn't yet gate features or wire up outside platforms (Shopify, Amazon,
+  etc.) — that integration layer is a deliberately separate follow-up.

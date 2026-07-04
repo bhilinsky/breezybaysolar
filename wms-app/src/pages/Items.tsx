@@ -11,6 +11,7 @@ const emptyForm = {
   unit: 'each',
   reorder_point: 0,
   default_cost: '',
+  barcode: '',
 }
 
 export default function Items() {
@@ -55,6 +56,7 @@ export default function Items() {
       unit: item.unit,
       reorder_point: item.reorder_point,
       default_cost: item.default_cost?.toString() ?? '',
+      barcode: item.barcode ?? '',
     })
     setError(null)
     setShowForm(true)
@@ -71,6 +73,7 @@ export default function Items() {
       unit: form.unit.trim() || 'each',
       reorder_point: Number(form.reorder_point) || 0,
       default_cost: form.default_cost ? Number(form.default_cost) : null,
+      barcode: form.barcode.trim() || null,
     }
 
     if (editingId) {
@@ -166,6 +169,10 @@ export default function Items() {
             <label>
               SKU
               <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} required />
+            </label>
+            <label>
+              Barcode (scan tag, if different from SKU)
+              <input value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
             </label>
             <label>
               Name

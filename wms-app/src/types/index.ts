@@ -1,5 +1,14 @@
 export type Role = 'admin' | 'staff'
 
+export type BusinessType = 'retailer' | 'service' | 'manufacturer' | 'distributor' | 'web_store'
+
+export interface BusinessProfile {
+  id: true
+  business_type: BusinessType
+  business_name: string | null
+  created_at: string
+}
+
 export interface Profile {
   id: string
   full_name: string | null
@@ -13,12 +22,24 @@ export interface Category {
   created_at: string
 }
 
+export type LocationType = 'warehouse' | 'safe' | 'display_case' | 'storefront_floor' | 'other'
+
 export interface Location {
   id: string
   code: string
   name: string
   description: string | null
+  type: LocationType
   created_at: string
+}
+
+export interface Container {
+  id: string
+  code: string
+  label: string
+  location_id: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface Item {
@@ -30,6 +51,7 @@ export interface Item {
   unit: string
   reorder_point: number
   default_cost: number | null
+  barcode: string | null
   created_at: string
   updated_at: string
 }
@@ -38,8 +60,21 @@ export interface InventoryLevel {
   id: string
   item_id: string
   location_id: string
+  container_id: string | null
   quantity: number
   updated_at: string
+}
+
+export interface Movement {
+  id: string
+  container_id: string | null
+  item_id: string | null
+  quantity: number | null
+  from_location_id: string | null
+  to_location_id: string
+  scan_code: string
+  moved_by: string | null
+  occurred_at: string
 }
 
 export interface Supplier {

@@ -1,13 +1,18 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
+import { useBusinessProfile } from './hooks/useBusinessProfile'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
 import Items from './pages/Items'
 import Categories from './pages/Categories'
 import Inventory from './pages/Inventory'
 import Locations from './pages/Locations'
+import Storefront from './pages/Storefront'
+import Containers from './pages/Containers'
+import ScanMove from './pages/ScanMove'
 import Receiving from './pages/Receiving'
 import Orders from './pages/Orders'
 import Suppliers from './pages/Suppliers'
@@ -20,15 +25,32 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function RequireOnboarding({ children }: { children: React.ReactNode }) {
+  const { businessProfile, loading } = useBusinessProfile()
+  if (loading) return <div className="full-screen-loading">Loading…</div>
+  if (!businessProfile) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route
+        path="/onboarding"
+        element={
+          <RequireAuth>
+            <Onboarding />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/"
         element={
           <RequireAuth>
-            <Layout />
+            <RequireOnboarding>
+              <Layout />
+            </RequireOnboarding>
           </RequireAuth>
         }
       >
@@ -37,6 +59,9 @@ function AppRoutes() {
         <Route path="categories" element={<Categories />} />
         <Route path="inventory" element={<Inventory />} />
         <Route path="locations" element={<Locations />} />
+        <Route path="storefront" element={<Storefront />} />
+        <Route path="containers" element={<Containers />} />
+        <Route path="scan" element={<ScanMove />} />
         <Route path="receiving" element={<Receiving />} />
         <Route path="orders" element={<Orders />} />
         <Route path="suppliers" element={<Suppliers />} />
