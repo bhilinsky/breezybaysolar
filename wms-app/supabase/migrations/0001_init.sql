@@ -1,4 +1,4 @@
--- Breezy Bay WMS - initial schema
+-- WMS - initial schema
 -- Run this in the Supabase SQL editor (or via `supabase db push`) on a fresh project.
 
 create extension if not exists "pgcrypto";

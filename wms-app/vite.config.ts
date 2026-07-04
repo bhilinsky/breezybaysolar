@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Breezy Bay WMS',
-        short_name: 'BB WMS',
-        description: 'Warehouse management for Breezy Bay',
+        name: 'WMS',
+        short_name: 'WMS',
+        description: 'Warehouse and storefront management',
         theme_color: '#0c0f08',
         background_color: '#0c0f08',
         display: 'standalone',

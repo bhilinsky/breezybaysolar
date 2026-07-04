@@ -1,4 +1,4 @@
-# Breezy Bay WMS
+# WMS
 
 A warehouse management system: track items, stock levels by location, receive
 purchase orders into inventory, and fulfill outgoing orders. It also doubles
@@ -71,6 +71,23 @@ Deploy the `dist/` folder to any static host (Netlify, Vercel, etc.) — same
 place you could deploy the existing `breezy-bay-holdings-1.html` site from.
 Once deployed over HTTPS, visiting it on a phone offers "Add to Home Screen"
 (iOS Safari) or "Install app" (Android Chrome).
+
+## Customizing branding
+
+This codebase ships with no company name or logo baked in — it's meant to be
+white-labeled by whoever installs it. Two layers of branding:
+
+- **Runtime**: the business name shown in the sidebar comes from the
+  business-type onboarding screen (stored in `business_profile.business_name`)
+  — no code change needed, each install sets its own.
+- **Build-time**: before building your own installer/deployment, update these
+  static values to your own name:
+  - `package.json` — `description`, `desktopName`, and `build.appId` /
+    `build.productName`.
+  - `vite.config.ts` — the PWA `manifest.name` / `short_name` / `description`.
+  - `index.html` — the `<title>` and meta `description`.
+  - `public/` icons and `scripts/icon-source.svg` — swap in your own logo,
+    then run `npm run icons` to regenerate the PNGs.
 
 ## Project structure
 

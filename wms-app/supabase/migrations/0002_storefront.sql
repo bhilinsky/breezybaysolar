@@ -1,4 +1,4 @@
--- Breezy Bay WMS - storefront, containers, business onboarding
+-- WMS - storefront, containers, business onboarding
 -- Run this after 0001_init.sql on an existing project (or as part of a fresh setup).
 
 -- ── Business profile (single row, set during first-run onboarding) ──────

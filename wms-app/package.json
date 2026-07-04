@@ -2,11 +2,10 @@
   "name": "wms-app",
   "private": true,
   "version": "0.0.0",
-  "description": "Breezy Bay WMS - inventory, receiving and order management",
-  "author": "Breezy Bay",
+  "description": "WMS - inventory, receiving and order management",
   "type": "module",
   "main": "electron/main.cjs",
-  "desktopName": "breezy-bay-wms.desktop",
+  "desktopName": "wms.desktop",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -17,8 +16,8 @@
     "dist": "npm run build && electron-builder"
   },
   "build": {
-    "appId": "net.breezybay.wms",
-    "productName": "Breezy Bay WMS",
+    "appId": "com.example.wms",
+    "productName": "WMS",
     "files": ["dist/**/*", "electron/**/*"],
     "directories": { "output": "release" },
     "win": { "target": "nsis", "icon": "public/icon-512.png" },

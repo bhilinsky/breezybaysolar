@@ -62,7 +62,7 @@ export default function Onboarding() {
     <div className="auth-screen">
       <form className="auth-card onboarding-card" onSubmit={handleSubmit}>
         <div className="auth-brand">
-          <div className="brand-name">Welcome to Breezy Bay</div>
+          <div className="brand-name">Welcome</div>
           <div className="brand-sub">Let's set up your workspace</div>
         </div>
         <p className="muted">What kind of business is this? This decides which screens and terms show up.</p>
@@ -90,7 +90,7 @@ export default function Onboarding() {
 
         <label>
           Business name (optional)
-          <input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Breezy Bay Jewelers" />
+          <input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" />
         </label>
 
         {error && <p className="error-text">{error}</p>}
