@@ -36,7 +36,7 @@ create or replace function set_qbwc_password(p_username text, p_password text) r
   update qbwc_config
     set username = p_username, password_hash = crypt(p_password, gen_salt('bf')), updated_at = now()
     where id = true;
-$$ language sql security definer set search_path = public;
+$$ language sql security definer set search_path = public, extensions;
 
 grant execute on function set_qbwc_password(text, text) to authenticated;
 
@@ -49,7 +49,7 @@ create or replace function verify_qbwc_password(p_username text, p_password text
     where id = true and username = p_username and password_hash is not null
       and password_hash = crypt(p_password, password_hash)
   );
-$$ language sql security definer set search_path = public;
+$$ language sql security definer set search_path = public, extensions;
 
 revoke execute on function verify_qbwc_password(text, text) from public, authenticated;
 grant execute on function verify_qbwc_password(text, text) to service_role;

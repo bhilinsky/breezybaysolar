@@ -37,7 +37,7 @@ begin
   values (p_label, p_scopes, encode(digest(v_key, 'sha256'), 'hex'), auth.uid());
   return v_key;
 end;
-$$ language plpgsql security definer set search_path = public;
+$$ language plpgsql security definer set search_path = public, extensions;
 
 grant execute on function create_partner_api_key(text, text[]) to authenticated;
 
@@ -62,7 +62,7 @@ begin
   update partner_api_keys set last_used_at = now() where id = v_row.id;
   return true;
 end;
-$$ language plpgsql security definer set search_path = public;
+$$ language plpgsql security definer set search_path = public, extensions;
 
 revoke execute on function verify_partner_api_key(text, text) from public, authenticated;
 grant execute on function verify_partner_api_key(text, text) to service_role;
