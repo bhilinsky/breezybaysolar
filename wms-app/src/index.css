@@ -378,6 +378,21 @@ td {
   color: var(--danger);
 }
 
+.badge-sent {
+  background: rgba(0, 191, 255, 0.15);
+  color: #6fd6ff;
+}
+
+.badge-paid {
+  background: rgba(0, 200, 83, 0.15);
+  color: var(--leaf2);
+}
+
+.badge-overdue {
+  background: rgba(255, 140, 0, 0.18);
+  color: var(--amber);
+}
+
 /* ── Modal ── */
 .modal-overlay {
   position: fixed;

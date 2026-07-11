@@ -28,10 +28,11 @@ necessarily the cloud one — pick whichever fits your network:
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
-   `0002_storefront.sql`, `0003_warehouse_needs.sql`, then `0004_broadcasts.sql`
-   from this repo. Together they create all tables, the low-stock view, and
-   row-level security policies (any signed-in user has full access — this
-   app is single-tenant per Supabase project).
+   `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
+   then `0005_accounting.sql` from this repo. Together they create all
+   tables, the low-stock view, and row-level security policies (any
+   signed-in user has full access — this app is single-tenant per Supabase
+   project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
 4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
@@ -142,11 +143,11 @@ white-labeled by whoever installs it. Two layers of branding:
 
 ## Project structure
 
-- `src/pages/` — Dashboard, Items, Categories, Inventory, Locations,
-  Storefront (display-case view), Containers (racks/trays), Scan to move,
-  Receiving (purchase orders), Orders (sales orders), Suppliers, Customers,
-  Broadcasts (customer outreach), Onboarding (first-run business-type
-  picker).
+- `src/pages/` — Dashboard, Accounting (financial reporting), Items,
+  Categories, Inventory, Locations, Storefront (display-case view),
+  Containers (racks/trays), Scan to move, Receiving (purchase orders),
+  Orders (sales orders), Invoices, Suppliers, Bills, Customers, Broadcasts
+  (customer outreach), Onboarding (first-run business-type picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -158,6 +159,7 @@ white-labeled by whoever installs it. Two layers of branding:
   needs_warehouse/needs_bin_locations onboarding answers, and bin_code on
   locations.
 - `supabase/migrations/0004_broadcasts.sql` — the broadcasts table.
+- `supabase/migrations/0005_accounting.sql` — invoices and bills.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `electron/main.cjs` — desktop window shell.
@@ -184,6 +186,19 @@ itself happens in the `send-broadcast` Edge Function (step 7 above) so the
 email provider's API key stays server-side, and every customer is BCC'd so
 they never see each other's addresses. `broadcasts` keeps a record of each
 send (status, recipient count, any error) for the page's history list.
+
+### Accounting
+
+The Accounting page is a reporting dashboard in the same style as the main
+Dashboard — outstanding amounts owed to you (AR) and owed by you (AP),
+what's been collected/paid out this month, and overdue invoices/bills.
+**Invoices** and **Bills** are the underlying record-keeping: an invoice can
+optionally link to a sales order, a bill to a purchase order, and each
+moves through draft → sent/received → paid (or cancelled). This is
+deliberately *not* a general ledger, chart of accounts, or double-entry
+bookkeeping system — it tracks what's outstanding and what's been paid, not
+full accounting. If you need real books, export this data into QuickBooks
+or similar (see the integration scope notes for where that fits).
 
 ## v1 scope / known simplifications
 

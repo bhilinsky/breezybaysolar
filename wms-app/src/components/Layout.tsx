@@ -25,6 +25,7 @@ export default function Layout() {
 
   const links = [
     { to: '/', label: 'Dashboard' },
+    { to: '/accounting', label: 'Accounting' },
     { to: '/items', label: 'Items' },
     { to: '/categories', label: 'Categories' },
     ...(needsWarehouse
@@ -38,7 +39,9 @@ export default function Layout() {
         ]
       : []),
     { to: '/orders', label: 'Orders' },
+    { to: '/invoices', label: 'Invoices' },
     ...(needsWarehouse ? [{ to: '/suppliers', label: 'Suppliers' }] : []),
+    { to: '/bills', label: 'Bills' },
     { to: '/customers', label: 'Customers' },
     { to: '/broadcasts', label: 'Broadcasts' },
   ]

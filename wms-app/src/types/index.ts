@@ -165,6 +165,40 @@ export interface SalesOrderItem {
   unit_price: number | null
 }
 
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'cancelled'
+
+export interface Invoice {
+  id: string
+  invoice_number: string
+  customer_id: string | null
+  sales_order_id: string | null
+  status: InvoiceStatus
+  amount: number
+  due_date: string | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+  paid_at: string | null
+}
+
+export type BillStatus = 'draft' | 'received' | 'paid' | 'cancelled'
+
+export interface Bill {
+  id: string
+  bill_number: string
+  supplier_id: string | null
+  purchase_order_id: string | null
+  status: BillStatus
+  amount: number
+  due_date: string | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+  paid_at: string | null
+}
+
 export interface LowStockItem {
   id: string
   sku: string
