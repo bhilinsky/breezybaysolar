@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useBusinessProfile } from '../hooks/useBusinessProfile'
-import type { BusinessType } from '../types'
+import { warehouseBusinessTypes, type BusinessType } from '../types'
 
 function floorLabel(businessType?: BusinessType) {
   if (businessType === 'manufacturer') return 'Work in Progress'
@@ -15,31 +15,31 @@ function rackLabel(businessType?: BusinessType) {
   return 'Racks'
 }
 
-const baseLinks = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/items', label: 'Items' },
-  { to: '/categories', label: 'Categories' },
-  { to: '/inventory', label: 'Inventory' },
-  { to: '/locations', label: 'Locations' },
-]
-
-const tailLinks = [
-  { to: '/scan', label: 'Scan to move' },
-  { to: '/receiving', label: 'Receiving' },
-  { to: '/orders', label: 'Orders' },
-  { to: '/suppliers', label: 'Suppliers' },
-  { to: '/customers', label: 'Customers' },
-]
-
 export default function Layout() {
   const { profile, user, signOut } = useAuth()
   const { businessProfile } = useBusinessProfile()
 
+  // Service/contractor businesses run on jobs and customers, not stock in a
+  // warehouse — skip the location/inventory-tracking screens for them.
+  const needsWarehouse = !businessProfile || warehouseBusinessTypes.includes(businessProfile.business_type)
+
   const links = [
-    ...baseLinks,
-    { to: '/storefront', label: floorLabel(businessProfile?.business_type) },
-    { to: '/containers', label: rackLabel(businessProfile?.business_type) },
-    ...tailLinks,
+    { to: '/', label: 'Dashboard' },
+    { to: '/items', label: 'Items' },
+    { to: '/categories', label: 'Categories' },
+    ...(needsWarehouse
+      ? [
+          { to: '/inventory', label: 'Inventory' },
+          { to: '/locations', label: 'Locations' },
+          { to: '/storefront', label: floorLabel(businessProfile?.business_type) },
+          { to: '/containers', label: rackLabel(businessProfile?.business_type) },
+          { to: '/scan', label: 'Scan to move' },
+          { to: '/receiving', label: 'Receiving' },
+        ]
+      : []),
+    { to: '/orders', label: 'Orders' },
+    ...(needsWarehouse ? [{ to: '/suppliers', label: 'Suppliers' }] : []),
+    { to: '/customers', label: 'Customers' },
   ]
 
   return (
@@ -48,7 +48,7 @@ export default function Layout() {
         <div className="brand">
           <span className="brand-mark">WM</span>
           <div>
-            <div className="brand-name">{businessProfile?.business_name || 'Warehouse Manager'}</div>
+            <div className="brand-name">{businessProfile?.business_name || 'Your Business'}</div>
             <div className="brand-sub">WMS</div>
           </div>
         </div>

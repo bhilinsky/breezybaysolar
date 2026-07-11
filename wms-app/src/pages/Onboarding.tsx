@@ -17,6 +17,11 @@ const businessTypes: { value: BusinessType; label: string; description: string }
     description: 'Jobs, appointments or work orders more than a shelf of inventory.',
   },
   {
+    value: 'contractor',
+    label: 'Contractor',
+    description: 'Jobs and crews out at customer sites, tools and materials more than a shop floor.',
+  },
+  {
     value: 'manufacturer',
     label: 'Manufacturer',
     description: 'Raw materials, work-in-progress stations, and finished goods.',

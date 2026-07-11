@@ -5,7 +5,7 @@
 create table business_profile (
   id boolean primary key default true check (id),
   business_type text not null check (
-    business_type in ('retailer', 'service', 'manufacturer', 'distributor', 'web_store')
+    business_type in ('retailer', 'service', 'contractor', 'manufacturer', 'distributor', 'web_store')
   ),
   business_name text,
   created_at timestamptz not null default now()

@@ -1,6 +1,8 @@
 export type Role = 'admin' | 'staff'
 
-export type BusinessType = 'retailer' | 'service' | 'manufacturer' | 'distributor' | 'web_store'
+export type BusinessType = 'retailer' | 'service' | 'contractor' | 'manufacturer' | 'distributor' | 'web_store'
+
+export const warehouseBusinessTypes: BusinessType[] = ['retailer', 'manufacturer', 'distributor', 'web_store']
 
 export interface BusinessProfile {
   id: true
