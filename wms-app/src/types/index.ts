@@ -13,6 +13,12 @@ export interface BusinessProfile {
   business_name: string | null
   needs_warehouse: boolean
   needs_bin_locations: boolean
+  crm_tools: string[]
+  crm_other: string | null
+  shipping_services: string[]
+  shipping_other: string | null
+  approx_employees: number | null
+  has_1099_contractors: boolean | null
   created_at: string
 }
 
@@ -204,7 +210,14 @@ export interface Bill {
 }
 
 export type GLAccountType = 'asset' | 'liability' | 'equity' | 'income' | 'cogs' | 'expense'
-export type GLAccountRole = 'cash' | 'ar' | 'ap' | 'sales_revenue' | 'purchases_expense'
+export type GLAccountRole =
+  | 'cash'
+  | 'ar'
+  | 'ap'
+  | 'sales_revenue'
+  | 'purchases_expense'
+  | 'payroll_expense'
+  | 'payroll_liabilities'
 
 export interface GLAccount {
   id: string
@@ -282,6 +295,22 @@ export interface Opportunity {
   updated_at: string
 }
 
+export type CRMTaskStatus = 'open' | 'done'
+
+export interface CRMTask {
+  id: string
+  customer_id: string
+  opportunity_id: string | null
+  title: string
+  due_date: string | null
+  status: CRMTaskStatus
+  notes: string | null
+  assigned_to: string | null
+  created_by: string | null
+  created_at: string
+  completed_at: string | null
+}
+
 export interface QBWCConfigStatus {
   app_name: string
   username: string
@@ -319,4 +348,45 @@ export interface AmazonStatus {
   connected_at: string | null
   last_synced_at: string | null
   connected: boolean
+}
+
+export type EmployeeType = 'employee' | 'contractor_1099'
+export type PayType = 'salary' | 'hourly'
+
+export interface Employee {
+  id: string
+  name: string
+  email: string | null
+  phone: string | null
+  employee_type: EmployeeType
+  pay_type: PayType
+  pay_rate: number | null
+  start_date: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type PayRunStatus = 'draft' | 'posted'
+
+export interface PayRun {
+  id: string
+  run_number: string
+  pay_period_start: string
+  pay_period_end: string
+  pay_date: string
+  status: PayRunStatus
+  created_by: string | null
+  created_at: string
+  posted_at: string | null
+}
+
+export interface PayRunLine {
+  id: string
+  pay_run_id: string
+  employee_id: string
+  gross_pay: number
+  deductions: number
+  net_pay: number
+  notes: string | null
 }

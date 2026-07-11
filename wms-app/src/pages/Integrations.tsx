@@ -18,13 +18,14 @@ function marketplaceGuidance(businessType?: string) {
 
 export default function Integrations() {
   const { businessProfile } = useBusinessProfile()
+  const usesSalesforce = businessProfile?.crm_tools?.includes('Salesforce') ?? false
 
   return (
     <div>
       <div className="page-header">
         <h1>Integrations</h1>
       </div>
-      <SalesforceSection />
+      <SalesforceSection hint={usesSalesforce} />
       <QuickBooksSection />
       <AmazonSection guidance={marketplaceGuidance(businessProfile?.business_type)} />
       <PartnerApiSection />
@@ -32,7 +33,7 @@ export default function Integrations() {
   )
 }
 
-function SalesforceSection() {
+function SalesforceSection({ hint }: { hint: boolean }) {
   const { user } = useAuth()
   const CLIENT_ID = import.meta.env.VITE_SALESFORCE_CLIENT_ID
   const LOGIN_URL = import.meta.env.VITE_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com'
@@ -121,6 +122,12 @@ function SalesforceSection() {
         </>
       ) : (
         <>
+          {hint && (
+            <p className="info-text">
+              You told us during setup that you use Salesforce — connecting it below keeps your customers in
+              sync automatically.
+            </p>
+          )}
           <p className="muted">
             Pushes Customers to Salesforce as Contacts, keeping them in sync on every "Sync now". Needs a
             Salesforce Connected App set up first — see the README for the exact steps.

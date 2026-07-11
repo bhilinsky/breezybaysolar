@@ -31,7 +31,8 @@ necessarily the cloud one — pick whichever fits your network:
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
    `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
    `0008_crm.sql`, `0009_quickbooks_desktop.sql`, `0010_partner_api.sql`,
-   then `0011_amazon.sql` from this repo.
+   `0011_amazon.sql`, `0012_company_profile.sql`, `0013_crm_tasks.sql`,
+   then `0014_payroll.sql` from this repo.
    Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
@@ -45,7 +46,11 @@ necessarily the cloud one — pick whichever fits your network:
    manufacturer, distributor, or web store), whether it needs
    warehouse/storage-location tracking at all, and — if so — whether to map
    individual bin locations (aisle/shelf/bin) within each one. These answers
-   decide which screens show up in the nav, not just labels.
+   decide which screens show up in the nav, not just labels. It also asks
+   (all optional) which CRM and shipping tools you already use and roughly
+   how many employees/1099 contractors you have — this just points you at
+   relevant integrations later (e.g. a hint to connect Salesforce if you
+   said you use it) and doesn't block setup or gate any feature.
 7. (Optional) To actually send customer broadcasts — see "Customer
    broadcasts" below — deploy the Edge Function and set its secrets:
    ```bash
@@ -221,10 +226,11 @@ white-labeled by whoever installs it. Two layers of branding:
   Items, Categories, Inventory, Locations, Storefront (display-case view),
   Containers (racks/trays), Scan to move, Receiving (purchase orders),
   Orders (sales orders), Invoices, Suppliers, Bills, Customer Center
-  (contacts + activity timeline + pipeline), Broadcasts (customer
-  outreach), Integrations (Salesforce, QuickBooks Desktop, Amazon
+  (contacts + activity timeline + pipeline + follow-up tasks), Employees
+  (employee/1099 contractor records), Pay Runs (payroll), Broadcasts
+  (customer outreach), Integrations (Salesforce, QuickBooks Desktop, Amazon
   Marketplace, Partner Data API), Onboarding (first-run business-type
-  picker).
+  picker + current tools/services).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -255,6 +261,16 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0011_amazon.sql` — the locked-down amazon_connection
   table, the safe amazon_status view, and
   items.amazon_seller_sku/amazon_product_type.
+- `supabase/migrations/0012_company_profile.sql` — adds the "what do you
+  already use" onboarding fields to business_profile (CRM tools, shipping
+  services, approximate employee count, whether there are 1099
+  contractors).
+- `supabase/migrations/0013_crm_tasks.sql` — crm_tasks, the follow-up/
+  reminder layer in Customer Center (what needs to happen next, and by
+  when — separate from crm_activities, which is what already happened).
+- `supabase/migrations/0014_payroll.sql` — employees, pay_runs, and
+  pay_run_lines, plus the trigger that auto-posts a balanced journal entry
+  to the GL when a pay run is posted.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
@@ -344,6 +360,44 @@ Salesforce is ever connected — the two are complementary, not either/or:
 sync Customers to real Salesforce Contacts via the integration below *and*
 track activity/pipeline here, or just use this if you don't have Salesforce
 at all.
+
+Each customer also has a **Tasks** panel (`crm_tasks`) — the follow-up
+layer that activities and opportunities don't cover: what needs to happen
+next, and by when. Add a task with a title, optional due date, and
+optional link to one of that customer's open opportunities; check it off
+when done. Open tasks past their due date are highlighted so nothing
+quietly falls through.
+
+### Company profile / onboarding
+
+Onboarding also asks (all optional, none of it gates setup) which CRM
+tools and shipping services you already use, and roughly how many
+employees and 1099 contractors you have. Right now this only feeds one
+thing back: if you said you use Salesforce, the Integrations page shows a
+one-line hint pointing you at the Salesforce connection. The rest
+(`business_profile.crm_tools`, `.shipping_services`, `.approx_employees`,
+`.has_1099_contractors`) is just stored for later — a natural spot to hang
+future shipping-carrier integrations or CRM-specific import tools off of.
+
+### Payroll
+
+Employees and Pay Runs give you basic payroll record-keeping, posting to
+the GL — **not** a tax engine. Add employees (or 1099 contractors) with a
+name, pay type (salary/hourly), and rate on the Employees page. Create a
+pay run for a pay period, add a line per employee with **gross pay** and
+**deductions** (a single manual number — whatever you've already
+calculated or been told to withhold; net pay is computed automatically).
+Posting a pay run books one balanced journal entry: debit Salaries & Wages
+for the gross total, credit Cash for the net total actually paid out, and
+credit Payroll Liabilities for any deductions, for you to remit to the
+relevant tax agency or benefits provider separately.
+
+What this deliberately does **not** do: calculate federal/state/local tax
+withholding, file payroll tax forms, handle multi-state rules, or
+integrate with a payroll tax service. That's a regulated product in its
+own right (Gusto/ADP/Zenefits territory) — getting withholding wrong has
+real legal and financial consequences, so this app tracks the numbers you
+give it rather than computing them.
 
 ### Salesforce
 

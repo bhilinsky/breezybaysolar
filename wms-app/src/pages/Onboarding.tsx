@@ -5,6 +5,9 @@ import { logActivity } from '../lib/activity'
 import { defaultWarehouseBusinessTypes, type BusinessType } from '../types'
 import { useBusinessProfile } from '../hooks/useBusinessProfile'
 
+const crmToolOptions = ['Salesforce', 'HubSpot', 'Zoho', 'Pipedrive']
+const shippingServiceOptions = ['UPS', 'FedEx', 'USPS', 'DHL', 'ShipStation']
+
 const businessTypes: { value: BusinessType; label: string; description: string }[] = [
   {
     value: 'retailer',
@@ -45,12 +48,22 @@ export default function Onboarding() {
   const [businessName, setBusinessName] = useState('')
   const [needsWarehouse, setNeedsWarehouse] = useState<boolean | null>(null)
   const [needsBinLocations, setNeedsBinLocations] = useState(false)
+  const [crmTools, setCrmTools] = useState<string[]>([])
+  const [crmOther, setCrmOther] = useState('')
+  const [shippingServices, setShippingServices] = useState<string[]>([])
+  const [shippingOther, setShippingOther] = useState('')
+  const [approxEmployees, setApproxEmployees] = useState('')
+  const [has1099, setHas1099] = useState<boolean | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   function selectBusinessType(value: BusinessType) {
     setBusinessType(value)
     setNeedsWarehouse(defaultWarehouseBusinessTypes.includes(value))
+  }
+
+  function toggle(list: string[], setList: (v: string[]) => void, value: string) {
+    setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -64,6 +77,12 @@ export default function Onboarding() {
       business_name: businessName.trim() || null,
       needs_warehouse: needsWarehouse ?? false,
       needs_bin_locations: (needsWarehouse ?? false) && needsBinLocations,
+      crm_tools: crmTools,
+      crm_other: crmOther.trim() || null,
+      shipping_services: shippingServices,
+      shipping_other: shippingOther.trim() || null,
+      approx_employees: approxEmployees ? Number(approxEmployees) : null,
+      has_1099_contractors: has1099,
     })
     setSaving(false)
     if (insertError) return setError(insertError.message)
@@ -153,6 +172,74 @@ export default function Onboarding() {
           Business name (optional)
           <input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" />
         </label>
+
+        <p className="muted" style={{ margin: 0 }}>
+          The rest is optional — it just helps point you at the right integrations and features later, nothing
+          here blocks setup.
+        </p>
+
+        <label>
+          Do you already use a CRM?
+          <span style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', paddingTop: '0.4rem' }}>
+            {crmToolOptions.map((tool) => (
+              <label key={tool} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.3rem' }}>
+                <input
+                  type="checkbox"
+                  style={{ width: 'auto' }}
+                  checked={crmTools.includes(tool)}
+                  onChange={() => toggle(crmTools, setCrmTools, tool)}
+                />
+                {tool}
+              </label>
+            ))}
+          </span>
+        </label>
+        <input value={crmOther} onChange={(e) => setCrmOther(e.target.value)} placeholder="Other CRM tool (optional)" />
+
+        <label>
+          Which shipping services do you use?
+          <span style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', paddingTop: '0.4rem' }}>
+            {shippingServiceOptions.map((svc) => (
+              <label key={svc} style={{ flexDirection: 'row', alignItems: 'center', gap: '0.3rem' }}>
+                <input
+                  type="checkbox"
+                  style={{ width: 'auto' }}
+                  checked={shippingServices.includes(svc)}
+                  onChange={() => toggle(shippingServices, setShippingServices, svc)}
+                />
+                {svc}
+              </label>
+            ))}
+          </span>
+        </label>
+        <input
+          value={shippingOther}
+          onChange={(e) => setShippingOther(e.target.value)}
+          placeholder="Other shipping service (optional)"
+        />
+
+        <div className="form-row">
+          <label>
+            Approximate employees
+            <input
+              type="number"
+              min={0}
+              value={approxEmployees}
+              onChange={(e) => setApproxEmployees(e.target.value)}
+            />
+          </label>
+          <label>
+            Any 1099 contractors?
+            <select
+              value={has1099 === null ? '' : has1099 ? 'yes' : 'no'}
+              onChange={(e) => setHas1099(e.target.value === '' ? null : e.target.value === 'yes')}
+            >
+              <option value="">Not sure / skip</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+        </div>
 
         {error && <p className="error-text">{error}</p>}
 
