@@ -17,6 +17,7 @@ import Receiving from './pages/Receiving'
 import Orders from './pages/Orders'
 import Suppliers from './pages/Suppliers'
 import Customers from './pages/Customers'
+import Broadcasts from './pages/Broadcasts'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="orders" element={<Orders />} />
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="customers" element={<Customers />} />
+        <Route path="broadcasts" element={<Broadcasts />} />
       </Route>
     </Routes>
   )

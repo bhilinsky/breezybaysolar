@@ -28,10 +28,10 @@ necessarily the cloud one — pick whichever fits your network:
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
-   `0002_storefront.sql`, then `0003_warehouse_needs.sql` from this repo.
-   Together they create all tables, the low-stock view, and row-level
-   security policies (any signed-in user has full access — this app is
-   single-tenant per Supabase project).
+   `0002_storefront.sql`, `0003_warehouse_needs.sql`, then `0004_broadcasts.sql`
+   from this repo. Together they create all tables, the low-stock view, and
+   row-level security policies (any signed-in user has full access — this
+   app is single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
 4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
@@ -43,6 +43,18 @@ necessarily the cloud one — pick whichever fits your network:
    warehouse/storage-location tracking at all, and — if so — whether to map
    individual bin locations (aisle/shelf/bin) within each one. These answers
    decide which screens show up in the nav, not just labels.
+7. (Optional) To actually send customer broadcasts — see "Customer
+   broadcasts" below — deploy the Edge Function and set its secrets:
+   ```bash
+   supabase functions deploy send-broadcast
+   supabase secrets set RESEND_API_KEY=re_your_key \
+     RESEND_FROM="Your Business <updates@yourdomain.com>"
+   ```
+   Get a `RESEND_API_KEY` from [resend.com](https://resend.com) (or swap the
+   fetch call in `supabase/functions/send-broadcast/index.ts` for whichever
+   transactional email provider you'd rather use — Postmark, SendGrid, etc.
+   all work the same way). Until this is deployed, broadcasts save as drafts
+   but sending will fail with a clear error in the UI.
 
 ### Option B — self-hosted (closed network / no cloud dependency)
 
@@ -133,7 +145,8 @@ white-labeled by whoever installs it. Two layers of branding:
 - `src/pages/` — Dashboard, Items, Categories, Inventory, Locations,
   Storefront (display-case view), Containers (racks/trays), Scan to move,
   Receiving (purchase orders), Orders (sales orders), Suppliers, Customers,
-  Onboarding (first-run business-type picker).
+  Broadcasts (customer outreach), Onboarding (first-run business-type
+  picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -144,6 +157,9 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0003_warehouse_needs.sql` — explicit
   needs_warehouse/needs_bin_locations onboarding answers, and bin_code on
   locations.
+- `supabase/migrations/0004_broadcasts.sql` — the broadcasts table.
+- `supabase/functions/send-broadcast/` — Edge Function that actually sends
+  a broadcast via Resend.
 - `electron/main.cjs` — desktop window shell.
 
 ### Storefront / rack scanning model
@@ -158,6 +174,16 @@ white-labeled by whoever installs it. Two layers of branding:
   item's SKU/barcode, pick the destination location, confirm — this updates
   `inventory_levels`/`containers.location_id` and writes a row to the new
   `movements` table, giving a full audit trail of every move.
+
+### Customer broadcasts
+
+Compose a subject/message on the Broadcasts page and it goes out to every
+customer with an email on file — for a sale, a new service, anything worth
+telling them about. No third-party marketing platform required: the send
+itself happens in the `send-broadcast` Edge Function (step 7 above) so the
+email provider's API key stays server-side, and every customer is BCC'd so
+they never see each other's addresses. `broadcasts` keeps a record of each
+send (status, recipient count, any error) for the page's history list.
 
 ## v1 scope / known simplifications
 

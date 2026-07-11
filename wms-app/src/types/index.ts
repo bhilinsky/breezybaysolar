@@ -128,6 +128,20 @@ export interface Customer {
   created_at: string
 }
 
+export type BroadcastStatus = 'draft' | 'sending' | 'sent' | 'failed'
+
+export interface Broadcast {
+  id: string
+  subject: string
+  body: string
+  status: BroadcastStatus
+  recipient_count: number | null
+  error_message: string | null
+  created_by: string | null
+  created_at: string
+  sent_at: string | null
+}
+
 export type SalesOrderStatus = 'draft' | 'confirmed' | 'fulfilled' | 'cancelled'
 
 export interface SalesOrder {

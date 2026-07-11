@@ -40,6 +40,7 @@ export default function Layout() {
     { to: '/orders', label: 'Orders' },
     ...(needsWarehouse ? [{ to: '/suppliers', label: 'Suppliers' }] : []),
     { to: '/customers', label: 'Customers' },
+    { to: '/broadcasts', label: 'Broadcasts' },
   ]
 
   return (
