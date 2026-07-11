@@ -126,6 +126,7 @@ export interface Customer {
   phone: string | null
   address: string | null
   created_at: string
+  salesforce_contact_id: string | null
 }
 
 export type BroadcastStatus = 'draft' | 'sending' | 'sent' | 'failed'
@@ -241,4 +242,11 @@ export interface LowStockItem {
   name: string
   reorder_point: number
   total_quantity: number
+}
+
+export interface SalesforceStatus {
+  instance_url: string | null
+  connected_at: string | null
+  last_synced_at: string | null
+  connected: boolean
 }

@@ -47,6 +47,7 @@ export default function Layout() {
     { to: '/chart-of-accounts', label: 'Chart of Accounts' },
     { to: '/journal-entries', label: 'Journal Entries' },
     { to: '/reports', label: 'Reports' },
+    { to: '/integrations', label: 'Integrations' },
   ]
 
   return (

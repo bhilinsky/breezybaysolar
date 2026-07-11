@@ -29,8 +29,8 @@ necessarily the cloud one — pick whichever fits your network:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
-   `0005_accounting.sql`, then `0006_general_ledger.sql` from this repo.
-   Together they create all tables, the low-stock view, and row-level
+   `0005_accounting.sql`, `0006_general_ledger.sql`, then `0007_salesforce.sql`
+   from this repo. Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
@@ -56,6 +56,30 @@ necessarily the cloud one — pick whichever fits your network:
    transactional email provider you'd rather use — Postmark, SendGrid, etc.
    all work the same way). Until this is deployed, broadcasts save as drafts
    but sending will fail with a clear error in the UI.
+8. (Optional) To sync Customers to Salesforce (see "Salesforce" below):
+   1. In Salesforce Setup → App Manager → New Connected App, enable OAuth
+      settings, and set the callback URL to
+      `https://<project-ref>.supabase.co/functions/v1/salesforce-oauth-callback`
+      with scopes `api` and `refresh_token, offline_access`.
+   2. Copy the Connected App's **Consumer Key** and **Consumer Secret**.
+   3. Deploy the functions and set their secrets:
+      ```bash
+      supabase functions deploy salesforce-oauth-callback --no-verify-jwt
+      supabase functions deploy salesforce-sync
+      supabase functions deploy salesforce-disconnect
+      supabase secrets set \
+        SALESFORCE_CLIENT_ID=your_consumer_key \
+        SALESFORCE_CLIENT_SECRET=your_consumer_secret \
+        SALESFORCE_LOGIN_URL=https://login.salesforce.com \
+        SALESFORCE_REDIRECT_URI=https://<project-ref>.supabase.co/functions/v1/salesforce-oauth-callback \
+        WMS_APP_URL=https://your-deployed-app.example.com
+      ```
+      (`SALESFORCE_LOGIN_URL` is `https://test.salesforce.com` for a sandbox
+      org instead of production.)
+   4. In `wms-app/.env`, set `VITE_SALESFORCE_CLIENT_ID` (the same Consumer
+      Key — it's public by design in this OAuth flow) and
+      `VITE_SALESFORCE_REDIRECT_URI` (same URL as the callback above).
+   5. On the Integrations page, click "Connect to Salesforce."
 
 ### Option B — self-hosted (closed network / no cloud dependency)
 
@@ -148,7 +172,8 @@ white-labeled by whoever installs it. Two layers of branding:
   Items, Categories, Inventory, Locations, Storefront (display-case view),
   Containers (racks/trays), Scan to move, Receiving (purchase orders),
   Orders (sales orders), Invoices, Suppliers, Bills, Customers, Broadcasts
-  (customer outreach), Onboarding (first-run business-type picker).
+  (customer outreach), Integrations (Salesforce), Onboarding (first-run
+  business-type picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -164,8 +189,14 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0006_general_ledger.sql` — chart of accounts,
   journal entries, the balance-enforcing `create_journal_entry` function,
   and the triggers that auto-post invoices/bills to the ledger.
+- `supabase/migrations/0007_salesforce.sql` — the locked-down
+  salesforce_connection table, the safe salesforce_status view, and
+  customers.salesforce_contact_id.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
+- `supabase/functions/salesforce-oauth-callback/`,
+  `salesforce-sync/`, `salesforce-disconnect/` — the Salesforce
+  integration's server-side half (see "Salesforce" below).
 - `electron/main.cjs` — desktop window shell.
 
 ### Storefront / rack scanning model
@@ -219,6 +250,28 @@ This is real bookkeeping, not a toy — but it's still a small, focused
 subset of what a dedicated accounting product does (no multi-currency, no
 period close/locking, no tax forms). If you need those, that's what the
 QuickBooks integration on the roadmap is for.
+
+### Salesforce
+
+The Integrations page connects to Salesforce via OAuth2 (the standard "web
+server flow") and pushes Customers to Salesforce as Contacts — click "Sync
+now" and it creates any that don't exist yet and updates the ones it's
+already synced (tracked via `customers.salesforce_contact_id`). Syncing
+sales orders as Opportunities is the natural next step but isn't built yet
+(the sync function has a comment marking where it'd go).
+
+The access/refresh tokens never reach the browser: `salesforce_connection`
+has row-level security enabled with **no policies granting `authenticated`
+any access at all**, so only server-side code using the service-role key
+(the three `salesforce-*` Edge Functions) can read or write it. The
+Integrations page only ever queries `salesforce_status`, a view exposing
+just the harmless fields (connected, instance URL, last synced) — verified
+directly: `select * from salesforce_connection` as the `authenticated` role
+gets a flat `permission denied`, while the status view returns fine.
+
+Setup requires creating a Salesforce Connected App yourself (step 8 above)
+— there's no way around that part, it's how Salesforce OAuth works for any
+third-party app.
 
 ## v1 scope / known simplifications
 
