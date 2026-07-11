@@ -6,8 +6,9 @@ as a storefront system — display cases and showroom floor are just another
 location type, racks/trays move between them as a unit, and every move gets
 logged by scanning a barcode/QR tag (camera or a USB/Bluetooth scanner).
 Multiple people can use it at once from different devices — all data lives
-in a shared [Supabase](https://supabase.com) project (Postgres + auth +
-realtime).
+in a shared [Supabase](https://supabase.com) backend (Postgres + auth +
+realtime), which can be Supabase's cloud service or a self-hosted instance
+on your own closed network (see setup options below).
 
 It ships three ways from one codebase:
 
@@ -19,6 +20,11 @@ It ships three ways from one codebase:
   (Windows `.exe`, macOS `.dmg`, Linux `.AppImage`).
 
 ## 1. Set up Supabase (one-time)
+
+The app needs *a* Supabase backend (Postgres + auth + realtime), but not
+necessarily the cloud one — pick whichever fits your network:
+
+### Option A — Supabase Cloud (needs internet)
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run `supabase/migrations/0001_init.sql`, then
@@ -35,6 +41,37 @@ It ships three ways from one codebase:
    what kind of business this is (retailer/storefront, service, manufacturer,
    distributor, or web store) — this only tailors a couple of labels in the
    nav, it doesn't hide anything.
+
+### Option B — self-hosted (closed network / no cloud dependency)
+
+Supabase is open source and self-hostable via Docker — same app, zero
+external network dependency once it's running. This covers both:
+
+- **A single computer with no network at all**: run the stack on that same
+  machine, bound to `localhost` — the app talks to `http://localhost:54321`.
+- **A closed LAN with a server**: run the same stack on one machine, exposed
+  on its LAN IP instead of just `localhost`; other devices' `.env` point at
+  that IP.
+
+Steps (need [Docker](https://docs.docker.com/get-docker/) and the
+[Supabase CLI](https://supabase.com/docs/guides/cli)):
+
+```bash
+npm install -g supabase   # or: brew install supabase/tap/supabase
+cd wms-app
+supabase init             # if supabase/config.toml doesn't already exist
+supabase start
+```
+
+`supabase start` reads every file in `supabase/migrations/` automatically —
+no manual SQL editor step needed — and prints out a local API URL and anon
+key. Put those in `.env` as usual. `supabase stop` shuts it down;
+`supabase db reset` re-applies migrations from scratch.
+
+The one unavoidable network dependency: Docker has to pull the Supabase
+images the *first* time. For a genuinely air-gapped machine, pull them once
+somewhere with internet, `docker save` them, and load them on the target
+machine — after that it runs with zero network access.
 
 ## 2. Run it in development
 
