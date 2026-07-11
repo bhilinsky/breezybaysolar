@@ -27,20 +27,22 @@ necessarily the cloud one — pick whichever fits your network:
 ### Option A — Supabase Cloud (needs internet)
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Open the SQL editor and run `supabase/migrations/0001_init.sql`, then
-   `supabase/migrations/0002_storefront.sql`, from this repo. Together they
-   create all tables, the low-stock view, and row-level security policies
-   (any signed-in user has full access — this app is single-tenant per
-   Supabase project).
+2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
+   `0002_storefront.sql`, then `0003_warehouse_needs.sql` from this repo.
+   Together they create all tables, the low-stock view, and row-level
+   security policies (any signed-in user has full access — this app is
+   single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
 4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
 5. Create your first user: either sign up from the app's login screen, or
    add one under Supabase → Authentication → Users.
 6. On first sign-in you'll be walked through a one-time setup screen asking
-   what kind of business this is (retailer/storefront, service, manufacturer,
-   distributor, or web store) — this only tailors a couple of labels in the
-   nav, it doesn't hide anything.
+   what kind of business this is (retailer/storefront, service, contractor,
+   manufacturer, distributor, or web store), whether it needs
+   warehouse/storage-location tracking at all, and — if so — whether to map
+   individual bin locations (aisle/shelf/bin) within each one. These answers
+   decide which screens show up in the nav, not just labels.
 
 ### Option B — self-hosted (closed network / no cloud dependency)
 
@@ -139,6 +141,9 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0001_init.sql` — base schema + RLS policies.
 - `supabase/migrations/0002_storefront.sql` — business profile, location
   types, item barcodes, containers/racks, and the movement log.
+- `supabase/migrations/0003_warehouse_needs.sql` — explicit
+  needs_warehouse/needs_bin_locations onboarding answers, and bin_code on
+  locations.
 - `electron/main.cjs` — desktop window shell.
 
 ### Storefront / rack scanning model

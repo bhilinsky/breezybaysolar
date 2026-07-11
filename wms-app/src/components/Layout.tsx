@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useBusinessProfile } from '../hooks/useBusinessProfile'
-import { warehouseBusinessTypes, type BusinessType } from '../types'
+import type { BusinessType } from '../types'
 
 function floorLabel(businessType?: BusinessType) {
   if (businessType === 'manufacturer') return 'Work in Progress'
@@ -19,9 +19,9 @@ export default function Layout() {
   const { profile, user, signOut } = useAuth()
   const { businessProfile } = useBusinessProfile()
 
-  // Service/contractor businesses run on jobs and customers, not stock in a
-  // warehouse — skip the location/inventory-tracking screens for them.
-  const needsWarehouse = !businessProfile || warehouseBusinessTypes.includes(businessProfile.business_type)
+  // Set explicitly during onboarding — a business may need warehouse
+  // tracking (or not) independent of its business type.
+  const needsWarehouse = businessProfile?.needs_warehouse ?? true
 
   const links = [
     { to: '/', label: 'Dashboard' },

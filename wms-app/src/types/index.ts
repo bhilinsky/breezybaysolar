@@ -2,12 +2,17 @@ export type Role = 'admin' | 'staff'
 
 export type BusinessType = 'retailer' | 'service' | 'contractor' | 'manufacturer' | 'distributor' | 'web_store'
 
-export const warehouseBusinessTypes: BusinessType[] = ['retailer', 'manufacturer', 'distributor', 'web_store']
+// Suggested default for the onboarding question below — not the source of
+// truth for gating; that's business_profile.needs_warehouse, since any
+// business type can answer either way.
+export const defaultWarehouseBusinessTypes: BusinessType[] = ['retailer', 'manufacturer', 'distributor', 'web_store']
 
 export interface BusinessProfile {
   id: true
   business_type: BusinessType
   business_name: string | null
+  needs_warehouse: boolean
+  needs_bin_locations: boolean
   created_at: string
 }
 
@@ -32,6 +37,7 @@ export interface Location {
   name: string
   description: string | null
   type: LocationType
+  bin_code: string | null
   created_at: string
 }
 

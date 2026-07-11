@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
-import type { BusinessType } from '../types'
+import { defaultWarehouseBusinessTypes, type BusinessType } from '../types'
 import { useBusinessProfile } from '../hooks/useBusinessProfile'
 
 const businessTypes: { value: BusinessType; label: string; description: string }[] = [
@@ -43,8 +43,15 @@ export default function Onboarding() {
   const { refresh } = useBusinessProfile()
   const [businessType, setBusinessType] = useState<BusinessType | ''>('')
   const [businessName, setBusinessName] = useState('')
+  const [needsWarehouse, setNeedsWarehouse] = useState<boolean | null>(null)
+  const [needsBinLocations, setNeedsBinLocations] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+
+  function selectBusinessType(value: BusinessType) {
+    setBusinessType(value)
+    setNeedsWarehouse(defaultWarehouseBusinessTypes.includes(value))
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -55,6 +62,8 @@ export default function Onboarding() {
       id: true,
       business_type: businessType,
       business_name: businessName.trim() || null,
+      needs_warehouse: needsWarehouse ?? false,
+      needs_bin_locations: (needsWarehouse ?? false) && needsBinLocations,
     })
     setSaving(false)
     if (insertError) return setError(insertError.message)
@@ -83,7 +92,7 @@ export default function Onboarding() {
                 name="business_type"
                 value={option.value}
                 checked={businessType === option.value}
-                onChange={() => setBusinessType(option.value)}
+                onChange={() => selectBusinessType(option.value)}
               />
               <div>
                 <div className="onboarding-option-label">{option.label}</div>
@@ -92,6 +101,53 @@ export default function Onboarding() {
             </label>
           ))}
         </div>
+
+        {businessType && (
+          <>
+            <div className="onboarding-options">
+              <label className={'onboarding-option' + (needsWarehouse === true ? ' selected' : '')}>
+                <input
+                  type="radio"
+                  name="needs_warehouse"
+                  checked={needsWarehouse === true}
+                  onChange={() => setNeedsWarehouse(true)}
+                />
+                <div>
+                  <div className="onboarding-option-label">Yes, track warehouse / storage locations</div>
+                  <div className="onboarding-option-desc muted">
+                    Shows Inventory, Locations, Storefront, Racks, Scan to move, Receiving and Suppliers.
+                  </div>
+                </div>
+              </label>
+              <label className={'onboarding-option' + (needsWarehouse === false ? ' selected' : '')}>
+                <input
+                  type="radio"
+                  name="needs_warehouse"
+                  checked={needsWarehouse === false}
+                  onChange={() => setNeedsWarehouse(false)}
+                />
+                <div>
+                  <div className="onboarding-option-label">No, just jobs / orders and customers</div>
+                  <div className="onboarding-option-desc muted">Keeps the nav focused on Items, Orders and Customers.</div>
+                </div>
+              </label>
+            </div>
+
+            {needsWarehouse && (
+              <label>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={needsBinLocations}
+                    onChange={(e) => setNeedsBinLocations(e.target.checked)}
+                    style={{ width: 'auto' }}
+                  />
+                  Map individual bin locations (aisle / shelf / bin) within each storage location
+                </span>
+              </label>
+            )}
+          </>
+        )}
 
         <label>
           Business name (optional)

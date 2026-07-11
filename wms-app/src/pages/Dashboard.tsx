@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { warehouseBusinessTypes, type LowStockItem } from '../types'
+import type { LowStockItem } from '../types'
 import { useBusinessProfile } from '../hooks/useBusinessProfile'
 
 interface Stats {
@@ -19,7 +19,7 @@ interface ActivityRow {
 
 export default function Dashboard() {
   const { businessProfile } = useBusinessProfile()
-  const needsWarehouse = !businessProfile || warehouseBusinessTypes.includes(businessProfile.business_type)
+  const needsWarehouse = businessProfile?.needs_warehouse ?? true
 
   const [lowStock, setLowStock] = useState<LowStockItem[]>([])
   const [stats, setStats] = useState<Stats>({ itemCount: 0, openOrders: 0, openPOs: 0 })

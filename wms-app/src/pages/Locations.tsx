@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
 import type { Location, LocationType } from '../types'
+import { useBusinessProfile } from '../hooks/useBusinessProfile'
 
 const locationTypes: { value: LocationType; label: string }[] = [
   { value: 'warehouse', label: 'Warehouse' },
@@ -11,9 +12,10 @@ const locationTypes: { value: LocationType; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-const emptyForm = { code: '', name: '', description: '', type: 'warehouse' as LocationType }
+const emptyForm = { code: '', name: '', description: '', type: 'warehouse' as LocationType, bin_code: '' }
 
 export default function Locations() {
+  const { businessProfile } = useBusinessProfile()
   const [locations, setLocations] = useState<Location[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -39,6 +41,7 @@ export default function Locations() {
       name: form.name.trim(),
       description: form.description.trim() || null,
       type: form.type,
+      bin_code: form.bin_code.trim() || null,
     }
     const { data, error: insertError } = await supabase.from('locations').insert(payload).select('id').single()
     if (insertError) return setError(insertError.message)
@@ -74,6 +77,7 @@ export default function Locations() {
               <th>Code</th>
               <th>Name</th>
               <th>Type</th>
+              {businessProfile?.needs_bin_locations && <th>Bin</th>}
               <th>Description</th>
               <th></th>
             </tr>
@@ -84,6 +88,7 @@ export default function Locations() {
                 <td>{location.code}</td>
                 <td>{location.name}</td>
                 <td>{locationTypes.find((t) => t.value === location.type)?.label ?? location.type}</td>
+                {businessProfile?.needs_bin_locations && <td>{location.bin_code ?? '—'}</td>}
                 <td>{location.description ?? '—'}</td>
                 <td className="row-actions">
                   <button className="btn-link danger" onClick={() => handleDelete(location)}>
@@ -94,7 +99,7 @@ export default function Locations() {
             ))}
             {locations.length === 0 && (
               <tr>
-                <td colSpan={5} className="muted">
+                <td colSpan={businessProfile?.needs_bin_locations ? 6 : 5} className="muted">
                   No locations yet.
                 </td>
               </tr>
@@ -125,6 +130,12 @@ export default function Locations() {
                 ))}
               </select>
             </label>
+            {businessProfile?.needs_bin_locations && (
+              <label>
+                Bin location (e.g. Aisle 3 / Shelf B / Bin 12)
+                <input value={form.bin_code} onChange={(e) => setForm({ ...form, bin_code: e.target.value })} />
+              </label>
+            )}
             <label>
               Description
               <textarea
