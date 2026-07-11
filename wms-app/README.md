@@ -29,10 +29,10 @@ necessarily the cloud one — pick whichever fits your network:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
-   then `0005_accounting.sql` from this repo. Together they create all
-   tables, the low-stock view, and row-level security policies (any
-   signed-in user has full access — this app is single-tenant per Supabase
-   project).
+   `0005_accounting.sql`, then `0006_general_ledger.sql` from this repo.
+   Together they create all tables, the low-stock view, and row-level
+   security policies (any signed-in user has full access — this app is
+   single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
    public key**.
 4. In `wms-app/`, copy `.env.example` to `.env` and paste those two values in.
@@ -143,8 +143,9 @@ white-labeled by whoever installs it. Two layers of branding:
 
 ## Project structure
 
-- `src/pages/` — Dashboard, Accounting (financial reporting), Items,
-  Categories, Inventory, Locations, Storefront (display-case view),
+- `src/pages/` — Dashboard, Accounting (financial reporting), Chart of
+  Accounts, Journal Entries, Reports (trial balance/P&L/balance sheet),
+  Items, Categories, Inventory, Locations, Storefront (display-case view),
   Containers (racks/trays), Scan to move, Receiving (purchase orders),
   Orders (sales orders), Invoices, Suppliers, Bills, Customers, Broadcasts
   (customer outreach), Onboarding (first-run business-type picker).
@@ -160,6 +161,9 @@ white-labeled by whoever installs it. Two layers of branding:
   locations.
 - `supabase/migrations/0004_broadcasts.sql` — the broadcasts table.
 - `supabase/migrations/0005_accounting.sql` — invoices and bills.
+- `supabase/migrations/0006_general_ledger.sql` — chart of accounts,
+  journal entries, the balance-enforcing `create_journal_entry` function,
+  and the triggers that auto-post invoices/bills to the ledger.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `electron/main.cjs` — desktop window shell.
@@ -194,11 +198,27 @@ Dashboard — outstanding amounts owed to you (AR) and owed by you (AP),
 what's been collected/paid out this month, and overdue invoices/bills.
 **Invoices** and **Bills** are the underlying record-keeping: an invoice can
 optionally link to a sales order, a bill to a purchase order, and each
-moves through draft → sent/received → paid (or cancelled). This is
-deliberately *not* a general ledger, chart of accounts, or double-entry
-bookkeeping system — it tracks what's outstanding and what's been paid, not
-full accounting. If you need real books, export this data into QuickBooks
-or similar (see the integration scope notes for where that fits).
+moves through draft → sent/received → paid (or cancelled).
+
+Underneath that is a real double-entry **general ledger** (`0006_general_ledger.sql`):
+
+- **Chart of Accounts** — a starter set of accounts (Cash, AR, AP, Sales
+  Revenue, Operating Expenses, etc.) with a few marked by `role` so the app
+  knows which one to use when posting automatically.
+- **Journal Entries** — every invoice/bill status change (sent, received,
+  paid) posts its own balanced entry automatically via a Postgres trigger,
+  so the books stay in sync with AR/AP without anyone remembering to do it
+  by hand. You can also post manual entries (rent, payroll, owner draws) —
+  entries are only ever created through a `create_journal_entry` database
+  function that rejects anything that doesn't balance, with a second,
+  independent trigger as a safety net against any write that bypasses it.
+- **Reports** — Trial Balance, Profit & Loss, and Balance Sheet, computed
+  live from the ledger.
+
+This is real bookkeeping, not a toy — but it's still a small, focused
+subset of what a dedicated accounting product does (no multi-currency, no
+period close/locking, no tax forms). If you need those, that's what the
+QuickBooks integration on the roadmap is for.
 
 ## v1 scope / known simplifications
 

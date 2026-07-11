@@ -21,6 +21,9 @@ import Broadcasts from './pages/Broadcasts'
 import Accounting from './pages/Accounting'
 import Invoices from './pages/Invoices'
 import Bills from './pages/Bills'
+import ChartOfAccounts from './pages/ChartOfAccounts'
+import JournalEntries from './pages/JournalEntries'
+import Reports from './pages/Reports'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
@@ -74,6 +77,9 @@ function AppRoutes() {
         <Route path="accounting" element={<Accounting />} />
         <Route path="invoices" element={<Invoices />} />
         <Route path="bills" element={<Bills />} />
+        <Route path="chart-of-accounts" element={<ChartOfAccounts />} />
+        <Route path="journal-entries" element={<JournalEntries />} />
+        <Route path="reports" element={<Reports />} />
       </Route>
     </Routes>
   )

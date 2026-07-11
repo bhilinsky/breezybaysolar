@@ -79,7 +79,20 @@ export default function Accounting() {
 
   return (
     <div>
-      <h1>Accounting</h1>
+      <div className="page-header">
+        <h1>Accounting</h1>
+        <div className="row-actions">
+          <Link to="/reports" className="btn-secondary">
+            Reports
+          </Link>
+          <Link to="/journal-entries" className="btn-secondary">
+            Journal Entries
+          </Link>
+          <Link to="/chart-of-accounts" className="btn-secondary">
+            Chart of Accounts
+          </Link>
+        </div>
+      </div>
 
       <div className="stat-grid">
         <div className="stat-card">

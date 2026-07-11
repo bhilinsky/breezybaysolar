@@ -199,6 +199,42 @@ export interface Bill {
   paid_at: string | null
 }
 
+export type GLAccountType = 'asset' | 'liability' | 'equity' | 'income' | 'cogs' | 'expense'
+export type GLAccountRole = 'cash' | 'ar' | 'ap' | 'sales_revenue' | 'purchases_expense'
+
+export interface GLAccount {
+  id: string
+  code: string
+  name: string
+  type: GLAccountType
+  normal_balance: 'debit' | 'credit'
+  role: GLAccountRole | null
+  is_active: boolean
+  created_at: string
+}
+
+export interface JournalEntry {
+  id: string
+  entry_number: string
+  entry_date: string
+  memo: string | null
+  reference: string | null
+  status: 'posted' | 'void'
+  source: string
+  source_id: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export interface JournalEntryLine {
+  id: string
+  journal_entry_id: string
+  gl_account_id: string
+  debit: number
+  credit: number
+  memo: string | null
+}
+
 export interface LowStockItem {
   id: string
   sku: string
