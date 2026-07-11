@@ -62,6 +62,8 @@ export interface Item {
   barcode: string | null
   created_at: string
   updated_at: string
+  amazon_seller_sku: string | null
+  amazon_product_type: string | null
 }
 
 export interface InventoryLevel {
@@ -297,4 +299,24 @@ export interface QBWCSession {
   error_message: string | null
   started_at: string
   completed_at: string | null
+}
+
+export type PartnerApiScope = 'inventory' | 'customers'
+
+export interface PartnerApiKeyStatus {
+  id: string
+  label: string
+  scopes: PartnerApiScope[]
+  created_at: string
+  last_used_at: string | null
+  revoked_at: string | null
+}
+
+export interface AmazonStatus {
+  seller_id: string | null
+  marketplace_id: string | null
+  region: 'na' | 'eu' | 'fe'
+  connected_at: string | null
+  last_synced_at: string | null
+  connected: boolean
 }

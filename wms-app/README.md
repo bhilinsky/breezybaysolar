@@ -30,7 +30,8 @@ necessarily the cloud one — pick whichever fits your network:
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
    `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
-   `0008_crm.sql`, then `0009_quickbooks_desktop.sql` from this repo.
+   `0008_crm.sql`, `0009_quickbooks_desktop.sql`, `0010_partner_api.sql`,
+   then `0011_amazon.sql` from this repo.
    Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
@@ -95,6 +96,39 @@ necessarily the cloud one — pick whichever fits your network:
    4. Run it from Web Connector — it pulls QuickBooks customers into WMS,
       matched on QuickBooks' internal ListID so re-running updates rather
       than duplicates.
+10. (Optional) To sell on **Amazon Marketplace** (see "Amazon Marketplace"
+    below):
+    1. Apply for an SP-API developer application in Seller Central — this
+       needs an approved seller account and can take Amazon a while to
+       review; there's no way to skip that part.
+    2. Deploy the functions and set their secrets:
+       ```bash
+       supabase functions deploy amazon-oauth-callback --no-verify-jwt
+       supabase functions deploy amazon-sync
+       supabase functions deploy amazon-disconnect
+       supabase secrets set \
+         AMAZON_LWA_CLIENT_ID=your_lwa_client_id \
+         AMAZON_LWA_CLIENT_SECRET=your_lwa_client_secret \
+         AMAZON_REDIRECT_URI=https://<project-ref>.supabase.co/functions/v1/amazon-oauth-callback \
+         AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER \
+         WMS_APP_URL=https://your-deployed-app.example.com
+       ```
+       (`AMAZON_MARKETPLACE_ID` defaults to the US marketplace — see
+       Amazon's marketplace ID reference for other countries.)
+    3. In `wms-app/.env`, set `VITE_AMAZON_APP_ID` (public by design) and
+       `VITE_AMAZON_REDIRECT_URI` (same URL as the callback above).
+    4. On each item you want synced, set its **Amazon seller SKU** and
+       **Amazon product type** (Items page) — both are required by
+       Amazon's API and there's no safe way to infer them automatically.
+    5. On the Integrations page, click "Connect to Amazon," then "Sync
+       stock quantities now."
+11. (Optional) To let an outside system (AWS, a marketplace sync job,
+    anything) read inventory/customers, deploy the **Partner Data API**:
+    ```bash
+    supabase functions deploy partner-api --no-verify-jwt
+    ```
+    Then on the Integrations page, create an API key with whichever scopes
+    you need — see "Partner Data API" below for the endpoints.
 
 ### Option B — self-hosted (closed network / no cloud dependency)
 
@@ -188,8 +222,9 @@ white-labeled by whoever installs it. Two layers of branding:
   Containers (racks/trays), Scan to move, Receiving (purchase orders),
   Orders (sales orders), Invoices, Suppliers, Bills, Customer Center
   (contacts + activity timeline + pipeline), Broadcasts (customer
-  outreach), Integrations (Salesforce), Onboarding (first-run
-  business-type picker).
+  outreach), Integrations (Salesforce, QuickBooks Desktop, Amazon
+  Marketplace, Partner Data API), Onboarding (first-run business-type
+  picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -214,6 +249,12 @@ white-labeled by whoever installs it. Two layers of branding:
   qbwc_config table (QBWC username/password hash), the safe
   qbwc_config_status view, qbwc_sessions (sync history), and
   customers.quickbooks_list_id.
+- `supabase/migrations/0010_partner_api.sql` — the locked-down
+  partner_api_keys table (SHA-256 hashed keys), the safe
+  partner_api_keys_status view, and the create/verify/revoke functions.
+- `supabase/migrations/0011_amazon.sql` — the locked-down amazon_connection
+  table, the safe amazon_status view, and
+  items.amazon_seller_sku/amazon_product_type.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
@@ -221,6 +262,11 @@ white-labeled by whoever installs it. Two layers of branding:
   integration's server-side half (see "Salesforce" below).
 - `supabase/functions/qbwc-soap/` — the QuickBooks Web Connector SOAP
   endpoint (see "QuickBooks Desktop" below).
+- `supabase/functions/amazon-oauth-callback/`, `amazon-sync/`,
+  `amazon-disconnect/` — the Amazon Marketplace integration's server-side
+  half (see "Amazon Marketplace" below).
+- `supabase/functions/partner-api/` — the Partner Data API (see "Partner
+  Data API" below).
 - `electron/main.cjs` — desktop window shell.
 
 ### Storefront / rack scanning model
@@ -356,6 +402,59 @@ One thing to know: QuickBooks Web Connector is a Windows-only application,
 so this can't be tested end-to-end without a real Windows machine running
 QuickBooks Desktop — verification here covers the SOAP endpoint's logic,
 the schema, and every access-control boundary, not a live round-trip.
+
+### Amazon Marketplace
+
+Worth clearing up first: **AWS (Amazon Web Services)** and **Amazon's
+retail marketplace** are unrelated as far as this integration goes — this
+connects to Seller Central/SP-API to sell products, not to AWS cloud
+infrastructure. Whether it's relevant depends on the kind of business:
+retailers, distributors, manufacturers, and web stores selling physical
+products are the ones who'd use it; service businesses and contractors
+usually don't need it at all, and a manufacturer selling through a
+distributor rather than directly may only want the Partner Data API below
+instead.
+
+The Integrations page connects via OAuth2 (Login With Amazon) and, on
+"Sync stock quantities now," pushes current on-hand quantity to Amazon
+listings that **already exist** — it does not create new listings. Amazon
+requires a `productType` (category-specific) on every update, so only
+items with both `amazon_seller_sku` and `amazon_product_type` set (Items
+page) get synced; anything else is skipped and reported back rather than
+guessed at.
+
+Same security shape as Salesforce/QuickBooks: tokens live in
+`amazon_connection`, locked down with RLS and no policies for
+`authenticated` — verified directly that querying it as `authenticated`
+returns zero rows, while `amazon_status` (the safe view) correctly shows
+connection state with nothing secret in it. Getting an approved SP-API
+developer application from Amazon is the one part that can't be sped up —
+that's Amazon's own review process, not something in this codebase.
+
+### Partner Data API
+
+A plain HTTPS + API-key REST endpoint (`supabase/functions/partner-api`)
+for any outside system to read current inventory and/or customers —
+something running on AWS, a marketplace sync job, a spreadsheet macro,
+anything with an HTTP client. It doesn't need to run on AWS to be callable
+from AWS; a normal authenticated HTTPS endpoint is all any external system
+actually needs.
+
+```
+GET /functions/v1/partner-api/inventory   (needs the "inventory" scope)
+GET /functions/v1/partner-api/customers   (needs the "customers" scope)
+Authorization: Bearer <key>
+```
+
+Create keys on the Integrations page — each one is shown in full exactly
+once at creation (same convention as Stripe/GitHub-style API keys) and can
+be scoped to `inventory`, `customers`, or both, and revoked independently.
+Verified directly against Postgres: a freshly created key verifies with
+the right scope and fails with the wrong one, a revoked key stops
+verifying immediately, `last_used_at` gets stamped on each successful
+call, and `authenticated` can't read key hashes directly or call the
+verification function itself (only the service role can, so even a
+compromised staff login can't brute-force keys through the API).
 
 ### Exporting to other accounting software
 

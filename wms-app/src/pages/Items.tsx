@@ -12,6 +12,8 @@ const emptyForm = {
   reorder_point: 0,
   default_cost: '',
   barcode: '',
+  amazon_seller_sku: '',
+  amazon_product_type: '',
 }
 
 export default function Items() {
@@ -57,6 +59,8 @@ export default function Items() {
       reorder_point: item.reorder_point,
       default_cost: item.default_cost?.toString() ?? '',
       barcode: item.barcode ?? '',
+      amazon_seller_sku: item.amazon_seller_sku ?? '',
+      amazon_product_type: item.amazon_product_type ?? '',
     })
     setError(null)
     setShowForm(true)
@@ -74,6 +78,8 @@ export default function Items() {
       reorder_point: Number(form.reorder_point) || 0,
       default_cost: form.default_cost ? Number(form.default_cost) : null,
       barcode: form.barcode.trim() || null,
+      amazon_seller_sku: form.amazon_seller_sku.trim() || null,
+      amazon_product_type: form.amazon_product_type.trim() || null,
     }
 
     if (editingId) {
@@ -221,6 +227,23 @@ export default function Items() {
                   min={0}
                   value={form.default_cost}
                   onChange={(e) => setForm({ ...form, default_cost: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="form-row">
+              <label>
+                Amazon seller SKU (optional)
+                <input
+                  value={form.amazon_seller_sku}
+                  onChange={(e) => setForm({ ...form, amazon_seller_sku: e.target.value })}
+                />
+              </label>
+              <label>
+                Amazon product type (optional)
+                <input
+                  value={form.amazon_product_type}
+                  onChange={(e) => setForm({ ...form, amazon_product_type: e.target.value })}
+                  placeholder="e.g. LUGGAGE, HOME"
                 />
               </label>
             </div>
