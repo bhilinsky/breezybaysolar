@@ -250,3 +250,31 @@ export interface SalesforceStatus {
   last_synced_at: string | null
   connected: boolean
 }
+
+export type CRMActivityType = 'call' | 'email' | 'meeting' | 'note'
+
+export interface CRMActivity {
+  id: string
+  customer_id: string
+  type: CRMActivityType
+  subject: string
+  notes: string | null
+  occurred_at: string
+  created_by: string | null
+  created_at: string
+}
+
+export type OpportunityStage = 'prospecting' | 'qualified' | 'proposal' | 'won' | 'lost'
+
+export interface Opportunity {
+  id: string
+  customer_id: string
+  name: string
+  stage: OpportunityStage
+  value: number | null
+  expected_close_date: string | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}

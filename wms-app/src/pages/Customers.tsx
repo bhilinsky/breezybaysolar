@@ -1,5 +1,5 @@
-import ContactsPage from '../components/ContactsPage'
+import CustomerCenter from './CustomerCenter'
 
 export default function Customers() {
-  return <ContactsPage table="customers" title="Customers" entityType="customer" />
+  return <CustomerCenter />
 }

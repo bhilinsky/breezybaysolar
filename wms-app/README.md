@@ -29,8 +29,8 @@ necessarily the cloud one — pick whichever fits your network:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
-   `0005_accounting.sql`, `0006_general_ledger.sql`, then `0007_salesforce.sql`
-   from this repo. Together they create all tables, the low-stock view, and row-level
+   `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
+   then `0008_crm.sql` from this repo. Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
@@ -168,11 +168,12 @@ white-labeled by whoever installs it. Two layers of branding:
 ## Project structure
 
 - `src/pages/` — Dashboard, Accounting (financial reporting), Chart of
-  Accounts, Journal Entries, Reports (trial balance/P&L/balance sheet),
+  Accounts, Journal Entries, Reports (full report center — see below),
   Items, Categories, Inventory, Locations, Storefront (display-case view),
   Containers (racks/trays), Scan to move, Receiving (purchase orders),
-  Orders (sales orders), Invoices, Suppliers, Bills, Customers, Broadcasts
-  (customer outreach), Integrations (Salesforce), Onboarding (first-run
+  Orders (sales orders), Invoices, Suppliers, Bills, Customer Center
+  (contacts + activity timeline + pipeline), Broadcasts (customer
+  outreach), Integrations (Salesforce), Onboarding (first-run
   business-type picker).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
@@ -192,6 +193,8 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0007_salesforce.sql` — the locked-down
   salesforce_connection table, the safe salesforce_status view, and
   customers.salesforce_contact_id.
+- `supabase/migrations/0008_crm.sql` — crm_activities and opportunities,
+  the native CRM tables behind Customer Center.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
@@ -243,13 +246,37 @@ Underneath that is a real double-entry **general ledger** (`0006_general_ledger.
   entries are only ever created through a `create_journal_entry` database
   function that rejects anything that doesn't balance, with a second,
   independent trigger as a safety net against any write that bypasses it.
-- **Reports** — Trial Balance, Profit & Loss, and Balance Sheet, computed
-  live from the ledger.
+- **Reports** — a full Report Center (`src/pages/Reports.tsx`), grouped the
+  same way the sidebar groups them:
+  - *Financial statements*: Trial Balance, General Ledger (per-account
+    detail with running balance), Profit & Loss, Balance Sheet.
+  - *Receivables*: AR Aging Summary, AR Aging Detail, Customer Balances.
+  - *Payables*: AP Aging Summary, AP Aging Detail, Vendor Balances.
+  - *Sales & purchasing*: Sales by Customer, Sales by Item, Purchases by
+    Supplier, Purchases by Item.
+
+  Deliberately not included: Payroll, Manufacturing (BOM/work order), and
+  Job Costing reports — those need their own modules to exist first
+  (nothing to report on otherwise), so they're not built yet rather than
+  built as empty pages.
 
 This is real bookkeeping, not a toy — but it's still a small, focused
 subset of what a dedicated accounting product does (no multi-currency, no
 period close/locking, no tax forms). If you need those, that's what the
 QuickBooks integration on the roadmap is for.
+
+### Customer Center (native CRM)
+
+Customers now opens into a full Customer Center rather than a flat contact
+list: click a customer to see their contact info alongside an **activity
+timeline** (log calls/emails/meetings/notes — `crm_activities`), a **sales
+pipeline** (`opportunities`, with stage/value/expected close date, editable
+inline), and their actual invoices and orders in one place. This gives
+Salesforce-style contact/pipeline tracking natively, independent of whether
+Salesforce is ever connected — the two are complementary, not either/or:
+sync Customers to real Salesforce Contacts via the integration below *and*
+track activity/pipeline here, or just use this if you don't have Salesforce
+at all.
 
 ### Salesforce
 
