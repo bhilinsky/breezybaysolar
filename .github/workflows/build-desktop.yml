@@ -1,0 +1,45 @@
+name: Build desktop installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/warehouse-store-jewelry-tracking-oapreo
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: windows-installer
+          - os: macos-latest
+            artifact: mac-installer
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: wms-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installer
+        run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            wms-app/release/*.exe
+            wms-app/release/*.dmg
+            wms-app/release/*.blockmap
+          if-no-files-found: warn
