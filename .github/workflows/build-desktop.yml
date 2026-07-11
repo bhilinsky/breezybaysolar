@@ -34,6 +34,8 @@ jobs:
         run: npm run dist
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          VITE_SUPABASE_URL: https://zngvuieipmuwobwcdptq.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuZ3Z1aWVpcG11d29id2NkcHRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3ODIzOTgsImV4cCI6MjA5OTM1ODM5OH0.YYGstz5vCybq_lP70EfhqJzK6HhIuqfu4HiIaOgS-qg
 
       - uses: actions/upload-artifact@v4
         with:
