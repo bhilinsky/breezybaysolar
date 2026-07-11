@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
 import { useBusinessProfile } from './hooks/useBusinessProfile'
@@ -93,11 +93,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
