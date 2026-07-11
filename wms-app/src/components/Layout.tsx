@@ -46,6 +46,7 @@ export default function Layout() {
     { to: '/broadcasts', label: 'Broadcasts' },
     { to: '/chart-of-accounts', label: 'Chart of Accounts' },
     { to: '/journal-entries', label: 'Journal Entries' },
+    { to: '/bank-transactions', label: 'Bank Transactions' },
     { to: '/employees', label: 'Employees' },
     { to: '/pay-runs', label: 'Pay Runs' },
     { to: '/reports', label: 'Reports' },

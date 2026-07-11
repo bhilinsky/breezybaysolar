@@ -32,7 +32,7 @@ necessarily the cloud one — pick whichever fits your network:
    `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
    `0008_crm.sql`, `0009_quickbooks_desktop.sql`, `0010_partner_api.sql`,
    `0011_amazon.sql`, `0012_company_profile.sql`, `0013_crm_tasks.sql`,
-   then `0014_payroll.sql` from this repo.
+   `0014_payroll.sql`, then `0015_bank_import.sql` from this repo.
    Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
@@ -271,6 +271,8 @@ white-labeled by whoever installs it. Two layers of branding:
 - `supabase/migrations/0014_payroll.sql` — employees, pay_runs, and
   pay_run_lines, plus the trigger that auto-posts a balanced journal entry
   to the GL when a pay run is posted.
+- `supabase/migrations/0015_bank_import.sql` — bank_transactions, for
+  CSV-imported bank activity awaiting categorization against the GL.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
@@ -398,6 +400,24 @@ integrate with a payroll tax service. That's a regulated product in its
 own right (Gusto/ADP/Zenefits territory) — getting withholding wrong has
 real legal and financial consequences, so this app tracks the numbers you
 give it rather than computing them.
+
+### Bank Transactions
+
+Import a CSV export from your bank (most online banking sites offer this)
+on the Bank Transactions page — match up which column is the date,
+description, and amount (or separate debit/credit columns, if that's how
+your bank exports), preview the rows it found, and import. Each imported
+row starts **unreviewed**; pick a GL account for it and click **Post** to
+book a balanced journal entry against your Cash account (money in debits
+Cash, money out credits it), or **Ignore** rows that shouldn't post
+(transfers between your own accounts, duplicates, etc.).
+
+This is a file import, not a live bank feed — there's no automatic,
+ongoing connection to your bank. A true "auto-sync" feed needs a
+bank-data aggregator (Plaid is the standard one in the US), which means
+signing up for your own Plaid developer account and taking on their
+per-connection pricing once past the free tier — a deliberate separate
+step, not bundled into this.
 
 ### Salesforce
 

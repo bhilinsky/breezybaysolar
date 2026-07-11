@@ -390,3 +390,18 @@ export interface PayRunLine {
   net_pay: number
   notes: string | null
 }
+
+export type BankTransactionStatus = 'unreviewed' | 'categorized' | 'ignored'
+
+export interface BankTransaction {
+  id: string
+  transaction_date: string
+  description: string
+  amount: number
+  external_ref: string | null
+  status: BankTransactionStatus
+  gl_account_id: string | null
+  journal_entry_id: string | null
+  imported_by: string | null
+  created_at: string
+}
