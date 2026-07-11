@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: ${{ matrix.artifact }}-build${{ github.run_number }}
           path: |
             wms-app/release/*.exe
             wms-app/release/*.dmg
