@@ -30,7 +30,8 @@ necessarily the cloud one — pick whichever fits your network:
 2. Open the SQL editor and run, in order, `supabase/migrations/0001_init.sql`,
    `0002_storefront.sql`, `0003_warehouse_needs.sql`, `0004_broadcasts.sql`,
    `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
-   then `0008_crm.sql` from this repo. Together they create all tables, the low-stock view, and row-level
+   `0008_crm.sql`, then `0009_quickbooks_desktop.sql` from this repo.
+   Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
 3. In Supabase project settings → API, copy the **Project URL** and **anon
@@ -80,6 +81,20 @@ necessarily the cloud one — pick whichever fits your network:
       Key — it's public by design in this OAuth flow) and
       `VITE_SALESFORCE_REDIRECT_URI` (same URL as the callback above).
    5. On the Integrations page, click "Connect to Salesforce."
+9. (Optional) To sync from **QuickBooks Desktop** (see "QuickBooks Desktop"
+   below — this is a different mechanism than QuickBooks Online, which has
+   no equivalent here yet):
+   1. Deploy the SOAP endpoint: `supabase functions deploy qbwc-soap --no-verify-jwt`
+      (`--no-verify-jwt` because QuickBooks' Web Connector can't send a
+      Supabase auth header — its own username/password is what's checked).
+   2. On the Integrations page, set a username/password (this is what
+      you'll type into Web Connector, not your QuickBooks login) and
+      download the generated `.qwc` file.
+   3. In QuickBooks Desktop: File → App Management → Update Web Services,
+      add the `.qwc` file, enter the same password when prompted.
+   4. Run it from Web Connector — it pulls QuickBooks customers into WMS,
+      matched on QuickBooks' internal ListID so re-running updates rather
+      than duplicates.
 
 ### Option B — self-hosted (closed network / no cloud dependency)
 
@@ -195,11 +210,17 @@ white-labeled by whoever installs it. Two layers of branding:
   customers.salesforce_contact_id.
 - `supabase/migrations/0008_crm.sql` — crm_activities and opportunities,
   the native CRM tables behind Customer Center.
+- `supabase/migrations/0009_quickbooks_desktop.sql` — the locked-down
+  qbwc_config table (QBWC username/password hash), the safe
+  qbwc_config_status view, qbwc_sessions (sync history), and
+  customers.quickbooks_list_id.
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
   `salesforce-sync/`, `salesforce-disconnect/` — the Salesforce
   integration's server-side half (see "Salesforce" below).
+- `supabase/functions/qbwc-soap/` — the QuickBooks Web Connector SOAP
+  endpoint (see "QuickBooks Desktop" below).
 - `electron/main.cjs` — desktop window shell.
 
 ### Storefront / rack scanning model
@@ -299,6 +320,49 @@ gets a flat `permission denied`, while the status view returns fine.
 Setup requires creating a Salesforce Connected App yourself (step 8 above)
 — there's no way around that part, it's how Salesforce OAuth works for any
 third-party app.
+
+### QuickBooks Desktop
+
+QuickBooks *Desktop* (unlike QuickBooks Online) has no REST/OAuth API at
+all — the only integration path is **Web Connector (QBWC)**, a small app
+QuickBooks ships that periodically polls a SOAP web service described by a
+`.qwc` config file. The Integrations page generates that file and lets you
+set the shared username/password Web Connector authenticates with; the
+actual SOAP endpoint (`supabase/functions/qbwc-soap`) implements QBWC's
+fixed interface (`authenticate` → repeated `sendRequestXML`/
+`receiveResponseXML` → `closeConnection`) by hand, since no SOAP toolkit
+exists for Deno — this protocol has been stable for years, so that's a
+reasonable trade.
+
+Each run pulls **Customers** from QuickBooks via a `CustomerQueryRq`,
+matched on QuickBooks' own `ListID` (stored as
+`customers.quickbooks_list_id`) so re-running updates instead of
+duplicating. Syncing Vendors, Items, Invoices, and Bills the same direction
+— or pushing WMS data back into QuickBooks — is the natural next step but
+isn't built yet; the SOAP handler's `sendRequestXML`/`receiveResponseXML`
+branches are the place to add it.
+
+Security follows the same shape as the Salesforce integration: the QBWC
+password hash lives in `qbwc_config`, which has RLS enabled with no
+policies granting `authenticated` any access — the client only ever reads
+`qbwc_config_status` (a view exposing the non-secret fields) and calls
+`set_qbwc_password`/`verify_qbwc_password`, two functions that hash/check
+the password without ever exposing it, the latter grantable only to the
+service role. Verified directly: `authenticated` gets `permission denied`
+calling `verify_qbwc_password` or reading `qbwc_config` directly, and can
+read `qbwc_sessions` (sync history) but not write to it.
+
+One thing to know: QuickBooks Web Connector is a Windows-only application,
+so this can't be tested end-to-end without a real Windows machine running
+QuickBooks Desktop — verification here covers the SOAP endpoint's logic,
+the schema, and every access-control boundary, not a live round-trip.
+
+### Exporting to other accounting software
+
+Not on QuickBooks Desktop or Salesforce? Chart of Accounts, Journal
+Entries, Invoices, Bills, and Customers each have an "Export CSV" button —
+a universal format virtually any accounting software (Xero, FreshBooks,
+Wave, QuickBooks Online, etc.) can import directly, no integration needed.
 
 ## v1 scope / known simplifications
 

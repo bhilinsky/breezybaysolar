@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
+import { downloadCsv } from '../lib/csv'
 import type {
   CRMActivity,
   CRMActivityType,
@@ -72,13 +73,28 @@ export default function CustomerCenter() {
     )
   }
 
+  function exportCsv() {
+    downloadCsv('customers.csv', customers, [
+      { key: 'name', label: 'Name' },
+      { key: 'contact_name', label: 'Contact' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'address', label: 'Address' },
+    ])
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1>Customer Center</h1>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + New customer
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" onClick={exportCsv}>
+            Export CSV
+          </button>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            + New customer
+          </button>
+        </div>
       </div>
 
       {loading ? (

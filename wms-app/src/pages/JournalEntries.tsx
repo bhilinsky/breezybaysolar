@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { downloadCsv } from '../lib/csv'
 import type { GLAccount, JournalEntry, JournalEntryLine } from '../types'
 
 interface LineDraft {
@@ -101,13 +102,28 @@ export default function JournalEntries() {
     )
   }
 
+  function exportCsv() {
+    downloadCsv('journal-entries.csv', entries, [
+      { key: 'entry_number', label: 'Entry #' },
+      { key: 'entry_date', label: 'Date' },
+      { key: 'memo', label: 'Memo' },
+      { key: 'reference', label: 'Reference' },
+      { key: 'source', label: 'Source' },
+    ])
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1>Journal entries</h1>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + New entry
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" onClick={exportCsv}>
+            Export CSV
+          </button>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            + New entry
+          </button>
+        </div>
       </div>
       <p className="muted">
         Invoices and bills post entries here automatically when they change status — this is also where you can

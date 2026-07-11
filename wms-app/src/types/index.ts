@@ -127,6 +127,7 @@ export interface Customer {
   address: string | null
   created_at: string
   salesforce_contact_id: string | null
+  quickbooks_list_id: string | null
 }
 
 export type BroadcastStatus = 'draft' | 'sending' | 'sent' | 'failed'
@@ -277,4 +278,23 @@ export interface Opportunity {
   created_by: string | null
   created_at: string
   updated_at: string
+}
+
+export interface QBWCConfigStatus {
+  app_name: string
+  username: string
+  owner_id: string
+  file_id: string
+  configured: boolean
+}
+
+export interface QBWCSession {
+  id: string
+  username: string
+  step: 'customers' | 'done'
+  status: 'active' | 'completed' | 'error'
+  records_synced: number
+  error_message: string | null
+  started_at: string
+  completed_at: string | null
 }

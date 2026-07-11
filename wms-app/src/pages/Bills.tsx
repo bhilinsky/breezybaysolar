@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity, generateNumber } from '../lib/activity'
+import { downloadCsv } from '../lib/csv'
 import type { Bill, BillStatus, PurchaseOrder, Supplier } from '../types'
 
 const emptyForm = { supplier_id: '', purchase_order_id: '', amount: '', due_date: '', notes: '' }
@@ -92,13 +93,33 @@ export default function Bills() {
     void load()
   }
 
+  function exportCsv() {
+    downloadCsv(
+      'bills.csv',
+      bills.map((bill) => ({ ...bill, supplier_name: supplierName(bill.supplier_id) })),
+      [
+        { key: 'bill_number', label: 'Bill #' },
+        { key: 'supplier_name', label: 'Supplier' },
+        { key: 'amount', label: 'Amount' },
+        { key: 'status', label: 'Status' },
+        { key: 'due_date', label: 'Due date' },
+        { key: 'created_at', label: 'Created' },
+      ],
+    )
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1>Bills</h1>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + New bill
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" onClick={exportCsv}>
+            Export CSV
+          </button>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            + New bill
+          </button>
+        </div>
       </div>
 
       {loading ? (

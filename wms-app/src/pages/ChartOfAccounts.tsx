@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
+import { downloadCsv } from '../lib/csv'
 import type { GLAccount, GLAccountType } from '../types'
 
 const typeLabels: Record<GLAccountType, string> = {
@@ -58,13 +59,33 @@ export default function ChartOfAccounts() {
     void load()
   }
 
+  function exportCsv() {
+    downloadCsv(
+      'chart-of-accounts.csv',
+      accounts.map((a) => ({ ...a, type: typeLabels[a.type] })),
+      [
+        { key: 'code', label: 'Code' },
+        { key: 'name', label: 'Name' },
+        { key: 'type', label: 'Type' },
+        { key: 'normal_balance', label: 'Normal balance' },
+        { key: 'role', label: 'Role' },
+        { key: 'is_active', label: 'Active' },
+      ],
+    )
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1>Chart of accounts</h1>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + New account
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" onClick={exportCsv}>
+            Export CSV
+          </button>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            + New account
+          </button>
+        </div>
       </div>
       <p className="muted">
         Cash, AR, AP, Sales Revenue and Operating Expenses are pre-set so invoices and bills post themselves
