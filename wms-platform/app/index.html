@@ -8169,7 +8169,7 @@ function importQBXML(inp){
         const name=c.querySelector('FullName')?.textContent||'';
         if(name&&!users.find(u=>u.name===name&&u.role==='customer')){
           const newId='U'+String(Date.now()).slice(-6)+custAdded;
-          users.push({id:newId,name,email:'',pass:'pass123',role:'customer',company:c.querySelector('CompanyName')?.textContent||name,ini:name.slice(0,2).toUpperCase(),tier:'Silver',cLimit:25000,taxEx:false,phone:c.querySelector('Phone')?.textContent||'',addr:c.querySelector('Addr1')?.textContent||''});
+          users.push({id:newId,name,email:'',pass:'pass123',role:'customer',source:'quickbooks',company:c.querySelector('CompanyName')?.textContent||name,ini:name.slice(0,2).toUpperCase(),tier:'Silver',cLimit:25000,taxEx:false,phone:c.querySelector('Phone')?.textContent||'',addr:c.querySelector('Addr1')?.textContent||''});
           custAdded++;
         }
       });
@@ -15754,7 +15754,7 @@ function parseQBXMLDoc(doc,fname){
     const city=getText(ba,'City');const state=getText(ba,'State');const zip=getText(ba,'PostalCode');
     users.push({id:'U'+Date.now()+Math.random().toString(36).slice(2,5),
       name:getText(el,'Contact')||name,company:name,
-      email:getText(el,'Email')||'',pass:'pass123',role:'customer',
+      email:getText(el,'Email')||'',pass:'pass123',role:'customer',source:'quickbooks',
       ini:name.slice(0,2).toUpperCase(),tier:'Silver',
       cLimit:parseFloat(getText(el,'CreditLimit'))||25000,
       taxEx:getText(el,'IsTaxable')==='false',
@@ -17634,6 +17634,10 @@ window._qbImportData = function(data) {
     console.error('[QB Import] Error processing', type, e);
   }
 
+  if (type === 'customers' || type === 'vendors') {
+    try { _syncQBToCRM(); } catch(e) { console.warn('CRM sync failed', e); }
+  }
+
   // Update sync state
   const state = window._qbSyncState;
   state.counts[type] = (state.counts[type] || 0) + count;
@@ -18087,36 +18091,97 @@ window._qbsSaveSettings = async function(mdiEl) {
   alert('Settings saved. The QBWC server will restart on port ' + port + ' if changed.');
 };
 
+// ── QB → CRM SYNC ─────────────────────────────────────────────────────────────
+function _syncQBToCRM(){
+  let added=0,updated=0;
+  users.filter(u=>u.role==='customer'&&u.source==='quickbooks').forEach(u=>{
+    const existing=crmContacts.find(c=>
+      (u.qbId&&c.qbId===u.qbId)||
+      (c.name&&u.name&&c.name.toLowerCase()===u.name.toLowerCase())||
+      (c.company&&u.company&&c.company.toLowerCase()===u.company.toLowerCase())
+    );
+    if(!existing){
+      crmContacts.push({
+        id:'CRM'+String(crmContactSeq++).padStart(4,'0'),
+        name:u.name||u.company||'',company:u.company||'',
+        email:u.email||'',phone:u.phone||'',
+        stage:'Customer',source:'quickbooks',
+        qbId:u.qbId||null,userId:u.id,
+        notes:u.notes||'',balance:u.balance||0,
+      });
+      added++;
+    } else {
+      existing.name=u.name||existing.name;
+      existing.company=u.company||existing.company;
+      existing.email=u.email||existing.email;
+      existing.phone=u.phone||existing.phone;
+      existing.qbId=u.qbId||existing.qbId;
+      existing.balance=u.balance!==undefined?u.balance:existing.balance;
+      existing.source='quickbooks';
+      updated++;
+    }
+  });
+  if(added||updated){
+    persist();
+    const crmWin=document.getElementById('mdi-crm');
+    if(crmWin&&crmWin.style.display!=='none')showAdm('crm');
+  }
+  return{added,updated};
+}
+
 // ══ CRM MODULE ════════════════════════════════════════════════════════════════
 function rCRM(){
-  const el=mdiContentEl('crm');if(!el)return;
+  const el=_acEl('crm');if(!el)return;
   const stages=['New Lead','Contacted','Qualified','Proposal','Won','Lost'];
   const stageColor={
     'New Lead':'#4a90d9','Contacted':'#7b68ee','Qualified':'#f59e0b',
-    'Proposal':'#10b981','Won':'#22c55e','Lost':'#ef4444'
+    'Proposal':'#10b981','Won':'#22c55e','Lost':'#ef4444','Customer':'#10b981'
   };
 
-  window._crmDel=function(id){crmContacts=crmContacts.filter(x=>x.id!==id);crmDeals=crmDeals.filter(x=>x.contactId!==id);crmActivities=crmActivities.filter(x=>x.contactId!==id);persist();showAdm('crm');};
+  const qbContacts=crmContacts.filter(c=>c.source==='quickbooks').length;
+  const qbCustomers=users.filter(u=>u.role==='customer'&&u.source==='quickbooks').length;
+
+  // QB-primary banner shown at top of every tab
+  const qbBanner=`<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:20px">💼</span>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:12px;color:#1e40af">QuickBooks is your primary data source</div>
+      <div style="font-size:11px;color:#3b82f6;margin-top:2px">${qbCustomers} QB customers · ${qbContacts} synced to CRM · Contact details are managed in QuickBooks and flow in automatically on each sync</div>
+    </div>
+    <button onclick="window._crmQBSync()" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">↻ Sync from QB</button>
+    <button onclick="showAdm('qbs')" style="background:#fff;color:#2563eb;border:1px solid #bfdbfe;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">Open QB Sync</button>
+  </div>`;
+
+  window._crmQBSync=function(){
+    const r=_syncQBToCRM();
+    alert('QB Sync complete — '+r.added+' new, '+r.updated+' updated.');
+    showAdm('crm');
+  };
+
+  function deleteCRMContact(id){crmContacts=crmContacts.filter(x=>x.id!==id);crmDeals=crmDeals.filter(x=>x.contactId!==id);crmActivities=crmActivities.filter(x=>x.contactId!==id);persist();}
 
   function renderContacts(){
     const q=(document.getElementById('crm-q')||{}).value||'';
     const rows=crmContacts.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q.toLowerCase()));
-    return `<div style="display:flex;gap:8px;margin-bottom:10px">
+    return `${qbBanner}
+    <div style="display:flex;gap:8px;margin-bottom:10px">
       <input id="crm-q" placeholder="Search contacts…" value="${q}" oninput="showAdm('crm')" style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid #ccc;font-size:13px">
       <button onclick="crmContactForm(null)" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px">+ Add Contact</button>
     </div>
     <table class="tbl" style="font-size:13px">
-      <thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Stage</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Stage</th><th>Source</th><th>Actions</th></tr></thead>
       <tbody>${rows.length?rows.map(c=>`<tr>
-        <td><b>${c.name||''}</b></td><td>${c.company||''}</td>
+        <td><b>${c.name||''}</b></td>
+        <td>${c.company||''}</td>
         <td><a href="mailto:${c.email||''}">${c.email||''}</a></td>
         <td>${c.phone||''}</td>
         <td><span style="background:${stageColor[c.stage]||'#888'};color:#fff;border-radius:10px;padding:2px 8px;font-size:11px">${c.stage||'New Lead'}</span></td>
+        <td>${c.source==='quickbooks'?'<span style="background:#dbeafe;color:#1d4ed8;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600">💼 QB</span>':'<span style="font-size:10px;color:#888">Manual</span>'}</td>
         <td style="white-space:nowrap">
-          <button onclick="crmContactForm('${c.id}')" style="background:#4a90d9;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;margin-right:4px">Edit</button>
-          <button onclick="if(confirm('Delete ${(c.name||'').replace(/'/g,"\\'")}?')){window._crmDel&&_crmDel('${c.id}')}" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px">Del</button>
+          <button onclick="crmContactForm('${c.id}')" style="background:#4a90d9;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;margin-right:4px">${c.source==='quickbooks'?'Notes/Stage':'Edit'}</button>
+          ${c.source!=='quickbooks'?`<button onclick="if(confirm('Delete?')){window._crmDel&&_crmDel('${c.id}')}" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px">Del</button>`:''}
         </td>
-      </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No contacts yet</td></tr>'}</tbody>
+      </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:#888;padding:20px">No contacts yet — sync from QB or add manually</td></tr>'}</tbody>
     </table>`;
   }
 
@@ -18135,22 +18200,21 @@ function rCRM(){
         <button onclick="crmDealForm(null,'${s}')" style="width:100%;background:transparent;border:1px dashed #ccc;border-radius:6px;padding:4px;cursor:pointer;font-size:11px;color:#888;margin-top:4px">+ Add Deal</button>
       </div>`;
     }).join('');
-    return `<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px">${cols}</div>`;
+    return `${qbBanner}<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px">${cols}</div>`;
   }
 
   function renderActivities(){
     const sorted=[...crmActivities].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,50);
     const typeIcon={call:'📞',email:'📧',meeting:'🤝',note:'📝'};
-    return `<div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    return `${qbBanner}
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
       <button onclick="crmActivityForm(null)" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px">+ Log Activity</button>
     </div>
     <table class="tbl" style="font-size:13px">
       <thead><tr><th>Date</th><th>Type</th><th>Contact</th><th>Notes</th></tr></thead>
       <tbody>${sorted.length?sorted.map(a=>{const c=crmContacts.find(x=>x.id===a.contactId)||{};return`<tr>
-        <td>${a.date||''}</td>
-        <td>${typeIcon[a.type]||'📌'} ${a.type||''}</td>
-        <td>${c.name||a.company||''}</td>
-        <td>${a.notes||''}</td>
+        <td>${a.date||''}</td><td>${typeIcon[a.type]||'📌'} ${a.type||''}</td>
+        <td>${c.name||a.company||''}</td><td>${a.notes||''}</td>
       </tr>`}).join(''):'<tr><td colspan="4" style="text-align:center;color:#888;padding:20px">No activities yet</td></tr>'}</tbody>
     </table>`;
   }
@@ -18158,30 +18222,61 @@ function rCRM(){
   function renderDashboard(){
     const pipeline=crmDeals.filter(d=>!['Won','Lost'].includes(d.stage)).reduce((a,d)=>a+(+d.value||0),0);
     const wonVal=crmDeals.filter(d=>d.stage==='Won').reduce((a,d)=>a+(+d.value||0),0);
+    const qbAR=arInvoices.filter(i=>i.source==='quickbooks'&&i.status==='open').reduce((a,i)=>a+(i.total||0)-(i.paid||0),0);
     const cards=[
-      {label:'Contacts',val:crmContacts.length,color:'#4a90d9'},
-      {label:'Open Deals',val:crmDeals.filter(d=>!['Won','Lost'].includes(d.stage)).length,color:'#7b68ee'},
-      {label:'Pipeline Value',val:'$'+pipeline.toLocaleString(),color:'#f59e0b'},
-      {label:'Won (Total)',val:'$'+wonVal.toLocaleString(),color:'#22c55e'},
+      {label:'Total Contacts',val:crmContacts.length,color:'#4a90d9'},
+      {label:'From QuickBooks',val:qbContacts,color:'#1d4ed8'},
+      {label:'Open Pipeline',val:'$'+pipeline.toLocaleString(),color:'#f59e0b'},
+      {label:'QB Open A/R',val:'$'+qbAR.toLocaleString(),color:'#dc2626'},
     ];
-    return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px">
+
+    // Migration readiness checklist
+    const checks=[
+      {label:'QB customers imported to CRM',done:qbContacts>0},
+      {label:'A/R invoices synced from QB',done:arInvoices.some(i=>i.source==='quickbooks')},
+      {label:'Inventory synced from QB',done:items.some(i=>i.source==='quickbooks')},
+      {label:'CRM pipeline set up (deals entered)',done:crmDeals.length>0},
+      {label:'Activities logged in CRM',done:crmActivities.length>0},
+      {label:'Integrations configured (ShipRush/CRM)',done:!!(orgSettings.integrations&&Object.values(orgSettings.integrations).some(v=>v&&Object.values(v).some(x=>x)))},
+    ];
+    const doneCount=checks.filter(c=>c.done).length;
+
+    return `${qbBanner}
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px">
       ${cards.map(c=>`<div style="background:${c.color};color:#fff;border-radius:10px;padding:16px 14px;text-align:center"><div style="font-size:24px;font-weight:700">${c.val}</div><div style="font-size:12px;opacity:0.85;margin-top:4px">${c.label}</div></div>`).join('')}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
       <div style="background:#f8fafc;border-radius:8px;padding:14px">
         <div style="font-weight:600;margin-bottom:8px;font-size:13px">Recent Activities</div>
-        ${crmActivities.slice(-5).reverse().map(a=>{const typeIcon={call:'📞',email:'📧',meeting:'🤝',note:'📝'};const c=crmContacts.find(x=>x.id===a.contactId)||{};return`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #e2e8f0">${typeIcon[a.type]||'📌'} <b>${c.name||''}</b> — ${a.notes||''} <span style="color:#888;float:right">${a.date||''}</span></div>`}).join('')||'<div style="color:#888;font-size:12px">No activities</div>'}
+        ${crmActivities.slice(-5).reverse().map(a=>{const ti={call:'📞',email:'📧',meeting:'🤝',note:'📝'};const c=crmContacts.find(x=>x.id===a.contactId)||{};return`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #e2e8f0">${ti[a.type]||'📌'} <b>${c.name||''}</b> — ${a.notes||''} <span style="color:#888;float:right">${a.date||''}</span></div>`}).join('')||'<div style="color:#888;font-size:12px">No activities logged yet</div>'}
       </div>
       <div style="background:#f8fafc;border-radius:8px;padding:14px">
         <div style="font-weight:600;margin-bottom:8px;font-size:13px">Deal Stage Summary</div>
-        ${stages.map(s=>{const c=crmDeals.filter(d=>d.stage===s).length;return`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:${stageColor[s]}">${s}</span><span>${c} deal${c!==1?'s':''}</span></div>`}).join('')}
+        ${stages.map(s=>{const n=crmDeals.filter(d=>d.stage===s).length;return`<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0"><span style="color:${stageColor[s]||'#888'}">${s}</span><span>${n} deal${n!==1?'s':''}</span></div>`}).join('')}
       </div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-weight:600;font-size:13px;color:#15803d">Migration Readiness — ${doneCount}/${checks.length} complete</div>
+        <div style="font-size:11px;color:#16a34a">${Math.round(doneCount/checks.length*100)}%</div>
+      </div>
+      <div style="background:#e2e8f0;border-radius:4px;height:6px;margin-bottom:12px"><div style="background:#22c55e;height:6px;border-radius:4px;width:${Math.round(doneCount/checks.length*100)}%"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        ${checks.map(c=>`<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:${c.done?'#15803d':'#64748b'}">
+          <span style="font-size:13px">${c.done?'✅':'⬜'}</span> ${c.label}
+        </div>`).join('')}
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#64748b;font-style:italic">Goal: Complete all 6 checkpoints before switching QuickBooks to write mode.</div>
     </div>`;
   }
 
+  window._crmDel=function(id){deleteCRMContact(id);showAdm('crm');};
+
   const tabs=[
-    {id:'dash',label:'Dashboard'},{id:'contacts',label:'Contacts'},
-    {id:'pipeline',label:'Pipeline'},{id:'activities',label:'Activities'},
+    {id:'dash',label:'Dashboard',icon:'ti-dashboard'},
+    {id:'contacts',label:'Contacts',icon:'ti-users'},
+    {id:'pipeline',label:'Pipeline',icon:'ti-sitemap'},
+    {id:'activities',label:'Activities',icon:'ti-calendar'},
   ];
   let activeTab=el.dataset.crmTab||'dash';
 
@@ -18192,9 +18287,10 @@ function rCRM(){
     else if(activeTab==='pipeline') body=renderPipeline();
     else if(activeTab==='activities') body=renderActivities();
     el.innerHTML=`<div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e2e8f0">
-      ${tabs.map(t=>`<button onclick="window._crmTab('${t.id}')" style="border:none;background:none;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:${activeTab===t.id?'#2563eb':'#666'};border-bottom:${activeTab===t.id?'2px solid #2563eb':'2px solid transparent'};margin-bottom:-2px">${t.label}</button>`).join('')}
+      ${tabs.map(t=>`<button onclick="window._crmTab('${t.id}')" style="border:none;background:none;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:${activeTab===t.id?'#2563eb':'#666'};border-bottom:${activeTab===t.id?'2px solid #2563eb':'2px solid transparent'};margin-bottom:-2px"><i class="ti ${t.icon}" style="margin-right:4px"></i>${t.label}</button>`).join('')}
     </div><div id="crm-body">${body}</div>`;
   }
+
   window._crmTab=function(t){activeTab=t;el.dataset.crmTab=t;renderAll();};
   renderAll();
 }
