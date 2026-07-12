@@ -1,7 +1,7 @@
 {
   "name": "breezyworks",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "BreezyWorks - inventory, receiving and order management",
   "type": "module",
   "main": "electron/main.cjs",
@@ -18,10 +18,22 @@
   "build": {
     "appId": "com.breezybaysolar.breezyworks",
     "productName": "BreezyWorks",
-    "files": ["dist/**/*", "electron/**/*"],
-    "directories": { "output": "release" },
-    "win": { "target": "nsis", "icon": "public/icon-512.png" },
-    "mac": { "target": "dmg", "icon": "public/icon-512.png", "category": "public.app-category.business" },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon-512.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon-512.png",
+      "category": "public.app-category.business"
+    },
     "linux": {
       "target": "AppImage",
       "icon": "public/icon-512.png",
@@ -32,6 +44,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "@zxing/browser": "^0.1.5",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.18.0"

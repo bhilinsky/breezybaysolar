@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity, generateNumber } from '../lib/activity'
+import { downloadPurchaseOrderPdf } from '../lib/pdf'
+import { useBusinessProfile } from '../hooks/useBusinessProfile'
 import type { Item, Location, PurchaseOrder, PurchaseOrderItem, Supplier } from '../types'
 
 export default function Receiving() {
@@ -177,6 +179,7 @@ function PurchaseOrderDetail({
   onBack: () => void
   onChanged: () => Promise<void>
 }) {
+  const { businessProfile } = useBusinessProfile()
   const [lines, setLines] = useState<PurchaseOrderItem[]>([])
   const [loading, setLoading] = useState(true)
   const [newItemId, setNewItemId] = useState('')
@@ -274,6 +277,20 @@ function PurchaseOrderDetail({
       <div className="page-header">
         <h1>{order.po_number}</h1>
         <span className={`badge badge-${order.status}`}>{order.status}</span>
+        <button
+          className="btn-secondary"
+          onClick={() =>
+            void downloadPurchaseOrderPdf(
+              order,
+              suppliers.find((s) => s.id === order.supplier_id) ?? null,
+              lines,
+              items,
+              businessProfile?.business_name ?? null,
+            )
+          }
+        >
+          Download PDF
+        </button>
       </div>
       <p className="muted">Supplier: {suppliers.find((s) => s.id === order.supplier_id)?.name ?? '—'}</p>
 

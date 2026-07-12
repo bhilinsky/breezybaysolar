@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { logActivity } from '../lib/activity'
+import { downloadXlsx, parseXlsxRows } from '../lib/xlsx'
 import type { Category, Item } from '../types'
 
 const emptyForm = {
@@ -25,6 +26,12 @@ export default function Items() {
   const [form, setForm] = useState(emptyForm)
   const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  const [showImport, setShowImport] = useState(false)
+  const [importHeaders, setImportHeaders] = useState<string[]>([])
+  const [importRows, setImportRows] = useState<string[][]>([])
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -104,6 +111,103 @@ export default function Items() {
     void load()
   }
 
+  function exportXlsx() {
+    void downloadXlsx('items.xlsx', items, [
+      { key: 'sku', label: 'SKU' },
+      { key: 'name', label: 'Name' },
+      { key: 'description', label: 'Description' },
+      { key: 'unit', label: 'Unit' },
+      { key: 'reorder_point', label: 'Reorder point' },
+      { key: 'default_cost', label: 'Default cost' },
+      { key: 'barcode', label: 'Barcode' },
+    ])
+  }
+
+  async function handleImportFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const rows = await parseXlsxRows(file)
+    if (rows.length < 2) {
+      setImportError('That file has no data rows.')
+      return
+    }
+    const [hdr, ...dataRows] = rows
+    setImportHeaders(hdr)
+    setImportRows(dataRows)
+    setImportError(null)
+    setShowImport(true)
+    e.target.value = ''
+  }
+
+  const importPreview = useMemo(() => {
+    const findCol = (patterns: RegExp[]) => {
+      for (const re of patterns) {
+        const idx = importHeaders.findIndex((h) => re.test(h))
+        if (idx >= 0) return idx
+      }
+      return -1
+    }
+    const skuIdx = findCol([/^sku$/i, /sku/i])
+    const nameIdx = findCol([/^name$/i, /name/i])
+    const categoryIdx = findCol([/categor/i])
+    const unitIdx = findCol([/unit/i])
+    const reorderIdx = findCol([/reorder/i])
+    const costIdx = findCol([/cost/i, /price/i])
+    const barcodeIdx = findCol([/barcode/i])
+
+    return importRows
+      .map((r) => ({
+        sku: skuIdx >= 0 ? (r[skuIdx] ?? '').trim() : '',
+        name: nameIdx >= 0 ? (r[nameIdx] ?? '').trim() : '',
+        category: categoryIdx >= 0 ? (r[categoryIdx] ?? '').trim() : '',
+        unit: unitIdx >= 0 ? (r[unitIdx] ?? '').trim() || 'each' : 'each',
+        reorder_point: reorderIdx >= 0 ? Number(r[reorderIdx]) || 0 : 0,
+        default_cost: costIdx >= 0 && r[costIdx] ? Number(r[costIdx].replace(/[$,]/g, '')) : null,
+        barcode: barcodeIdx >= 0 ? (r[barcodeIdx] ?? '').trim() || null : null,
+      }))
+      .filter((r) => r.sku && r.name)
+  }, [importRows, importHeaders])
+
+  async function confirmImport() {
+    setImporting(true)
+    setImportError(null)
+
+    const categoryNames = [...new Set(importPreview.map((r) => r.category).filter(Boolean))]
+    const categoryIdByName = new Map(categories.map((c) => [c.name.toLowerCase(), c.id]))
+    const missingNames = categoryNames.filter((n) => !categoryIdByName.has(n.toLowerCase()))
+    if (missingNames.length > 0) {
+      const { data: created, error: catError } = await supabase
+        .from('categories')
+        .insert(missingNames.map((name) => ({ name })))
+        .select('id, name')
+      if (catError) {
+        setImporting(false)
+        return setImportError(catError.message)
+      }
+      for (const c of created ?? []) categoryIdByName.set(c.name.toLowerCase(), c.id)
+    }
+
+    const payload = importPreview.map((r) => ({
+      sku: r.sku,
+      name: r.name,
+      category_id: r.category ? (categoryIdByName.get(r.category.toLowerCase()) ?? null) : null,
+      unit: r.unit,
+      reorder_point: r.reorder_point,
+      default_cost: r.default_cost,
+      barcode: r.barcode,
+    }))
+
+    const { error: upsertError } = await supabase.from('items').upsert(payload, { onConflict: 'sku' })
+    setImporting(false)
+    if (upsertError) return setImportError(upsertError.message)
+
+    await logActivity('imported', 'items', null, { count: payload.length })
+    setShowImport(false)
+    setImportRows([])
+    setImportHeaders([])
+    void load()
+  }
+
   const filtered = items.filter((item) => {
     const q = search.toLowerCase()
     return item.sku.toLowerCase().includes(q) || item.name.toLowerCase().includes(q)
@@ -113,9 +217,24 @@ export default function Items() {
     <div>
       <div className="page-header">
         <h1>Items</h1>
-        <button className="btn-primary" onClick={startCreate}>
-          + New item
-        </button>
+        <div className="row-actions">
+          <button className="btn-secondary" onClick={exportXlsx}>
+            Export Excel
+          </button>
+          <button className="btn-secondary" onClick={() => document.getElementById('items-xlsx-input')?.click()}>
+            Import Excel
+          </button>
+          <input
+            id="items-xlsx-input"
+            type="file"
+            accept=".xlsx"
+            style={{ display: 'none' }}
+            onChange={(e) => void handleImportFile(e)}
+          />
+          <button className="btn-primary" onClick={startCreate}>
+            + New item
+          </button>
+        </div>
       </div>
 
       <input
@@ -259,6 +378,82 @@ export default function Items() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {showImport && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowImport(false)
+            setImportRows([])
+            setImportHeaders([])
+          }}
+        >
+          <div className="modal-card" style={{ width: 640 }} onClick={(e) => e.stopPropagation()}>
+            <h2>Import items</h2>
+            <p className="muted">
+              Columns are matched automatically by header name (SKU, Name, Category, Unit, Reorder point, Cost,
+              Barcode). Existing items are matched and updated by SKU; anything new is created. New categories are
+              created automatically if they don't already exist.
+            </p>
+
+            <p className="muted">
+              {importPreview.length} of {importRows.length} row{importRows.length === 1 ? '' : 's'} ready to import
+              {importRows.length - importPreview.length > 0
+                ? ` (${importRows.length - importPreview.length} skipped — missing SKU or name)`
+                : ''}
+              .
+            </p>
+
+            {importPreview.length > 0 && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {importPreview.slice(0, 8).map((r, i) => (
+                    <tr key={i}>
+                      <td>{r.sku}</td>
+                      <td>{r.name}</td>
+                      <td>{r.category || '—'}</td>
+                      <td>{r.default_cost != null ? r.default_cost.toFixed(2) : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {importPreview.length > 8 && <p className="muted">…and {importPreview.length - 8} more.</p>}
+
+            {importError && <p className="error-text">{importError}</p>}
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setShowImport(false)
+                  setImportRows([])
+                  setImportHeaders([])
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={importPreview.length === 0 || importing}
+                onClick={confirmImport}
+              >
+                {importing ? 'Importing…' : `Import ${importPreview.length} item${importPreview.length === 1 ? '' : 's'}`}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
