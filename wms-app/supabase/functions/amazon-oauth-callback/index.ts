@@ -8,7 +8,7 @@
 //   supabase secrets set AMAZON_LWA_CLIENT_ID=... AMAZON_LWA_CLIENT_SECRET=... \
 //     AMAZON_REDIRECT_URI=https://<project-ref>.supabase.co/functions/v1/amazon-oauth-callback \
 //     AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER \
-//     WMS_APP_URL=https://your-deployed-app.example.com
+//     BREEZYWORKS_APP_URL=https://your-deployed-app.example.com
 // (AMAZON_MARKETPLACE_ID defaults below to the US marketplace — see
 // Amazon's marketplace ID reference for other countries.)
 
@@ -18,7 +18,7 @@ const LWA_CLIENT_ID = Deno.env.get('AMAZON_LWA_CLIENT_ID')
 const LWA_CLIENT_SECRET = Deno.env.get('AMAZON_LWA_CLIENT_SECRET')
 const REDIRECT_URI = Deno.env.get('AMAZON_REDIRECT_URI')
 const MARKETPLACE_ID = Deno.env.get('AMAZON_MARKETPLACE_ID') || 'ATVPDKIKX0DER'
-const APP_URL = Deno.env.get('WMS_APP_URL') || '/'
+const APP_URL = Deno.env.get('BREEZYWORKS_APP_URL') || '/'
 
 function redirectTo(path: string) {
   return new Response(null, { status: 302, headers: { Location: `${APP_URL}${path}` } })

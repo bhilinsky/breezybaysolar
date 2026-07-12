@@ -9,7 +9,7 @@
 
 create table qbwc_config (
   id boolean primary key default true check (id),
-  app_name text not null default 'WMS QuickBooks Sync',
+  app_name text not null default 'BreezyWorks QuickBooks Sync',
   username text not null default 'wms',
   password_hash text,
   owner_id uuid not null default gen_random_uuid(),

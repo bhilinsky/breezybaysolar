@@ -1,11 +1,11 @@
 {
-  "name": "wms-app",
+  "name": "breezyworks",
   "private": true,
-  "version": "0.0.2",
-  "description": "WMS - inventory, receiving and order management",
+  "version": "0.0.3",
+  "description": "BreezyWorks - inventory, receiving and order management",
   "type": "module",
   "main": "electron/main.cjs",
-  "desktopName": "wms.desktop",
+  "desktopName": "breezyworks.desktop",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -16,8 +16,8 @@
     "dist": "npm run build && electron-builder"
   },
   "build": {
-    "appId": "com.example.wms",
-    "productName": "WMS",
+    "appId": "com.breezybaysolar.breezyworks",
+    "productName": "BreezyWorks",
     "files": ["dist/**/*", "electron/**/*"],
     "directories": { "output": "release" },
     "win": { "target": "nsis", "icon": "public/icon-512.png" },

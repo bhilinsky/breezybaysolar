@@ -58,10 +58,10 @@ export default function Layout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">WM</span>
+          <span className="brand-mark">BW</span>
           <div>
             <div className="brand-name">{businessProfile?.business_name || 'Your Business'}</div>
-            <div className="brand-sub">WMS</div>
+            <div className="brand-sub">BreezyWorks</div>
           </div>
         </div>
         <nav className="nav-links-vertical">

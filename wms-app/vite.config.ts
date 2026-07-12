@@ -13,8 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'WMS',
-        short_name: 'WMS',
+        name: 'BreezyWorks',
+        short_name: 'BreezyWorks',
         description: 'Warehouse and storefront management',
         theme_color: '#0c0f08',
         background_color: '#0c0f08',

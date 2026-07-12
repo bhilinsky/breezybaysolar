@@ -31,9 +31,9 @@ export default function Login() {
     <div className="auth-screen">
       <form className="auth-card" onSubmit={handleSubmit}>
         <div className="brand auth-brand">
-          <span className="brand-mark">WM</span>
+          <span className="brand-mark">BW</span>
           <div>
-            <div className="brand-name">WMS</div>
+            <div className="brand-name">BreezyWorks</div>
             <div className="brand-sub">Warehouse &amp; storefront</div>
           </div>
         </div>

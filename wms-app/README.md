@@ -1,4 +1,4 @@
-# WMS
+# BreezyWorks
 
 A warehouse management system: track items, stock levels by location, receive
 purchase orders into inventory, and fulfill outgoing orders. It also doubles
@@ -79,7 +79,7 @@ necessarily the cloud one — pick whichever fits your network:
         SALESFORCE_CLIENT_SECRET=your_consumer_secret \
         SALESFORCE_LOGIN_URL=https://login.salesforce.com \
         SALESFORCE_REDIRECT_URI=https://<project-ref>.supabase.co/functions/v1/salesforce-oauth-callback \
-        WMS_APP_URL=https://your-deployed-app.example.com
+        BREEZYWORKS_APP_URL=https://your-deployed-app.example.com
       ```
       (`SALESFORCE_LOGIN_URL` is `https://test.salesforce.com` for a sandbox
       org instead of production.)
@@ -98,7 +98,8 @@ necessarily the cloud one — pick whichever fits your network:
       download the generated `.qwc` file.
    3. In QuickBooks Desktop: File → App Management → Update Web Services,
       add the `.qwc` file, enter the same password when prompted.
-   4. Run it from Web Connector — it pulls QuickBooks customers into WMS,
+   4. Run it from Web Connector — it pulls QuickBooks customers into
+      BreezyWorks,
       matched on QuickBooks' internal ListID so re-running updates rather
       than duplicates.
 10. (Optional) To sell on **Amazon Marketplace** (see "Amazon Marketplace"
@@ -116,7 +117,7 @@ necessarily the cloud one — pick whichever fits your network:
          AMAZON_LWA_CLIENT_SECRET=your_lwa_client_secret \
          AMAZON_REDIRECT_URI=https://<project-ref>.supabase.co/functions/v1/amazon-oauth-callback \
          AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER \
-         WMS_APP_URL=https://your-deployed-app.example.com
+         BREEZYWORKS_APP_URL=https://your-deployed-app.example.com
        ```
        (`AMAZON_MARKETPLACE_ID` defaults to the US marketplace — see
        Amazon's marketplace ID reference for other countries.)
@@ -458,7 +459,7 @@ Each run pulls **Customers** from QuickBooks via a `CustomerQueryRq`,
 matched on QuickBooks' own `ListID` (stored as
 `customers.quickbooks_list_id`) so re-running updates instead of
 duplicating. Syncing Vendors, Items, Invoices, and Bills the same direction
-— or pushing WMS data back into QuickBooks — is the natural next step but
+— or pushing BreezyWorks data back into QuickBooks — is the natural next step but
 isn't built yet; the SOAP handler's `sendRequestXML`/`receiveResponseXML`
 branches are the place to add it.
 

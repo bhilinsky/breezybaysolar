@@ -198,7 +198,7 @@ function QuickBooksSection() {
 <AppName>${qbwcStatus.app_name}</AppName>
 <AppID></AppID>
 <AppURL>${QBWC_SOAP_URL}</AppURL>
-<AppDescription>Syncs QuickBooks customers into WMS</AppDescription>
+<AppDescription>Syncs QuickBooks customers into BreezyWorks</AppDescription>
 <AppSupport>${SUPABASE_URL}</AppSupport>
 <UserName>${qbwcStatus.username}</UserName>
 <OwnerID>{${qbwcStatus.owner_id}}</OwnerID>
