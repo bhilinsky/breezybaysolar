@@ -32,7 +32,8 @@ necessarily the cloud one — pick whichever fits your network:
    `0005_accounting.sql`, `0006_general_ledger.sql`, `0007_salesforce.sql`,
    `0008_crm.sql`, `0009_quickbooks_desktop.sql`, `0010_partner_api.sql`,
    `0011_amazon.sql`, `0012_company_profile.sql`, `0013_crm_tasks.sql`,
-   `0014_payroll.sql`, then `0015_bank_import.sql` from this repo.
+   `0014_payroll.sql`, `0015_bank_import.sql`, then `0016_jobs.sql` from
+   this repo.
    Together they create all tables, the low-stock view, and row-level
    security policies (any signed-in user has full access — this app is
    single-tenant per Supabase project).
@@ -222,16 +223,18 @@ white-labeled by whoever installs it. Two layers of branding:
 
 ## Project structure
 
-- `src/pages/` — Dashboard, Accounting (financial reporting), Chart of
-  Accounts, Journal Entries, Reports (full report center — see below),
-  Items, Categories, Inventory, Locations, Storefront (display-case view),
-  Containers (racks/trays), Scan to move, Receiving (purchase orders),
-  Orders (sales orders), Invoices, Suppliers, Bills, Customer Center
-  (contacts + activity timeline + pipeline + follow-up tasks), Employees
-  (employee/1099 contractor records), Pay Runs (payroll), Broadcasts
-  (customer outreach), Integrations (Salesforce, QuickBooks Desktop, Amazon
-  Marketplace, Partner Data API), Onboarding (first-run business-type
-  picker + current tools/services).
+- `src/pages/` — Dashboard, Jobs (service/contractor work hub), Accounting
+  (financial reporting), Chart of Accounts, Journal Entries, Bank
+  Transactions (CSV import + categorization), Reports (full report
+  center — see below), Items, Categories, Inventory, Locations, Storefront
+  (display-case view), Containers (racks/trays), Scan to move, Receiving
+  (purchase orders), Orders (sales orders), Invoices, Suppliers, Bills,
+  Customer Center (contacts + activity timeline + pipeline + follow-up
+  tasks), Employees (employee/1099 contractor records), Pay Runs
+  (payroll), Broadcasts (customer outreach), Integrations (Salesforce,
+  QuickBooks Desktop, Amazon Marketplace, Partner Data API), Settings
+  (edit business profile after onboarding), Onboarding (first-run
+  business-type picker + current tools/services).
 - `src/lib/supabase.ts` — Supabase client.
 - `src/context/AuthContext.tsx` — auth/session state.
 - `src/hooks/useBusinessProfile.ts` — the one-row business profile set
@@ -274,6 +277,8 @@ white-labeled by whoever installs it. Two layers of branding:
   to the GL when a pay run is posted.
 - `supabase/migrations/0015_bank_import.sql` — bank_transactions, for
   CSV-imported bank activity awaiting categorization against the GL.
+- `supabase/migrations/0016_jobs.sql` — jobs and job_materials, the core
+  hub for service/contractor work (install, repair, maintenance calls).
 - `supabase/functions/send-broadcast/` — Edge Function that actually sends
   a broadcast via Resend.
 - `supabase/functions/salesforce-oauth-callback/`,
@@ -381,6 +386,25 @@ one-line hint pointing you at the Salesforce connection. The rest
 (`business_profile.crm_tools`, `.shipping_services`, `.approx_employees`,
 `.has_1099_contractors`) is just stored for later — a natural spot to hang
 future shipping-carrier integrations or CRM-specific import tools off of.
+
+None of these answers are locked in after onboarding — the **Settings**
+page lets you revisit any of them later. This matters most for
+`needs_warehouse`/`needs_bin_locations`: a contractor who starts out with
+no warehouse tracking (just jobs and customers) can turn it on the moment
+a job actually calls for tracked stock, without losing any data already
+entered.
+
+### Jobs
+
+The core hub for service/contractor work — install, repair, maintenance,
+and consultation calls. Each job tracks a customer, site address, job
+type, a status pipeline (new → quoted → scheduled → in progress →
+completed, or cancelled at any point), and a materials list that draws
+from the same Items used everywhere else in the app, with an "ordered"
+flag per line. This is the foundation more job-specific features (quotes,
+change orders, time tracking, jobsite photos, real job-costing reports)
+build on top of — see "v1 scope / known simplifications" below for what's
+not built yet.
 
 ### Payroll
 
@@ -555,3 +579,12 @@ Wave, QuickBooks Online, etc.) can import directly, no integration needed.
 - The business-type picker only relabels a couple of nav items today; it
   doesn't yet gate features or wire up outside platforms (Shopify, Amazon,
   etc.) — that integration layer is a deliberately separate follow-up.
+- Jobs is the core hub only — quotes, change orders, time tracking, and
+  jobsite photos (each tied to a job) aren't built yet, so there's no
+  quote-to-job conversion or job-costing report tying revenue and cost
+  back to a specific job. Planned as follow-up additions on top of the
+  `jobs` table already in place.
+- Bank Transactions is a CSV import, not a live bank feed — there's no
+  ongoing automatic sync to your bank. A true auto-sync feed would need a
+  bank-data aggregator (Plaid), which needs its own developer account and
+  has per-connection costs, so it's a deliberate separate step.

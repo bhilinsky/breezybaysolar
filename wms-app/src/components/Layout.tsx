@@ -25,6 +25,7 @@ export default function Layout() {
 
   const links = [
     { to: '/', label: 'Dashboard' },
+    { to: '/jobs', label: 'Jobs' },
     { to: '/accounting', label: 'Accounting' },
     { to: '/items', label: 'Items' },
     { to: '/categories', label: 'Categories' },

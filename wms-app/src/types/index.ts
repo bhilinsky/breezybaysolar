@@ -391,6 +391,33 @@ export interface PayRunLine {
   notes: string | null
 }
 
+export type JobType = 'general' | 'installation' | 'repair' | 'maintenance' | 'consultation'
+export type JobStatus = 'new' | 'quoted' | 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+
+export interface Job {
+  id: string
+  job_number: string
+  customer_id: string | null
+  site_address: string | null
+  job_type: JobType
+  status: JobStatus
+  start_date: string | null
+  target_end_date: string | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface JobMaterial {
+  id: string
+  job_id: string
+  item_id: string
+  quantity: number
+  ordered: boolean
+  notes: string | null
+}
+
 export type BankTransactionStatus = 'unreviewed' | 'categorized' | 'ignored'
 
 export interface BankTransaction {

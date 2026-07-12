@@ -29,6 +29,7 @@ import Employees from './pages/Employees'
 import PayRuns from './pages/PayRuns'
 import BankTransactions from './pages/BankTransactions'
 import Settings from './pages/Settings'
+import Jobs from './pages/Jobs'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
@@ -90,6 +91,7 @@ function AppRoutes() {
         <Route path="pay-runs" element={<PayRuns />} />
         <Route path="bank-transactions" element={<BankTransactions />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="jobs" element={<Jobs />} />
       </Route>
     </Routes>
   )
