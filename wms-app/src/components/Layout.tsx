@@ -51,6 +51,7 @@ export default function Layout() {
     { to: '/pay-runs', label: 'Pay Runs' },
     { to: '/reports', label: 'Reports' },
     { to: '/integrations', label: 'Integrations' },
+    { to: '/settings', label: 'Settings' },
   ]
 
   return (
